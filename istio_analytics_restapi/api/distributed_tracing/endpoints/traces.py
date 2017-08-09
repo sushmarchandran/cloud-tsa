@@ -1,0 +1,62 @@
+'''
+REST resource for operations related to distributed-tracing analytics 
+'''
+import logging
+log = logging.getLogger(__name__)
+
+import os
+import json
+from flask import request
+from flask_restplus import Resource
+
+from istio_analytics_restapi.api.restplus import api
+from istio_analytics_restapi.api.restplus import build_http_error
+from istio_analytics_restapi.api import constants
+from istio_analytics_restapi.zipkin.zipkin_client import ZipkinClient
+
+import istio_analytics_restapi.api.distributed_tracing.request_parameters as request_parameters
+import istio_analytics_restapi.util.time_util
+
+distributed_tracing_namespace = api.namespace('distributed_tracing/traces', 
+                                              description='Analytics on distributed-tracing data')
+
+zipkin_client = ZipkinClient(os.getenv(constants.ISTIO_ANALYTICS_ZIPKIN_HOST_ENV))
+
+@distributed_tracing_namespace.route('/')
+class Traces(Resource):
+    
+    @api.expect(request_parameters.trace_summary_body_parameters, validate=True)
+    def post(self):
+        '''Retrieves a summary of all traces given a time interval'''
+        log.info('Processing request to get a summary of traces')
+        request_body = request.json
+        
+        # Start time is a required parameter
+        start_time = request_body[request_parameters.START_TIME_PARAM_STR]
+        start_time_milli = istio_analytics_restapi.util.time_util.iso8601_to_milliseconds_epoch(start_time)
+        
+        # If end time is not given, default to current time
+        if request_parameters.END_TIME_PARAM_STR in request_body:
+            end_time = request_body[request_parameters.END_TIME_PARAM_STR]               
+            end_time_milli = istio_analytics_restapi.util.time_util.iso8601_to_milliseconds_epoch(end_time)
+        else:
+            end_time_milli = istio_analytics_restapi.util.time_util.current_milliseconds_epoch_time()
+        
+        # If max is not given, default to 100
+        max_traces = (request_body[request_parameters.MAX_TRACES_PARAM_STR]
+                      if request_parameters.MAX_TRACES_PARAM_STR in request_body
+                      else 100)
+        
+        log.debug(u'Parameters: start_time = {0}; end_time = {1}; max = {2}'.
+                  format(start_time_milli, end_time_milli, max_traces))
+        
+        # Call Zipkin
+        traces_or_error_msg, http_code = \
+            zipkin_client.get_traces(start_time_milli, end_time_milli, max_traces=max_traces)
+        log.info('Finished processing request to get a summary of traces')
+        if http_code == 200:
+            ret_val = json.loads(traces_or_error_msg)
+        else:
+            log.warn(traces_or_error_msg)
+            ret_val = build_http_error(traces_or_error_msg, http_code)
+        return ret_val
