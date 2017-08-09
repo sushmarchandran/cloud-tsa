@@ -1,7 +1,9 @@
 # restapi_server
-The REST API server of the Istio Analytics service
+
+This is the REST API server of the Istio Analytics service.
 
 ## Environment variables
+
 The following environment variables control the behavior of the Istio Analytics service:
 
 * `ISTIO_ANALYTICS_SERVER_PORT`: the port on which the API server will listen. Default: 5555.
