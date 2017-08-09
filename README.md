@@ -11,3 +11,11 @@ The following environment variables control the behavior of the Istio Analytics 
 * `ISTIO_ANALYTICS_DEBUG`: If set to 1 or `true`, the service will run in debug mode. Default: `false`.
 
 * `ISTIO_ANALYTICS_ZIPKIN_HOST`: URL to the Zipkin service containing tracing data. Setting this variable is required for the service to run. If Zipkin is running locally on its default port, set this variable to `http://localhost:9411`.
+
+## Swagger UI
+
+The interactive Swagger documentation for the REST API is available at:
+
+```
+http://<host>:<port>/api/
+```
