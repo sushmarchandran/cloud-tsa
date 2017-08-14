@@ -29,21 +29,49 @@ ZIPKIN_CR_ANNOTATION = 'cr'
 ZIPKIN_SS_ANNOTATION = 'ss'
 ZIPKIN_SR_ANNOTATION = 'sr'
 
-def get_binary_annotation_value(zipkin_span, key):
-    '''Given a Zipkin span, gets the value of the binary annotation matching the 
-    provided key
+def build_binary_annotation_dict(zipkin_span):
+    '''Given a Zipkin span, creates a dictionary for all of its binary annotations
     
     @param zipkin_span (dictionary): A Zipkin span
-    @param key (string): Key identifying a binary annotation
     
-    @rtype: string
-    @return: Value of a binary annotation or empty string if no key is found
+    @rtype: dictionary
+    @return: Dictionary with all binary annotations of the span
     '''
+    binary_ann_dict = {}
     for binary_annotation in zipkin_span[ZIPKIN_BINARY_ANNOTATIONS_STR]:
-        if binary_annotation[ZIPKIN_BINARY_ANNOTATIONS_KEY_STR] == key:
-            return  binary_annotation[ZIPKIN_BINARY_ANNOTATIONS_VALUE_STR]
+        binary_ann_dict[binary_annotation[ZIPKIN_BINARY_ANNOTATIONS_KEY_STR]] = \
+            binary_annotation[ZIPKIN_BINARY_ANNOTATIONS_VALUE_STR]
+    return binary_ann_dict
+
+def get_binary_annotation_value(binary_annotation_dic, key):
+    '''Gets the value a binary annotation identified by the given key
     
-    return ''
+    @param binary_annotation_dic (dictionary): A dictionary with a span's binary annotations
+    @param key (string): A binary-annotation key
+
+    @rtype: string
+    @return: The value of a binary annotation, if present in the dictionary
+             Empty string if the binary annotation is not present in the dictionary
+    '''
+    if key in binary_annotation_dic:
+        return binary_annotation_dic[key]
+    else:
+        return ''
+
+def has_sr_annotation(zipkin_span):
+    '''Checks if the given Zipkin span contains an SR (Server Receive) annotation
+
+     @param zipkin_span (dictionary): A Zipkin span
+
+     @rtype: bool
+     @return: True of the span contains the SR annotation;
+              False otherwise
+    '''
+    annotations = zipkin_span[ZIPKIN_ANNOTATIONS_STR]
+    for annotation in annotations:
+        if annotation[ZIPKIN_ANNOTATIONS_VALUE_STR] == ZIPKIN_SR_ANNOTATION:
+            return True
+    return False
 
 def zipkin_trace_list_to_istio_analytics_trace_list(zipkin_trace_list, zipkin_host):
     '''Converts a list of traces as returned by Zipkin into the format 
@@ -75,6 +103,7 @@ def zipkin_trace_list_to_istio_analytics_trace_list(zipkin_trace_list, zipkin_ho
         
         # Process each span of the current trace
         for zipkin_span in zipkin_trace:
+            bin_ann_dict = build_binary_annotation_dict(zipkin_span)
             istio_analytics_span = {}
             annotations = zipkin_span[ZIPKIN_ANNOTATIONS_STR]
             # Process each regular annotation of the span
@@ -92,7 +121,8 @@ def zipkin_trace_list_to_istio_analytics_trace_list(zipkin_trace_list, zipkin_ho
                     # Set the source name
                     if ip_address not in ip_to_name_lookup_table:
                         # This is the root span of the trace
-                        node_id = get_binary_annotation_value(zipkin_span, BINARY_ANNOTATION_NODE_ID_STR) 
+                        node_id = get_binary_annotation_value(bin_ann_dict,
+                                                              BINARY_ANNOTATION_NODE_ID_STR)
                         ip_to_name_lookup_table[ip_address] = node_id
                     istio_analytics_span[constants.SOURCE_NAME_STR] = \
                         ip_to_name_lookup_table[ip_address]
@@ -111,25 +141,32 @@ def zipkin_trace_list_to_istio_analytics_trace_list(zipkin_trace_list, zipkin_ho
                 # Set the CS/CR/SS/SR timestamps
                 istio_analytics_span[annotation[ZIPKIN_ANNOTATIONS_VALUE_STR]] = \
                     annotation[ZIPKIN_ANNOTATIONS_TIMESTAMP_STR]
+
+            if not has_sr_annotation(zipkin_span):
+                # The span does not have an SR annotation.
+                # Thus, no target IP address info is available, but we can still get a
+                # target service name.
+                istio_analytics_span[constants.TARGET_NAME_STR] = \
+                    zipkin_span[ZIPKIN_NAME_STR].split(':')[0]
                     
             istio_analytics_span[constants.RESPONSE_SIZE_STR] = \
-                get_binary_annotation_value(zipkin_span, 
+                get_binary_annotation_value(bin_ann_dict,
                                             BINARY_ANNOTATION_RESPONSE_SIZE_STR)
             istio_analytics_span[constants.RESPONSE_CODE_STR] = \
-                get_binary_annotation_value(zipkin_span,
+                get_binary_annotation_value(bin_ann_dict,
                                             BINARY_ANNOTATION_RESPONSE_CODE_STR)
             istio_analytics_span[constants.USER_AGENT_STR] = \
-                get_binary_annotation_value(zipkin_span,
+                get_binary_annotation_value(bin_ann_dict,
                                             BINARY_ANNOTATION_USER_AGENT_STR)
 
             request_info = \
-                get_binary_annotation_value(zipkin_span,
+                get_binary_annotation_value(bin_ann_dict,
                                             BINARY_ANNOTATION_REQUEST_LINE_STR).split(' ')
             istio_analytics_span[constants.REQUEST_URL_STR] = ' '.join(request_info[0:2])
             istio_analytics_span[constants.PROTOCOL_STR] = request_info[2]
             
             istio_analytics_span[constants.REQUEST_SIZE_STR] = \
-                get_binary_annotation_value(zipkin_span,
+                get_binary_annotation_value(bin_ann_dict,
                                             BINARY_ANNOTATION_REQUEST_SIZE_STR)
                 
             istio_analytics_spans.append(istio_analytics_span)
