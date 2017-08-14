@@ -32,7 +32,7 @@ class Traces(Resource):
     @api.marshal_with(responses.trace_list_response)
     def post(self):
         '''Retrieves all traces given a time interval'''
-        log.info('Processing request to get traces')
+        log.info('Started processing request to get traces')
         request_body = request.json
 
         # Start time is a required parameter
