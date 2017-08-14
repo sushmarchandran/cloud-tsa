@@ -64,7 +64,6 @@ class Traces(Resource):
 
         log.info('Finished processing request to get traces')
         if http_code == 200:
-            # ret_val = json.loads(traces_or_error_msg)
             zipkin_host = os.getenv(constants.ISTIO_ANALYTICS_ZIPKIN_HOST_ENV)
             ret_val = \
                 zipkin_util.zipkin_trace_list_to_istio_analytics_trace_list(json.loads(traces_or_error_msg),
