@@ -15,6 +15,9 @@ app = Flask(__name__)
 # Make sure we can serve requests to endpoints with or without trailing slashes
 app.url_map.strict_slashes = False
 
+# Disable Flask-Restplus X-Fields header used for partial object fetching
+app.config['RESTPLUS_MASK_SWAGGER'] = False
+
 @app.after_request
 def modify_headers(response):
     '''Sets the server HTTP header returned to the clients for all requests 
