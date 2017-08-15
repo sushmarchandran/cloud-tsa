@@ -12,6 +12,8 @@ TRACES_STR = 'trace_list'
 SPANS_STR = 'spans'
 
 TRACE_ID_STR = 'trace_id'
+SPAN_ID_STR = 'span_id'
+PARENT_SPAN_ID_STR = 'parent_span_id'
 SOURCE_IP_STR = 'source_ip'
 SOURCE_NAME_STR = 'source_name'
 TARGET_IP_STR = 'target_ip'
@@ -28,6 +30,10 @@ SERVER_RECEIVE_TIMESTAMP_STR = 'sr'
 SERVER_SEND_TIMESTAMP_STR = 'ss'
 
 span_details = api.model('span_details', {
+    SPAN_ID_STR: fields.String(required=True, example='0000820a44d42d65',
+                                 description='The span id (32-bit hex string)'),
+    PARENT_SPAN_ID_STR: fields.String(required=True, example='0000820a44d42d65',
+                                 description='The parent-span id (32-bit hex string)'),
     SOURCE_IP_STR: fields.String(required=True, example='172.30.88.229',
                                  description='The IP address of the microservice that made the call'),
     SOURCE_NAME_STR: fields.String(required=True, example='my_service_1',

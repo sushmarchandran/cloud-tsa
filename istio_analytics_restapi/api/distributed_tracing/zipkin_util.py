@@ -5,6 +5,8 @@ import istio_analytics_restapi.api.distributed_tracing.responses as constants
 
 # Keys used by Zipkin in the JSON containing a list of traces
 ZIPKIN_TRACEID_STR = 'traceId'
+ZIPKIN_SPANID_STR = 'id'
+ZIPKIN_PARENT_SPANID_STR = 'parentId'
 ZIPKIN_NAME_STR = 'name'
 ZIPKIN_ANNOTATIONS_STR = 'annotations'
 ZIPKIN_ANNOTATIONS_VALUE_STR = 'value'
@@ -81,7 +83,7 @@ def zipkin_trace_list_to_istio_analytics_trace_list(zipkin_trace_list, zipkin_ho
     @param zipkin_host (string): URL to the Zipkin server that returned the trace list
     
     @rtype: dictionary
-    @return Traces in a dictionary as specified by POST /distributed_tracing/traces
+    @return List of traces in a dictionary as specified by POST /distributed_tracing/traces
     '''
     ret_val = {
         constants.ZIPKIN_URL_STR: zipkin_host
@@ -168,6 +170,10 @@ def zipkin_trace_list_to_istio_analytics_trace_list(zipkin_trace_list, zipkin_ho
             istio_analytics_span[constants.REQUEST_SIZE_STR] = \
                 get_binary_annotation_value(bin_ann_dict,
                                             BINARY_ANNOTATION_REQUEST_SIZE_STR)
+
+            istio_analytics_span[constants.SPAN_ID_STR] = zipkin_span[ZIPKIN_SPANID_STR]
+            if ZIPKIN_PARENT_SPANID_STR in zipkin_span:
+                istio_analytics_span[constants.PARENT_SPAN_ID_STR] = zipkin_span[ZIPKIN_PARENT_SPANID_STR]
                 
             istio_analytics_spans.append(istio_analytics_span)
             
