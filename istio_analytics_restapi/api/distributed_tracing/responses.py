@@ -32,7 +32,7 @@ SERVER_SEND_TIMESTAMP_STR = 'ss'
 span_details = api.model('span_details', {
     SPAN_ID_STR: fields.String(required=True, example='0000820a44d42d65',
                                  description='The span id (32-bit hex string)'),
-    PARENT_SPAN_ID_STR: fields.String(required=True, example='0000820a44d42d65',
+    PARENT_SPAN_ID_STR: fields.String(required=True, example='0000999a44d42d65',
                                  description='The parent-span id (32-bit hex string)'),
     SOURCE_IP_STR: fields.String(required=True, example='172.30.88.229',
                                  description='The IP address of the microservice that made the call'),
@@ -81,4 +81,81 @@ trace_list_response = api.model('trace_list_response', {
                             description='List of traces. Each trace is represented by a list of spans, '
                             'where each span depicts a call made from one microservice (source) '
                             'to another (target)')                    
+})
+
+####
+# Schema of the list of traces' timelines produced by POST /distributed_tracing/traces/timelines
+####
+TRACES_TIMELINES_STR = 'traces_timelines'
+TIMELINES_STR = 'timelines'
+SERVICE_STR = 'service'
+EVENTS_STR = 'events'
+
+EVENT_TYPE_STR = 'type'
+INTERLOCUTOR_STR = 'interlocutor'
+TIMESTAMP_STR = 'timestamp'
+DURATION_STR = 'duration'
+TIMEOUT_STR = 'timeout'
+
+EVENT_SEND_REQUEST = 'send_request'
+EVENT_SEND_RESPONSE = 'send_response'
+EVENT_PROCESS_REQUEST = 'process_request'
+EVENT_PROCESS_RESPONSE = 'process_response'
+
+event_details = api.model('event_details', {
+    SPAN_ID_STR: fields.String(required=True, example='0000820a44d42d65',
+                                 description='The span id (32-bit hex string)'),
+    PARENT_SPAN_ID_STR: fields.String(required=True, example='0000999a44d42d65',
+                                 description='The parent-span id (32-bit hex string)'),
+    EVENT_TYPE_STR: fields.String(required=True, example='send_request',
+                                  enum=[EVENT_SEND_REQUEST,
+                                        EVENT_SEND_RESPONSE,
+                                        EVENT_PROCESS_REQUEST,
+                                        EVENT_PROCESS_RESPONSE],
+                                  description='The event type'),
+    INTERLOCUTOR_STR: fields.String(required=True, example='catalog',
+                                    description='The other microservice participating in this event'),
+    TIMESTAMP_STR: fields.Integer(required=True, example=1502228258105333,
+                                 description='Timestamp in microsecond epoch time indicating '
+                                 'when the event has started'),
+    DURATION_STR: fields.Integer(required=True, example=1502228258105333,
+                                 description='Duration of the event in microseconds'),
+    REQUEST_URL_STR: fields.String(required=True, example='GET /catalog',
+                                 description='The URL corresponding to the event'),
+    REQUEST_SIZE_STR: fields.Integer(required=True, example=1296, min=0,
+                                 description='The size in bytes of the request related to the event'),
+    PROTOCOL_STR: fields.String(required=True, example='HTTP/1.1',
+                                 description='The protocol used for the request related to the event'),
+    RESPONSE_SIZE_STR: fields.Integer(required=True, example=6743, min=0,
+                                 description='The size in bytes of the response related to the event'),
+    RESPONSE_CODE_STR: fields.Integer(required=True, example=200, min=0,
+                                 description='The response code (e.g., HTTP code) related to the event'),
+    USER_AGENT_STR: fields.String(required=True, example='python-requests/2.11.1',
+                                 description='String representing what code or library was used '
+                                 'to make the request related to the event'),
+    TIMEOUT_STR: fields.Integer(required=True, example=10000000,
+                                description='Timeout (in microseconds) observed for the request related '
+                                'to the event')
+})
+
+timeline_details = api.model('timeline_details', {
+    SERVICE_STR: fields.String(required=True, example='orders',
+                               description='Microservice name'),
+    EVENTS_STR: fields.List(fields.Nested(event_details), required=True)
+})
+
+trace_timelines = api.model('trace_timelines', {
+    TRACE_ID_STR: fields.String(required=True, example='0000820a44d42d65',
+                                description='The trace id (32-bit hex string)'),
+    REQUEST_URL_STR: fields.String(required=True, example='GET /orders',
+                                description="The URL corresponding to the trace's root request"),
+    TIMELINES_STR: fields.List(fields.Nested(timeline_details), required=True)
+})
+
+timelines_response = api.model('timelines_response', {
+    ZIPKIN_URL_STR: fields.String(required=True, example='http://localhost:9411',
+                                  description='URL of the Zipkin service where the tracing data is stored'),
+    TRACES_TIMELINES_STR: fields.List(fields.Nested(trace_timelines), required=True,
+                            description='Timelines of traces. Each trace is represented by one timeline per, '
+                            'microservice, where each timeline is a chronologically-sorted list of events')
 })

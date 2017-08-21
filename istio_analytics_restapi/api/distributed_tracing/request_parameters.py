@@ -21,3 +21,12 @@ trace_list_body_parameters = api.model('trace_list_params', {
     MAX_TRACES_PARAM_STR: fields.Integer(required=False, min=1, example=100,
                             description='Maximum number of traces to retrieve; default=100')
 })
+
+####
+# Schema of the request body with the parameters for POST /distributed_tracing/traces/timelines 
+#
+# Note that this schema inherits from the schema for POST /distributed_tracing/traces/
+####
+timelines_body_parameters = api.inherit('timelines_params',
+                                            trace_list_body_parameters, {
+})
