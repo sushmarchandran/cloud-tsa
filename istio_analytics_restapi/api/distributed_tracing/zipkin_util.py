@@ -436,19 +436,6 @@ def process_cr_annotation(cr_ann, zipkin_span_dict, ip_to_name_lookup_table,
     span_id = cr_ann['span_id']
     zipkin_span = zipkin_span_dict[span_id]['zipkin_span']
 
-#     if not ZIPKIN_PARENT_SPANID_STR in zipkin_span:
-#         # This is the last CR annotation of the trace.
-#         # We need to calculate the duration of the previous event, as it will not
-#         # be calculated by the function zipkin_trace_list_to_timelines().
-#         cr_ann_time = cr_ann['annotation'][ZIPKIN_ANNOTATIONS_TIMESTAMP_STR]
-#         previous_event_duration = (cr_ann_time -
-#                                    previous_event[constants.TIMESTAMP_STR])
-#         previous_event[constants.DURATION_STR] = previous_event_duration
-#         
-#         # The root span should not be associated with a process_response event,
-#         # since nothing else happens afterwards.
-#         return None
-
     ann_dict = zipkin_span_dict[span_id]['annotations']
     bin_ann_dict = zipkin_span_dict[span_id]['binary_annotations']
 
