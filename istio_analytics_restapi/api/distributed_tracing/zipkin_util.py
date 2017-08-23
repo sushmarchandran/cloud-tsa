@@ -2,7 +2,6 @@
 Utility functions to manipulate Zipkin data
 '''
 import istio_analytics_restapi.api.distributed_tracing.responses as constants
-from msilib import AMD64
 
 # Keys used by Zipkin in the JSON containing a list of traces
 ZIPKIN_TRACEID_STR = 'traceId'
