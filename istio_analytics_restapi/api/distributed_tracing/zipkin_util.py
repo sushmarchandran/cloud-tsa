@@ -2,6 +2,7 @@
 Utility functions to manipulate Zipkin data
 '''
 import istio_analytics_restapi.api.distributed_tracing.responses as constants
+from msilib import AMD64
 
 # Keys used by Zipkin in the JSON containing a list of traces
 ZIPKIN_TRACEID_STR = 'traceId'
@@ -254,10 +255,16 @@ def initialize_event(zipkin_span, annotation, bin_ann_dict):
 
     return event
 
-def process_cs_annotation(cs_ann, zipkin_span_dict,
-                          ip_to_name_lookup_table, events_per_service):
+def update_events_per_span(events_per_span, event, span_id, event_type):
+    if not span_id in events_per_span:
+        events_per_span[span_id] = {}
+    events_per_span[span_id][event_type] = event
+
+def process_cs_annotation(cs_ann, zipkin_span_dict, ip_to_name_lookup_table,
+                          events_per_service, events_per_span, previous_event):
     span_id = cs_ann['span_id']
     zipkin_span = zipkin_span_dict[span_id]['zipkin_span']
+    ann_dict = zipkin_span_dict[span_id]['annotations']
     bin_ann_dict = zipkin_span_dict[span_id]['binary_annotations']
 
     ip_address = cs_ann['annotation'][ZIPKIN_ANNOTATIONS_ENDPOINT_STR]\
@@ -287,19 +294,38 @@ def process_cs_annotation(cs_ann, zipkin_span_dict,
     if get_binary_annotation_value(bin_ann_dict,
                                    BINARY_ANNOTATION_RESPONSE_CODE_STR) == '0':
         # This is probably a timeout
-        ann_dict = zipkin_span_dict[span_id]['annotations']
         cr_ann_time = ann_dict[ZIPKIN_CR_ANNOTATION][ZIPKIN_ANNOTATIONS_TIMESTAMP_STR]
         cs_ann_time = cs_ann['annotation'][ZIPKIN_ANNOTATIONS_TIMESTAMP_STR]
         event[constants.TIMEOUT_STR] = cr_ann_time - cs_ann_time
 
+    if ZIPKIN_SR_ANNOTATION in ann_dict:
+        # Set the duration of the new send_request event
+        sr_ann_time = ann_dict[ZIPKIN_SR_ANNOTATION][ZIPKIN_ANNOTATIONS_TIMESTAMP_STR]
+        cs_ann_time = cs_ann['annotation'][ZIPKIN_ANNOTATIONS_TIMESTAMP_STR]
+        event[constants.DURATION_STR] = sr_ann_time - cs_ann_time
+
     # Add the new event to the list of events of the service making the call
     events_per_service[service_name][constants.EVENTS_STR].append(event)
+    update_events_per_span(events_per_span, event, span_id, constants.EVENT_SEND_REQUEST)
+    
+    if previous_event:
+        if (  (previous_event[constants.EVENT_TYPE_STR] == constants.EVENT_PROCESS_REQUEST and
+               previous_event[constants.SPAN_ID_STR] == event[constants.PARENT_SPAN_ID_STR]) or
+              (previous_event[constants.EVENT_TYPE_STR] == constants.EVENT_PROCESS_RESPONSE and
+               previous_event[constants.PARENT_SPAN_ID_STR] == event[constants.PARENT_SPAN_ID_STR])
+           ):
+            # If this event follows either a process_request event of a parent span,
+            #   or a process_response event at the same level,
+            # then set the previous event duration
+            previous_event_duration = (event[constants.TIMESTAMP_STR] -
+                                       previous_event[constants.TIMESTAMP_STR])
+            previous_event[constants.DURATION_STR] = previous_event_duration
 
     # Return the send_request event created here
     return event
 
-def process_sr_annotation(sr_ann, zipkin_span_dict,
-                          ip_to_name_lookup_table, events_per_service):
+def process_sr_annotation(sr_ann, zipkin_span_dict, ip_to_name_lookup_table, 
+                          events_per_service, events_per_span):
     span_id = sr_ann['span_id']
     zipkin_span = zipkin_span_dict[span_id]['zipkin_span']
     ann_dict = zipkin_span_dict[span_id]['annotations']
@@ -307,6 +333,7 @@ def process_sr_annotation(sr_ann, zipkin_span_dict,
 
     ip_address = sr_ann['annotation'][ZIPKIN_ANNOTATIONS_ENDPOINT_STR]\
                        [ZIPKIN_ANNOTATIONS_ENDPOINT_IPV4_STR]
+
     if not ip_address in ip_to_name_lookup_table:
         ip_to_name_lookup_table[ip_address] = zipkin_span[ZIPKIN_NAME_STR].split(':')[0]
 
@@ -330,16 +357,34 @@ def process_sr_annotation(sr_ann, zipkin_span_dict,
 
     # Add the new event to the list of events of the service receiving the call
     events_per_service[service_name][constants.EVENTS_STR].append(event)
+    update_events_per_span(events_per_span, event, span_id, constants.EVENT_PROCESS_REQUEST)
 
     # Return the new process_request event created here
     return event
 
-def process_ss_annotation(ss_ann, zipkin_span_dict,
-                          ip_to_name_lookup_table, events_per_service):
+def process_ss_annotation(ss_ann, zipkin_span_dict, ip_to_name_lookup_table,
+                          events_per_service, events_per_span, previous_event):
     span_id = ss_ann['span_id']
     zipkin_span = zipkin_span_dict[span_id]['zipkin_span']
     ann_dict = zipkin_span_dict[span_id]['annotations']
     bin_ann_dict = zipkin_span_dict[span_id]['binary_annotations']
+
+    if get_binary_annotation_value(bin_ann_dict,
+                                   BINARY_ANNOTATION_RESPONSE_CODE_STR) == '0':
+        # This is probably a timeout
+        if previous_event[constants.SPAN_ID_STR] == span_id:
+            # We need to compute the duration of the process_request event
+            # of this span. This is needed to deal with the case where
+            # the caller of the send_request event times out and the
+            # CR and SS annotations are out of order.
+            sr_ann_time = ann_dict[ZIPKIN_CR_ANNOTATION][ZIPKIN_ANNOTATIONS_TIMESTAMP_STR]
+            ss_ann_time = ss_ann['annotation'][ZIPKIN_ANNOTATIONS_TIMESTAMP_STR]
+            dangling_process_request_duration = ss_ann_time - sr_ann_time
+            events_per_span[span_id][constants.EVENT_PROCESS_REQUEST][constants.DURATION_STR] = \
+                dangling_process_request_duration
+
+        # We do not create a send_response event when the send_request event times out
+        return None
 
     ip_address = ss_ann['annotation'][ZIPKIN_ANNOTATIONS_ENDPOINT_STR]\
                        [ZIPKIN_ANNOTATIONS_ENDPOINT_IPV4_STR]
@@ -355,20 +400,54 @@ def process_ss_annotation(ss_ann, zipkin_span_dict,
                             [ZIPKIN_ANNOTATIONS_ENDPOINT_IPV4_STR]
     event[constants.INTERLOCUTOR_STR] = ip_to_name_lookup_table[cs_ip_address]
 
+    if ZIPKIN_CR_ANNOTATION in ann_dict:
+        # Set the duration of the new send_response event
+        cr_ann_time = ann_dict[ZIPKIN_CR_ANNOTATION][ZIPKIN_ANNOTATIONS_TIMESTAMP_STR]
+        ss_ann_time = ss_ann['annotation'][ZIPKIN_ANNOTATIONS_TIMESTAMP_STR]
+        event[constants.DURATION_STR] = cr_ann_time - ss_ann_time
+
     # Add the new event to the list of events of the service sending the response
     events_per_service[service_name][constants.EVENTS_STR].append(event)
+    update_events_per_span(events_per_span, event, span_id, constants.EVENT_SEND_RESPONSE)
+
+    if previous_event:
+        if (  (previous_event[constants.EVENT_TYPE_STR] == constants.EVENT_PROCESS_REQUEST and
+               previous_event[constants.SPAN_ID_STR] == event[constants.SPAN_ID_STR]) or
+            
+              (previous_event[constants.EVENT_TYPE_STR] == constants.EVENT_PROCESS_RESPONSE and
+               previous_event[constants.PARENT_SPAN_ID_STR] == event[constants.SPAN_ID_STR] and 
+               events_per_span[previous_event[constants.SPAN_ID_STR]]
+                              [constants.EVENT_SEND_REQUEST][constants.TIMESTAMP_STR] >
+               events_per_span[event[constants.SPAN_ID_STR]]
+                              [constants.EVENT_SEND_REQUEST][constants.TIMESTAMP_STR])
+           ):
+            # If this event follows either a process_request event of the same span,
+            #   or a process_response event of a later child span
+            # then set the previous event duration
+            previous_event_duration = (event[constants.TIMESTAMP_STR] -
+                                       previous_event[constants.TIMESTAMP_STR])
+            previous_event[constants.DURATION_STR] = previous_event_duration
 
     # Return the send_response event created here
     return event
 
-def process_cr_annotation(cr_ann, zipkin_span_dict,
-                          ip_to_name_lookup_table, events_per_service):
+def process_cr_annotation(cr_ann, zipkin_span_dict, ip_to_name_lookup_table, 
+                          events_per_service, events_per_span):
     span_id = cr_ann['span_id']
     zipkin_span = zipkin_span_dict[span_id]['zipkin_span']
 
-    if not ZIPKIN_PARENT_SPANID_STR in zipkin_span:
-        # The root span should not be associated with a process_response event
-        return None
+#     if not ZIPKIN_PARENT_SPANID_STR in zipkin_span:
+#         # This is the last CR annotation of the trace.
+#         # We need to calculate the duration of the previous event, as it will not
+#         # be calculated by the function zipkin_trace_list_to_timelines().
+#         cr_ann_time = cr_ann['annotation'][ZIPKIN_ANNOTATIONS_TIMESTAMP_STR]
+#         previous_event_duration = (cr_ann_time -
+#                                    previous_event[constants.TIMESTAMP_STR])
+#         previous_event[constants.DURATION_STR] = previous_event_duration
+#         
+#         # The root span should not be associated with a process_response event,
+#         # since nothing else happens afterwards.
+#         return None
 
     ann_dict = zipkin_span_dict[span_id]['annotations']
     bin_ann_dict = zipkin_span_dict[span_id]['binary_annotations']
@@ -393,9 +472,21 @@ def process_cr_annotation(cr_ann, zipkin_span_dict,
 
     # Add the new event to the list of events of the service receiving the response
     events_per_service[service_name][constants.EVENTS_STR].append(event)
+    update_events_per_span(events_per_span, event, span_id, constants.EVENT_PROCESS_RESPONSE)
 
     # Return the new process_response event created here
     return event
+
+def clean_up_timelines(timeline_list):
+    # Remove all process_response events with no duration
+    # These events correspond to either the last event of the root span
+    # or the last events of dangling spans
+    for timeline in timeline_list:
+        new_event_list = [e for e in timeline[constants.EVENTS_STR] 
+                            if not (e[constants.EVENT_TYPE_STR] == constants.EVENT_PROCESS_RESPONSE and
+                                    not constants.DURATION_STR in e)
+                         ]
+        timeline[constants.EVENTS_STR] = new_event_list
 
 def zipkin_trace_list_to_timelines(zipkin_trace_list):
     '''Converts a list of traces as returned by Zipkin into timelines
@@ -420,8 +511,13 @@ def zipkin_trace_list_to_timelines(zipkin_trace_list):
         # Sort all annotations of the trace globally
         zipkin_span_dict, sorted_annotations = global_sort_annotations(zipkin_trace)
 
-        # Events per service; the keys of this dictionary are service names
+        # Events per service; the keys of this dictionary are service names;
+        # each value contains a service name and an array of events
         events_per_service = {}
+        
+        # Events per span; the outter keys of this dictionary are span ids,
+        # the inner keys are event types, and the actual values are events
+        events_per_span = {}
 
         # Lookup table that associates IP addresses to names of microservices
         ip_to_name_lookup_table = {}
@@ -433,35 +529,35 @@ def zipkin_trace_list_to_timelines(zipkin_trace_list):
                          [ZIPKIN_ANNOTATIONS_VALUE_STR] == ZIPKIN_CS_ANNOTATION:
                 current_event = process_cs_annotation(annotation, zipkin_span_dict,
                                                       ip_to_name_lookup_table,
-                                                      events_per_service)
+                                                      events_per_service,
+                                                      events_per_span, previous_event)
             elif annotation['annotation']\
                            [ZIPKIN_ANNOTATIONS_VALUE_STR] == ZIPKIN_SR_ANNOTATION:
                 current_event = process_sr_annotation(annotation, zipkin_span_dict,
                                                       ip_to_name_lookup_table,
-                                                      events_per_service)
+                                                      events_per_service, events_per_span)
             elif annotation['annotation']\
                            [ZIPKIN_ANNOTATIONS_VALUE_STR] == ZIPKIN_SS_ANNOTATION:
                 current_event = process_ss_annotation(annotation, zipkin_span_dict,
-                                                      ip_to_name_lookup_table,
-                                                      events_per_service)
+                                                      ip_to_name_lookup_table, 
+                                                      events_per_service, 
+                                                      events_per_span, previous_event)
             elif annotation['annotation']\
                            [ZIPKIN_ANNOTATIONS_VALUE_STR] == ZIPKIN_CR_ANNOTATION:
                 current_event = process_cr_annotation(annotation,  zipkin_span_dict,
                                                       ip_to_name_lookup_table,
-                                                      events_per_service)
-            # Note that current_event is None if this is the last CR annotation of the trace
-            # because it must not lead to the creation of a process_response event
-            if current_event and previous_event:
-                # Set the duration of the previous event
-                # This will not be done for the trace's first and last annotations
-                # The first CS annotation has no previous event
-                # The last CR annotation does not result in a process_response event
-                previous_event_duration = (current_event[constants.TIMESTAMP_STR] -
-                                           previous_event[constants.TIMESTAMP_STR])
-                previous_event[constants.DURATION_STR] = previous_event_duration
-            previous_event = current_event
-
-        trace_timelines[constants.TIMELINES_STR] = list(events_per_service.values())
+                                                      events_per_service, events_per_span)
+            # Note that current_event can be None if this is an SS annotation 
+            # in a span with a timeout.
+            # In this case, because a send_request event has timed out, we
+            # should not create a send_response event.
+            if current_event:
+                previous_event = current_event
+        
+        timeline_list = list(events_per_service.values())
+        clean_up_timelines(timeline_list)
+        
+        trace_timelines[constants.TIMELINES_STR] = timeline_list 
         ret_val.append(trace_timelines)
 
     return ret_val
