@@ -1,6 +1,9 @@
 '''
 Utility functions to manipulate Zipkin data
 '''
+import logging
+log = logging.getLogger(__name__)
+
 import istio_analytics_restapi.api.distributed_tracing.responses as constants
 
 # Keys used by Zipkin in the JSON containing a list of traces
