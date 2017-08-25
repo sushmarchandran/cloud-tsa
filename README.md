@@ -25,3 +25,5 @@ The REST API is fully documented there.
 ## Test cases and code coverage
 
 The script `run_tests.sh` runs all test cases and produces a detailed code-coverage report that can be inspected by opening the HTML file `code_coverage/index.html` in your browser. The directory `code_coverage` is populated as part of the `run_tests.sh` script.
+
+Make sure to run the script `run_tests.sh` from inside the development VM that can be provisioned using vagrant. See the development-environment git repository [here](https://github.ibm.com/istio-analytics/dev_env).
