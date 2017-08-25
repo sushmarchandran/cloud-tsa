@@ -1,0 +1,483 @@
+[
+    [
+        {
+            "annotations": [
+                {
+                    "endpoint": {
+                        "ipv4": "172.30.88.221",
+                        "serviceName": "istio-proxy"
+                    },
+                    "timestamp": 1502228547975325,
+                    "value": "cs"
+                },
+                {
+                    "endpoint": {
+                        "ipv4": "172.30.88.229",
+                        "serviceName": "istio-proxy"
+                    },
+                    "timestamp": 1502228547975700,
+                    "value": "sr"
+                },
+                {
+                    "endpoint": {
+                        "ipv4": "172.30.88.229",
+                        "serviceName": "istio-proxy"
+                    },
+                    "timestamp": 1502228553226353,
+                    "value": "ss"
+                },
+                {
+                    "endpoint": {
+                        "ipv4": "172.30.88.221",
+                        "serviceName": "istio-proxy"
+                    },
+                    "timestamp": 1502228553226729,
+                    "value": "cr"
+                }
+            ],
+            "binaryAnnotations": [
+                {
+                    "key": "downstream_cluster",
+                    "value": "-"
+                },
+                {
+                    "key": "guid:x-request-id",
+                    "value": "f7a5c62d-7a8d-9d76-82e2-f93e7d5056ae"
+                },
+                {
+                    "key": "host_header",
+                    "value": "169.51.9.146:31422"
+                },
+                {
+                    "key": "node_id",
+                    "value": "ingress"
+                },
+                {
+                    "key": "request_line",
+                    "value": "GET /productpage HTTP/1.1"
+                },
+                {
+                    "key": "request_size",
+                    "value": "0"
+                },
+                {
+                    "key": "response_code",
+                    "value": "200"
+                },
+                {
+                    "key": "response_flags",
+                    "value": "-"
+                },
+                {
+                    "key": "response_size",
+                    "value": "3815"
+                },
+                {
+                    "key": "user_agent",
+                    "value": "curl/7.47.0"
+                }
+            ],
+            "duration": 5251306,
+            "id": "00008f3647e9739e",
+            "name": "169.51.9.146:31422",
+            "timestamp": 1502228547975325,
+            "traceId": "00008f3647e9739e"
+        },
+        {
+            "annotations": [
+                {
+                    "endpoint": {
+                        "ipv4": "172.30.88.229",
+                        "serviceName": "istio-proxy"
+                    },
+                    "timestamp": 1502228547985175,
+                    "value": "cs"
+                },
+                {
+                    "endpoint": {
+                        "ipv4": "172.30.88.224",
+                        "serviceName": "istio-proxy"
+                    },
+                    "timestamp": 1502228548037580,
+                    "value": "sr"
+                },
+                {
+                    "endpoint": {
+                        "ipv4": "172.30.88.224",
+                        "serviceName": "istio-proxy"
+                    },
+                    "timestamp": 1502228548045446,
+                    "value": "ss"
+                },
+                {
+                    "endpoint": {
+                        "ipv4": "172.30.88.229",
+                        "serviceName": "istio-proxy"
+                    },
+                    "timestamp": 1502228548097852,
+                    "value": "cr"
+                }
+            ],
+            "binaryAnnotations": [
+                {
+                    "key": "downstream_cluster",
+                    "value": "-"
+                },
+                {
+                    "key": "guid:x-request-id",
+                    "value": "f7a5c62d-7a8d-9d76-82e2-f93e7d5056ae"
+                },
+                {
+                    "key": "host_header",
+                    "value": "details:9080"
+                },
+                {
+                    "key": "node_id",
+                    "value": "172.30.88.229"
+                },
+                {
+                    "key": "request_line",
+                    "value": "GET /details HTTP/1.1"
+                },
+                {
+                    "key": "request_size",
+                    "value": "0"
+                },
+                {
+                    "key": "response_code",
+                    "value": "200"
+                },
+                {
+                    "key": "response_flags",
+                    "value": "DI"
+                },
+                {
+                    "key": "response_size",
+                    "value": "213"
+                },
+                {
+                    "key": "user_agent",
+                    "value": "python-requests/2.11.1"
+                }
+            ],
+            "duration": 112552,
+            "id": "0000ca048cd78b95",
+            "name": "details:9080",
+            "parentId": "00008f3647e9739e",
+            "timestamp": 1502228547985175,
+            "traceId": "00008f3647e9739e"
+        },
+        {
+            "annotations": [
+                {
+                    "endpoint": {
+                        "ipv4": "172.30.88.229",
+                        "serviceName": "istio-proxy"
+                    },
+                    "timestamp": 1502228548101776,
+                    "value": "cs"
+                },
+                {
+                    "endpoint": {
+                        "ipv4": "172.30.88.228",
+                        "serviceName": "istio-proxy"
+                    },
+                    "timestamp": 1502228548102276,
+                    "value": "sr"
+                },
+                {
+                    "endpoint": {
+                        "ipv4": "172.30.88.228",
+                        "serviceName": "istio-proxy"
+                    },
+                    "timestamp": 1502228550636693,
+                    "value": "ss"
+                },
+                {
+                    "endpoint": {
+                        "ipv4": "172.30.88.229",
+                        "serviceName": "istio-proxy"
+                    },
+                    "timestamp": 1502228550637194,
+                    "value": "cr"
+                }
+            ],
+            "binaryAnnotations": [
+                {
+                    "key": "downstream_cluster",
+                    "value": "-"
+                },
+                {
+                    "key": "error",
+                    "value": "true"
+                },
+                {
+                    "key": "guid:x-request-id",
+                    "value": "f7a5c62d-7a8d-9d76-82e2-f93e7d5056ae"
+                },
+                {
+                    "key": "host_header",
+                    "value": "reviews:9080"
+                },
+                {
+                    "key": "node_id",
+                    "value": "172.30.88.229"
+                },
+                {
+                    "key": "request_line",
+                    "value": "GET /reviews HTTP/1.1"
+                },
+                {
+                    "key": "request_size",
+                    "value": "0"
+                },
+                {
+                    "key": "response_code",
+                    "value": "500"
+                },
+                {
+                    "key": "response_flags",
+                    "value": "-"
+                },
+                {
+                    "key": "response_size",
+                    "value": "4540"
+                },
+                {
+                    "key": "user_agent",
+                    "value": "python-requests/2.11.1"
+                }
+            ],
+            "duration": 2535285,
+            "id": "00005e046e5df08d",
+            "name": "reviews:9080",
+            "parentId": "00008f3647e9739e",
+            "timestamp": 1502228548101776,
+            "traceId": "00008f3647e9739e"
+        },
+        {
+            "annotations": [
+                {
+                    "endpoint": {
+                        "ipv4": "172.30.88.229",
+                        "serviceName": "istio-proxy"
+                    },
+                    "timestamp": 1502228550651466,
+                    "value": "cs"
+                },
+                {
+                    "endpoint": {
+                        "ipv4": "172.30.88.228",
+                        "serviceName": "istio-proxy"
+                    },
+                    "timestamp": 1502228550661187,
+                    "value": "sr"
+                },
+                {
+                    "endpoint": {
+                        "ipv4": "172.30.88.228",
+                        "serviceName": "istio-proxy"
+                    },
+                    "timestamp": 1502228553213539,
+                    "value": "ss"
+                },
+                {
+                    "endpoint": {
+                        "ipv4": "172.30.88.229",
+                        "serviceName": "istio-proxy"
+                    },
+                    "timestamp": 1502228553223261,
+                    "value": "cr"
+                }
+            ],
+            "binaryAnnotations": [
+                {
+                    "key": "downstream_cluster",
+                    "value": "-"
+                },
+                {
+                    "key": "error",
+                    "value": "true"
+                },
+                {
+                    "key": "guid:x-request-id",
+                    "value": "f7a5c62d-7a8d-9d76-82e2-f93e7d5056ae"
+                },
+                {
+                    "key": "host_header",
+                    "value": "reviews:9080"
+                },
+                {
+                    "key": "node_id",
+                    "value": "172.30.88.229"
+                },
+                {
+                    "key": "request_line",
+                    "value": "GET /reviews HTTP/1.1"
+                },
+                {
+                    "key": "request_size",
+                    "value": "0"
+                },
+                {
+                    "key": "response_code",
+                    "value": "500"
+                },
+                {
+                    "key": "response_flags",
+                    "value": "-"
+                },
+                {
+                    "key": "response_size",
+                    "value": "4540"
+                },
+                {
+                    "key": "user_agent",
+                    "value": "python-requests/2.11.1"
+                }
+            ],
+            "duration": 2571679,
+            "id": "000026ce349811e2",
+            "name": "reviews:9080",
+            "parentId": "00008f3647e9739e",
+            "timestamp": 1502228550651466,
+            "traceId": "00008f3647e9739e"
+        },
+        {
+            "annotations": [
+                {
+                    "endpoint": {
+                        "ipv4": "172.30.88.228",
+                        "serviceName": "istio-proxy"
+                    },
+                    "timestamp": 1502228548114447,
+                    "value": "cs"
+                },
+                {
+                    "endpoint": {
+                        "ipv4": "172.30.88.228",
+                        "serviceName": "istio-proxy"
+                    },
+                    "timestamp": 1502228550619379,
+                    "value": "cr"
+                }
+            ],
+            "binaryAnnotations": [
+                {
+                    "key": "downstream_cluster",
+                    "value": "-"
+                },
+                {
+                    "key": "guid:x-request-id",
+                    "value": "f7a5c62d-7a8d-9d76-82e2-f93e7d5056ae"
+                },
+                {
+                    "key": "host_header",
+                    "value": "ratings:9080"
+                },
+                {
+                    "key": "node_id",
+                    "value": "172.30.88.228"
+                },
+                {
+                    "key": "request_line",
+                    "value": "GET /ratings HTTP/1.1"
+                },
+                {
+                    "key": "request_size",
+                    "value": "0"
+                },
+                {
+                    "key": "response_code",
+                    "value": "0"
+                },
+                {
+                    "key": "response_flags",
+                    "value": "DI"
+                },
+                {
+                    "key": "response_size",
+                    "value": "0"
+                },
+                {
+                    "key": "user_agent",
+                    "value": "Apache CXF 3.0.3"
+                }
+            ],
+            "duration": 2504828,
+            "id": "0000dba501b75d73",
+            "name": "ratings:9080",
+            "parentId": "00005e046e5df08d",
+            "timestamp": 1502228548114447,
+            "traceId": "00008f3647e9739e"
+        },
+        {
+            "annotations": [
+                {
+                    "endpoint": {
+                        "ipv4": "172.30.88.228",
+                        "serviceName": "istio-proxy"
+                    },
+                    "timestamp": 1502228550689434,
+                    "value": "cs"
+                },
+                {
+                    "endpoint": {
+                        "ipv4": "172.30.88.228",
+                        "serviceName": "istio-proxy"
+                    },
+                    "timestamp": 1502228553192732,
+                    "value": "cr"
+                }
+            ],
+            "binaryAnnotations": [
+                {
+                    "key": "downstream_cluster",
+                    "value": "-"
+                },
+                {
+                    "key": "guid:x-request-id",
+                    "value": "f7a5c62d-7a8d-9d76-82e2-f93e7d5056ae"
+                },
+                {
+                    "key": "host_header",
+                    "value": "ratings:9080"
+                },
+                {
+                    "key": "node_id",
+                    "value": "172.30.88.228"
+                },
+                {
+                    "key": "request_line",
+                    "value": "GET /ratings HTTP/1.1"
+                },
+                {
+                    "key": "request_size",
+                    "value": "0"
+                },
+                {
+                    "key": "response_code",
+                    "value": "0"
+                },
+                {
+                    "key": "response_flags",
+                    "value": "DI"
+                },
+                {
+                    "key": "response_size",
+                    "value": "0"
+                },
+                {
+                    "key": "user_agent",
+                    "value": "Apache CXF 3.0.3"
+                }
+            ],
+            "duration": 2503203,
+            "id": "00006308bdb0aa2b",
+            "name": "ratings:9080",
+            "parentId": "000026ce349811e2",
+            "timestamp": 1502228550689434,
+            "traceId": "00008f3647e9739e"
+        }
+    ]
+]

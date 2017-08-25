@@ -1,0 +1,261 @@
+{
+    "zipkin_url": "http://localhost:9411",
+    "traces_timelines": [
+        {
+            "trace_id": "0000820a44d42d65",
+            "request": "GET /productpage",
+            "timelines": [
+                {
+                    "service": "ingress",
+                    "events": [
+                        {
+                            "span_id": "0000820a44d42d65",
+                            "parent_span_id": null,
+                            "type": "send_request",
+                            "interlocutor": "169.51.9.146",
+                            "timestamp": 1502228258105333,
+                            "duration": 356,
+                            "request": "GET /productpage",
+                            "request_size": 0,
+                            "protocol": "HTTP/1.1",
+                            "response_size": 4614,
+                            "response_code": 200,
+                            "user_agent": "curl/7.47.0",
+                            "timeout": null
+                        }
+                    ]
+                },
+                {
+                    "service": "169.51.9.146",
+                    "events": [
+                        {
+                            "span_id": "0000820a44d42d65",
+                            "parent_span_id": null,
+                            "type": "process_request",
+                            "interlocutor": "ingress",
+                            "timestamp": 1502228258105689,
+                            "duration": 9556,
+                            "request": "GET /productpage",
+                            "request_size": 0,
+                            "protocol": "HTTP/1.1",
+                            "response_size": 4614,
+                            "response_code": 200,
+                            "user_agent": "curl/7.47.0",
+                            "timeout": null
+                        },
+                        {
+                            "span_id": "000060cde97316be",
+                            "parent_span_id": "0000820a44d42d65",
+                            "type": "send_request",
+                            "interlocutor": "details",
+                            "timestamp": 1502228258115245,
+                            "duration": 50436,
+                            "request": "GET /details",
+                            "request_size": 0,
+                            "protocol": "HTTP/1.1",
+                            "response_size": 213,
+                            "response_code": 200,
+                            "user_agent": "python-requests/2.11.1",
+                            "timeout": null
+                        },
+                        {
+                            "span_id": "000060cde97316be",
+                            "parent_span_id": "0000820a44d42d65",
+                            "type": "process_response",
+                            "interlocutor": "details",
+                            "timestamp": 1502228258223153,
+                            "duration": 6123,
+                            "request": "GET /details",
+                            "request_size": 0,
+                            "protocol": "HTTP/1.1",
+                            "response_size": 213,
+                            "response_code": 200,
+                            "user_agent": "python-requests/2.11.1",
+                            "timeout": null
+                        },
+                        {
+                            "span_id": "00006967db93eab4",
+                            "parent_span_id": "0000820a44d42d65",
+                            "type": "send_request",
+                            "interlocutor": "reviews",
+                            "timestamp": 1502228258229276,
+                            "duration": 975,
+                            "request": "GET /reviews",
+                            "request_size": 0,
+                            "protocol": "HTTP/1.1",
+                            "response_size": 871,
+                            "response_code": 200,
+                            "user_agent": "python-requests/2.11.1",
+                            "timeout": null
+                        },
+                        {
+                            "span_id": "00006967db93eab4",
+                            "parent_span_id": "0000820a44d42d65",
+                            "type": "process_response",
+                            "interlocutor": "reviews",
+                            "timestamp": 1502228258352748,
+                            "duration": 4906,
+                            "request": "GET /reviews",
+                            "request_size": 0,
+                            "protocol": "HTTP/1.1",
+                            "response_size": 871,
+                            "response_code": 200,
+                            "user_agent": "python-requests/2.11.1",
+                            "timeout": null
+                        },
+                        {
+                            "span_id": "0000820a44d42d65",
+                            "parent_span_id": null,
+                            "type": "send_response",
+                            "interlocutor": "ingress",
+                            "timestamp": 1502228258357654,
+                            "duration": 356,
+                            "request": "GET /productpage",
+                            "request_size": 0,
+                            "protocol": "HTTP/1.1",
+                            "response_size": 4614,
+                            "response_code": 200,
+                            "user_agent": "curl/7.47.0",
+                            "timeout": null
+                        }
+                    ]
+                },
+                {
+                    "service": "details",
+                    "events": [
+                        {
+                            "span_id": "000060cde97316be",
+                            "parent_span_id": "0000820a44d42d65",
+                            "type": "process_request",
+                            "interlocutor": "169.51.9.146",
+                            "timestamp": 1502228258165681,
+                            "duration": 7036,
+                            "request": "GET /details",
+                            "request_size": 0,
+                            "protocol": "HTTP/1.1",
+                            "response_size": 213,
+                            "response_code": 200,
+                            "user_agent": "python-requests/2.11.1",
+                            "timeout": null
+                        },
+                        {
+                            "span_id": "000060cde97316be",
+                            "parent_span_id": "0000820a44d42d65",
+                            "type": "send_response",
+                            "interlocutor": "169.51.9.146",
+                            "timestamp": 1502228258172717,
+                            "duration": 50436,
+                            "request": "GET /details",
+                            "request_size": 0,
+                            "protocol": "HTTP/1.1",
+                            "response_size": 213,
+                            "response_code": 200,
+                            "user_agent": "python-requests/2.11.1",
+                            "timeout": null
+                        }
+                    ]
+                },
+                {
+                    "service": "reviews",
+                    "events": [
+                        {
+                            "span_id": "00006967db93eab4",
+                            "parent_span_id": "0000820a44d42d65",
+                            "type": "process_request",
+                            "interlocutor": "169.51.9.146",
+                            "timestamp": 1502228258230251,
+                            "duration": 9589,
+                            "request": "GET /reviews",
+                            "request_size": 0,
+                            "protocol": "HTTP/1.1",
+                            "response_size": 871,
+                            "response_code": 200,
+                            "user_agent": "python-requests/2.11.1",
+                            "timeout": null
+                        },
+                        {
+                            "span_id": "00004b73bc9c0dab",
+                            "parent_span_id": "00006967db93eab4",
+                            "type": "send_request",
+                            "interlocutor": "ratings",
+                            "timestamp": 1502228258239840,
+                            "duration": 50670,
+                            "request": "GET /ratings",
+                            "request_size": 0,
+                            "protocol": "HTTP/1.1",
+                            "response_size": 29,
+                            "response_code": 200,
+                            "user_agent": "Apache CXF 3.0.3",
+                            "timeout": null
+                        },
+                        {
+                            "span_id": "00004b73bc9c0dab",
+                            "parent_span_id": "00006967db93eab4",
+                            "type": "process_response",
+                            "interlocutor": "ratings",
+                            "timestamp": 1502228258347932,
+                            "duration": 3840,
+                            "request": "GET /ratings",
+                            "request_size": 0,
+                            "protocol": "HTTP/1.1",
+                            "response_size": 29,
+                            "response_code": 200,
+                            "user_agent": "Apache CXF 3.0.3",
+                            "timeout": null
+                        },
+                        {
+                            "span_id": "00006967db93eab4",
+                            "parent_span_id": "0000820a44d42d65",
+                            "type": "send_response",
+                            "interlocutor": "169.51.9.146",
+                            "timestamp": 1502228258351772,
+                            "duration": 976,
+                            "request": "GET /reviews",
+                            "request_size": 0,
+                            "protocol": "HTTP/1.1",
+                            "response_size": 871,
+                            "response_code": 200,
+                            "user_agent": "python-requests/2.11.1",
+                            "timeout": null
+                        }
+                    ]
+                },
+                {
+                    "service": "ratings",
+                    "events": [
+                        {
+                            "span_id": "00004b73bc9c0dab",
+                            "parent_span_id": "00006967db93eab4",
+                            "type": "process_request",
+                            "interlocutor": "reviews",
+                            "timestamp": 1502228258290510,
+                            "duration": 6751,
+                            "request": "GET /ratings",
+                            "request_size": 0,
+                            "protocol": "HTTP/1.1",
+                            "response_size": 29,
+                            "response_code": 200,
+                            "user_agent": "Apache CXF 3.0.3",
+                            "timeout": null
+                        },
+                        {
+                            "span_id": "00004b73bc9c0dab",
+                            "parent_span_id": "00006967db93eab4",
+                            "type": "send_response",
+                            "interlocutor": "reviews",
+                            "timestamp": 1502228258297261,
+                            "duration": 50671,
+                            "request": "GET /ratings",
+                            "request_size": 0,
+                            "protocol": "HTTP/1.1",
+                            "response_size": 29,
+                            "response_code": 200,
+                            "user_agent": "Apache CXF 3.0.3",
+                            "timeout": null
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
