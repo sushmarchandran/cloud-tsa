@@ -19,7 +19,7 @@ class Test(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        '''Set up common to all tests'''
+        '''Setup common to all tests'''
         
         # Initialize the Flask app for testing
         flask_app.app.testing = True
@@ -29,7 +29,7 @@ class Test(unittest.TestCase):
         # Get an internal Flask test client
         cls.flask_test = flask_app.app.test_client()
 
-        # Location of test files with mock Zipkin data
+        # Location of test data files with Zipkin traces
         cls.test_data_directory = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                                '..', '..', '..',  'data', 'zipkin')
         
