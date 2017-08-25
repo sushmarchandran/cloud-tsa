@@ -19,3 +19,9 @@ The interactive Swagger documentation for the REST API is available at:
 ```
 http://<host>:<port>/api/
 ```
+
+The REST API is fully documented there.
+
+## Test cases and code coverage
+
+The script `run_tests.sh` runs all test cases and produces a detailed code-coverage report that can be inspected by opening the HTML file `code_coverage/index.html` in your browser. The directory `code_coverage` is populated as part of the `run_tests.sh` script.
