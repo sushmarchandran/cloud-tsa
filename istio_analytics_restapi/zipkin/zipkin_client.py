@@ -49,8 +49,9 @@ class ZipkinClient:
             response = requests.get(url, params=req_params)
             log.debug(u'Request made to Zipkin: {0}'.format(response.url))
             if response.status_code != 200:
-                msg = u'Error while trying to get traces from Zipkin: {0}'.format(response.text) 
+                msg = u'Error while trying to get traces from Zipkin: {0}'.format(response.text)
                 return msg, 502
+            log.debug(u'Traces received from Zipkin: {0}'.format(response.text))
             return response.text, 200
         except Exception as e:
             msg = u'Error while trying to get traces from Zipkin: {0}'.format(e)

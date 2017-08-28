@@ -1,0 +1,82 @@
+{
+    "zipkin_url": "http://localhost:9411",
+    "trace_list": [
+        {
+            "trace_id": "000064c42af8a393",
+            "spans": [
+                {
+                    "span_id": "000064c42af8a393",
+                    "parent_span_id": null,
+                    "source_ip": "172.30.88.221",
+                    "source_name": "ingress",
+                    "target_ip": "172.30.88.229",
+                    "target_name": "169.51.9.146",
+                    "request": "GET /productpage",
+                    "request_size": 0,
+                    "protocol": "HTTP/1.1",
+                    "response_size": 4618,
+                    "response_code": 200,
+                    "user_agent": "curl/7.47.0",
+                    "cs": 1502228246726539,
+                    "sr": 1502228246727243,
+                    "ss": 1502228246976368,
+                    "cr": 1502228246977073
+                },
+                {
+                    "span_id": "00007412422a059a",
+                    "parent_span_id": "000064c42af8a393",
+                    "source_ip": "172.30.88.229",
+                    "source_name": "169.51.9.146",
+                    "target_ip": "172.30.88.224",
+                    "target_name": "details",
+                    "request": "GET /details",
+                    "request_size": 0,
+                    "protocol": "HTTP/1.1",
+                    "response_size": 213,
+                    "response_code": 200,
+                    "user_agent": "python-requests/2.11.1",
+                    "cs": 1502228246736781,
+                    "sr": 1502228246787404,
+                    "ss": 1502228246795149,
+                    "cr": 1502228246845772
+                },
+                {
+                    "span_id": "0000e92d7b99797b",
+                    "parent_span_id": "000064c42af8a393",
+                    "source_ip": "172.30.88.229",
+                    "source_name": "169.51.9.146",
+                    "target_ip": "172.30.88.227",
+                    "target_name": "reviews",
+                    "request": "GET /reviews",
+                    "request_size": 0,
+                    "protocol": "HTTP/1.1",
+                    "response_size": 875,
+                    "response_code": 200,
+                    "user_agent": "python-requests/2.11.1",
+                    "cs": 1502228246852867,
+                    "sr": 1502228246853473,
+                    "ss": 1502228246970882,
+                    "cr": 1502228246971488
+                },
+                {
+                    "span_id": "00003390cb9b280f",
+                    "parent_span_id": "0000e92d7b99797b",
+                    "source_ip": "172.30.88.227",
+                    "source_name": "reviews",
+                    "target_ip": "172.30.88.225",
+                    "target_name": "ratings",
+                    "request": "GET /ratings",
+                    "request_size": 0,
+                    "protocol": "HTTP/1.1",
+                    "response_size": 29,
+                    "response_code": 200,
+                    "user_agent": "Apache CXF 3.0.3",
+                    "cs": 1502228246863384,
+                    "sr": 1502228246911883,
+                    "ss": 1502228246918309,
+                    "cr": 1502228246966808
+                }
+            ]
+        }
+    ]
+}

@@ -1,6 +1,9 @@
 '''
 Utility functions to manipulate Zipkin data
 '''
+import logging
+log = logging.getLogger(__name__)
+
 import istio_analytics_restapi.api.distributed_tracing.responses as constants
 
 # Keys used by Zipkin in the JSON containing a list of traces
@@ -212,6 +215,19 @@ def zipkin_trace_list_to_istio_analytics_trace_list(zipkin_trace_list):
     return ret_val
 
 def global_sort_annotations(zipkin_trace):
+    '''
+    Given a Zipkin trace, this function produces (1) a list of all regular annotations of
+    all its spans, globally sorted by timestamp, and (2) a lookup table, indexed by span id,
+    to fetch the corresponding span, its binary annotations, and its annotations. The latter
+    is used for caching, to speed up the algorithm implemented as part of the function
+    zipkin_trace_list_to_timelines.
+    
+    @param zipkin_trace (dictionary): The representation of a Zipkin trace
+    
+    @rtype: tuple(dictionary, list)
+    @return: A tuple containing (1) the span-lookup table and (2) the sorted list of all
+    annotations of all spans 
+    '''
     global_annotations = []
     span_dict = {}
     for zipkin_span in zipkin_trace:
@@ -231,6 +247,20 @@ def global_sort_annotations(zipkin_trace):
     return span_dict, sorted_global_annotations
 
 def initialize_event(zipkin_span, annotation, bin_ann_dict):
+    '''
+    Helper function used to initialize an event given a span, one of its regular annotations,
+    and its binary annotations. After the call to this function, the caller will further
+    define the event, for instance, to determine its type (send_request, send_response, 
+    process_request, or process_response) and other attributes.
+    
+    @param zipkin_span (dictionary): The representation of a Zipkin span
+    @param annotation (dictionary): The representation of a regular annotation of the given span
+    @param bin_ann_dict (dictionary): Lookup table for the span's binary annotations
+    
+    @rtype: dictionary
+    @return The representation of an event, as defined  at 
+      istio_analytics_restapi.api.distributed_tracing.responses.event_details.
+    '''
     request_info = \
         get_binary_annotation_value(bin_ann_dict,
                                     BINARY_ANNOTATION_REQUEST_LINE_STR).split(' ')
@@ -255,12 +285,38 @@ def initialize_event(zipkin_span, annotation, bin_ann_dict):
     return event
 
 def update_events_per_span(events_per_span, event, span_id, event_type):
+    '''
+    Updates a cached lookup table that contains references to all events currently
+    associated with each span. The table is indexed by span id and event type.
+    
+    @param events_per_span (dictionary): The lookup table to be updated
+    @param event: The event to be added to the lookup table
+    @param span_id: The span associated with the event to be added
+    @param event_type: The type of the event to be added
+    '''
     if not span_id in events_per_span:
         events_per_span[span_id] = {}
     events_per_span[span_id][event_type] = event
 
 def process_cs_annotation(cs_ann, zipkin_span_dict, ip_to_name_lookup_table,
                           events_per_service, events_per_span, previous_event):
+    '''
+    Processes a CS annotation to create a send_request event.
+
+    @param cs_ann (dictionary): The CS annotation to be used to create the event
+    @param zipkin_span_dict (dictionary): Lookup table, indexed by span id, referencing
+    the span's annotations and binary annotations.
+    @param ip_to_name_lookup_table (dictionary): A table mapping IP addresses to service names
+    @param events_per_service (list): Dictionary, indexed by service name, containing a list of
+    events (sorted by time) in which the corresponding service participates.
+    @param events_per_span (dictionary): lookup table that contains references to all events currently
+    associated with each span.
+    @param previous_event (dictionary): The representation of an event that immediately precedes the 
+    one to be created by this function.
+
+    @rtype: dictionary
+    @return: A new send_request event
+    '''
     span_id = cs_ann['span_id']
     zipkin_span = zipkin_span_dict[span_id]['zipkin_span']
     ann_dict = zipkin_span_dict[span_id]['annotations']
@@ -325,6 +381,21 @@ def process_cs_annotation(cs_ann, zipkin_span_dict, ip_to_name_lookup_table,
 
 def process_sr_annotation(sr_ann, zipkin_span_dict, ip_to_name_lookup_table, 
                           events_per_service, events_per_span):
+    '''
+    Processes an SR annotation to create a process_request event.
+
+    @param sr_ann (dictionary): The SR annotation to be used to create the event
+    @param zipkin_span_dict (dictionary): Lookup table, indexed by span id, referencing
+    the span's annotations and binary annotations.
+    @param ip_to_name_lookup_table (dictionary): A table mapping IP addresses to service names
+    @param events_per_service (list): Dictionary, indexed by service name, containing a list of
+    events (sorted by time) in which the corresponding service participates.
+    @param events_per_span (dictionary): lookup table that contains references to all events currently
+    associated with each span.
+
+    @rtype: dictionary
+    @return: A new process_request event
+    '''
     span_id = sr_ann['span_id']
     zipkin_span = zipkin_span_dict[span_id]['zipkin_span']
     ann_dict = zipkin_span_dict[span_id]['annotations']
@@ -363,6 +434,24 @@ def process_sr_annotation(sr_ann, zipkin_span_dict, ip_to_name_lookup_table,
 
 def process_ss_annotation(ss_ann, zipkin_span_dict, ip_to_name_lookup_table,
                           events_per_service, events_per_span, previous_event):
+    '''
+    Processes an SS annotation to create a send_response event.
+
+    @param ss_ann (dictionary): The SS annotation to be used to create the event
+    @param zipkin_span_dict (dictionary): Lookup table, indexed by span id, referencing
+    the span's annotations and binary annotations.
+    @param ip_to_name_lookup_table (dictionary): A table mapping IP addresses to service names
+    @param events_per_service (list): Dictionary, indexed by service name, containing a list of
+    events (sorted by time) in which the corresponding service participates.
+    @param events_per_span (dictionary): lookup table that contains references to all events currently
+    associated with each span.
+    @param previous_event (dictionary): The representation of an event that immediately precedes the 
+    one to be created by this function.
+
+    @rtype: dictionary
+    @return: Either a new send_response event, or 
+             None if the corresponding send_request event timed out
+    '''
     span_id = ss_ann['span_id']
     zipkin_span = zipkin_span_dict[span_id]['zipkin_span']
     ann_dict = zipkin_span_dict[span_id]['annotations']
@@ -432,6 +521,21 @@ def process_ss_annotation(ss_ann, zipkin_span_dict, ip_to_name_lookup_table,
 
 def process_cr_annotation(cr_ann, zipkin_span_dict, ip_to_name_lookup_table, 
                           events_per_service, events_per_span):
+    '''
+    Processes a CR annotation to create a process_response event.
+
+    @param cr_ann (dictionary): The CR annotation to be used to create the event
+    @param zipkin_span_dict (dictionary): Lookup table, indexed by span id, referencing
+    the span's annotations and binary annotations.
+    @param ip_to_name_lookup_table (dictionary): A table mapping IP addresses to service names
+    @param events_per_service (list): Dictionary, indexed by service name, containing a list of
+    events (sorted by time) in which the corresponding service participates.
+    @param events_per_span (dictionary): lookup table that contains references to all events currently
+    associated with each span.
+
+    @rtype: dictionary
+    @return: A new process_response event
+    '''
     span_id = cr_ann['span_id']
     zipkin_span = zipkin_span_dict[span_id]['zipkin_span']
 
@@ -464,9 +568,17 @@ def process_cr_annotation(cr_ann, zipkin_span_dict, ip_to_name_lookup_table,
     return event
 
 def clean_up_timelines(timeline_list):
-    # Remove all process_response events with no duration
-    # These events correspond to either the last event of the root span
-    # or the last events of dangling spans
+    '''
+    Removes all process_response events with no duration from the timelines
+    associated with each service. These events correspond to either the last event 
+    of the trace's root span, or the last events of "dangling" spans.
+    A dangling span can happen when a service calls another and the client service 
+    times out and the server service continues regardless.
+    
+    @param timeline_list (list): List of dictionaries where each element contains
+    a service name and a list of events (sorted by time) corresponding to the service's 
+    timeline of events. The timeline_list parameter is updated in place.
+    '''
     for timeline in timeline_list:
         new_event_list = [e for e in timeline[constants.EVENTS_STR] 
                             if not (e[constants.EVENT_TYPE_STR] == constants.EVENT_PROCESS_RESPONSE and
