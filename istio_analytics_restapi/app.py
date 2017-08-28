@@ -70,7 +70,7 @@ def config_env():
     
 def initialize(flask_app):
     '''Initializes the Flask application'''
-    blueprint = Blueprint('api', __name__, url_prefix='/api')
+    blueprint = Blueprint('api_v1', __name__, url_prefix='/api/v1')
     api.init_app(blueprint)
     api.add_namespace(health_namespace)
     api.add_namespace(distributed_tracing_namespace)
