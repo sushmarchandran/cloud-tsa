@@ -587,7 +587,7 @@ def clean_up_timelines(timeline_list):
         timeline[constants.EVENTS_STR] = new_event_list
 
 def zipkin_trace_list_to_timelines(zipkin_trace_list):
-    '''Converts a list of traces as returned by Zipkin into timelines
+    '''Converts each trace of a list of traces as returned by Zipkin into timelines
     as specified by the REST API POST /distributed_tracing/traces/timelines.
 
     @param zipkin_trace_list (list): List of traces as returned by Zipkin GET /api/v1/traces/
