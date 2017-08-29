@@ -104,7 +104,7 @@ class Test(unittest.TestCase):
                          .format(test_file_fullname))
 
                 # Call the Istio Analytics REST API via the test client
-                resp = self.flask_test.post('/api/distributed_tracing/traces/',
+                resp = self.flask_test.post('/api/v1/distributed_tracing/traces/',
                                             data=self.istio_analytics_req_payload,
                                             content_type='application/json')
 
@@ -174,11 +174,11 @@ class Test(unittest.TestCase):
                          .format(test_file_fullname))
 
                 # Call the Istio Analytics REST API via the test client
-                resp = self.flask_test.post('/api/distributed_tracing/traces/timelines',
+                resp = self.flask_test.post('/api/v1/distributed_tracing/traces/timelines',
                                             data=self.istio_analytics_req_payload,
                                             content_type='application/json')
 
-                msg = 'Unexpected status code when getting traces from Istio Analytics'
+                msg = 'Unexpected status code when getting timelines from Istio Analytics'
                 self.assertEqual(resp.status_code, 200, msg)
                 
                 response_dict = json.loads(resp.data)
