@@ -2,6 +2,7 @@
 Utility functions to manipulate Zipkin data
 '''
 import logging
+from flask_restplus.inputs import ip
 log = logging.getLogger(__name__)
 
 import istio_analytics_restapi.api.distributed_tracing.responses as constants
@@ -358,6 +359,12 @@ def process_cs_annotation(cs_ann, zipkin_span_dict, ip_to_name_lookup_table,
         sr_ann_time = ann_dict[ZIPKIN_SR_ANNOTATION][ZIPKIN_ANNOTATIONS_TIMESTAMP_STR]
         cs_ann_time = cs_ann['annotation'][ZIPKIN_ANNOTATIONS_TIMESTAMP_STR]
         event[constants.DURATION_STR] = sr_ann_time - cs_ann_time
+    elif (ZIPKIN_CR_ANNOTATION in ann_dict and
+          event[constants.INTERLOCUTOR_STR] == service_name):
+        # This is a self-call. We also need to set its duration
+        cr_ann_time = ann_dict[ZIPKIN_CR_ANNOTATION][ZIPKIN_ANNOTATIONS_TIMESTAMP_STR]
+        cs_ann_time = cs_ann['annotation'][ZIPKIN_ANNOTATIONS_TIMESTAMP_STR]
+        event[constants.DURATION_STR] = cr_ann_time - cs_ann_time
 
     # Add the new event to the list of events of the service making the call
     events_per_service[service_name][constants.EVENTS_STR].append(event)

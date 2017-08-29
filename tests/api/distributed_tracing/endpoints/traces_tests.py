@@ -67,7 +67,10 @@ class Test(unittest.TestCase):
             'zipkin-trace-reviews_v2-delay_7s.json',
             
             # Bookinfo; 1 trace; reviews version 2; productpage times out and then reviews times out
-            'zipkin-trace-reviews_v2-delay_13s.json'
+            'zipkin-trace-reviews_v2-delay_13s.json',
+
+            # DLaaS; 1 trace and 1 span; a service calling itself
+            'zipkin-trace-self-call.json'
         ]
 
         log.info('Completed initialization for testing the distributed-tracing analytics REST API')
@@ -82,7 +85,8 @@ class Test(unittest.TestCase):
             'traces_response-reviews_v3-normal.json',
             'traces_response-reviews_v3-delay.json',
             'traces_response-reviews_v2-delay_7s.json',
-            'traces_response-reviews_v2-delay_13s.json'
+            'traces_response-reviews_v2-delay_13s.json',
+            'traces_self-trace.json'
         ]
 
         log.info('===TESTING THE ENDPOINT /distributed_tracing/traces')
@@ -152,7 +156,8 @@ class Test(unittest.TestCase):
             'timelines_v3_normal.json',
             'timelines_v3_delay_reviews-timeout_and-return-500.json',
             'timelines_v2_delay_7s_pp-timeout_reviews-keeps_going.json',
-            'timelines_v2_delay_13s_pp-timeout_reviews-timeout_mismatch.json'
+            'timelines_v2_delay_13s_pp-timeout_reviews-timeout_mismatch.json',
+            'timelines_self-trace.json'
         ]
 
         log.info('===TESTING THE ENDPOINT /distributed_tracing/traces/timelines')
@@ -206,7 +211,7 @@ class Test(unittest.TestCase):
                          .format(response_file_fullname))
                 
                 # Check if Istio Analytics response matches
-                msg = 'Unexpected Istio Analytics trace structure'
+                msg = 'Unexpected Istio Analytics timeline structure'
                 self.assertEqual("".join(istio_analytics_trace.split()), 
                                  "".join(json.dumps(response_dict).split()), 
                                  msg)
