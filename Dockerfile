@@ -17,10 +17,11 @@ ADD istio_analytics_restapi /istio_analytics/istio_analytics_restapi
 ADD requirements.txt /istio_analytics/requirements.txt
 ADD startServer.sh /istio_analytics/startServer.sh
 
-#Install pip for python 3.6
-RUN apt-get update && apt-get install -y python3-pip
+#CREATING PYTHON VIRTUAL ENVIRONMENT
+RUN python3.6 -m venv /python3.6-venv
+RUN source /python3.6-venv/bin/activate
 
 #Running the requirements.txt file
-RUN pip3 install -r istio_analytics/requirements.txt
+RUN /python3.6-venv/bin/pip3.6 install -r requirements.txt
 
 CMD ["sh", "/istio_analytics/startServer.sh"]

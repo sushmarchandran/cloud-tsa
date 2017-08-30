@@ -13,4 +13,5 @@ else
 fi
 
 export PYTHONPATH=/istio_analytics
-python3 /istio_analytics/istio_analytics_restapi/app.py
+#python3 /istio_analytics/istio_analytics_restapi/app.py
+/python3.6-venv/bin/python /istio_analytics/istio_analytics_restapi/app.py
