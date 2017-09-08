@@ -1,0 +1,43 @@
+.messageLabel {
+    font-style: italic;
+    font-size: x-small;
+}
+.messageLabelDetails {
+    font-size: x-small;
+}
+.executionDurationLabel {
+	fill: orange;
+    font-size: x-small;
+}
+.activationMedianLine {
+}
+.activationSelected {
+	stroke: black;
+	fill: none;
+}
+.activationSelectedMouseover {
+	stroke: black;
+	fill: black;
+}
+.processLabel {
+	/* don't set the fill here; we override it for external process labels */
+}
+.scaleTick {
+	stroke: black;
+}
+.tickLabel {
+    font-size: x-small;
+}
+.retryInterval {
+	stroke: lightblue;
+}
+.timeoutRetryLabel {
+    font-size: x-small;
+}
+.activationWhisker {
+	stroke: orange;
+	fill: none;
+}
+.activationWhiskerLabel {
+	fill: orange;
+}
