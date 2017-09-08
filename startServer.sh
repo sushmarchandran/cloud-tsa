@@ -1,5 +1,14 @@
 #!/bin/bash
 
+#CREATING PYTHON VIRTUAL ENVIRONMENT
+apt-get update && apt-get install -y python3-pip
+python3.6 -m venv /python3.6-venv
+sudo source /python3.6-venv/bin/activate
+
+#Running the requirements.txt file
+/python3.6-venv/bin/pip3.6 install -r requirements.txt
+
+
 if [ -z "${ISTIO_ANALYTICS_SERVER_PORT}" ]; then
   ISTIO_ANALYTICS_SERVER_PORT="5555"
 else
@@ -13,4 +22,5 @@ else
 fi
 
 export PYTHONPATH=/istio_analytics
-python3 /istio_analytics/istio_analytics_restapi/app.py
+
+/python3.6-venv/bin/python /istio_analytics/istio_analytics_restapi/app.py
