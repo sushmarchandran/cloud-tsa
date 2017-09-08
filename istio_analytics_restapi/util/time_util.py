@@ -13,7 +13,12 @@ def iso8601_to_milliseconds_epoch(timestamp_str):
     @return Time in milliseconds (epoch)
     @rtype integer
     '''
-    dt = parser.parse(timestamp_str)
+    dt = None
+    try:
+        dt = parser.parse(timestamp_str)
+    except ValueError:
+        assert False, "Could not parse {}".format(timestamp_str)
+        
     try:
         time_secs_float = (dt - datetime.datetime(1970, 1, 1, tzinfo=pytz.timezone('UTC'))).total_seconds()
         time_milli = int(round(time_secs_float * 1000))

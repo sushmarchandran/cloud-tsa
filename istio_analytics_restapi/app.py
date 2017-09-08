@@ -2,7 +2,7 @@ import logging
 import os
 import sys
 
-from flask import Flask, Blueprint
+from flask import Flask, Blueprint, redirect
 
 from istio_analytics_restapi.api.restplus import api
 from istio_analytics_restapi.api.health.endpoints.health import health_namespace
@@ -17,6 +17,14 @@ app.url_map.strict_slashes = False
 
 # Disable Flask-Restplus X-Fields header used for partial object fetching
 app.config['RESTPLUS_MASK_SWAGGER'] = False
+
+@app.route("/")
+def index():
+    return redirect('static/welcome.html')
+
+@app.route("/favicon.ico")
+def favicon():
+    return app.send_static_file('favicon.ico')
 
 @app.after_request
 def modify_headers(response):
@@ -70,7 +78,7 @@ def config_env():
     
 def initialize(flask_app):
     '''Initializes the Flask application'''
-    blueprint = Blueprint('api', __name__, url_prefix='/api')
+    blueprint = Blueprint('api_v1', __name__, url_prefix='/api/v1')
     api.init_app(blueprint)
     api.add_namespace(health_namespace)
     api.add_namespace(distributed_tracing_namespace)

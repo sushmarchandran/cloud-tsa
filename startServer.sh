@@ -2,7 +2,7 @@
 
 #CREATING PYTHON VIRTUAL ENVIRONMENT
 apt-get update && apt-get install -y python3-pip
-adduser user
+
 apt-get install python3.6-venv
 python3.6 -m venv /python3.6-venv
 /bin/bash -c "source /python3.6-venv/bin/activate"
