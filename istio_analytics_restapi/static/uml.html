@@ -3,26 +3,66 @@
 <head>
 <meta charset="utf-8">
 <meta http-equiv="Content-Language" content="en">
-<title>Call Structure</title>
+<title>Trace Analytics for Istio</title>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.1/angular-material.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-animate.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-aria.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-messages.min.js"></script>
+<script src="http://ngmaterial.assets.s3.amazonaws.com/svg-assets-cache.js"></script>
+
+<script src="js/query.js"></script>
+
 <link rel="stylesheet" href="css/uml.css">
+<link rel="stylesheet" href="https://cdn.gitcdn.link/cdn/angular/bower-material/v1.1.1/angular-material.css">
+
 </head>
 <body>
 
-<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular.js"></script>
 
-<h1>Query</h1>
+<div ng-app="istio">
+	<div ng-controller="TraceQueryController as query" layout="column" flex layout-fill>
+		<md-toolbar md-scroll-shrink>
+	      <div class="md-toolbar-tools">Trace Analytics for Istio</div>
+	    </md-toolbar>
+	     
+	    <md-content>
+	    	<md-input-container>
+	        	<label>Start time</label>
+	        	<input ng-model="startTime">
+	      </md-input-container>
+	
+	    	<md-input-container>
+	        	<label>End time</label>
+	        	<input ng-model="endTime">
+	      </md-input-container>
+	
+	    	<md-input-container>
+	        	<label>Max</label>
+	        	<input ng-model="max">
+	      </md-input-container>
+	      
+	      <md-button class="md-raised md-primary" ng-click="query()"  data-ng-disabled="startTime==''">Query</md-button>
+	    </md-content>
+	    
+	    <md-content>
+			<span ng-if="queryStatus">{{ queryStatus }}</span>
+	 	</md-content>
+	 	
+	 	<md-content>
+			<p>
+			Demo of using <a href="http://zipkin.io">Zipkin</a> data to understand system behavior.
+			For more details on Zipkin see <a href="http://zipkin.io/pages/data_model.html">Data Model</a>
+			and <a href="http://zipkin.io/pages/instrumenting.html">Instrumenting a Library</a>.
+		</md-content>
+	</div>
+</div>
 
-<b>UNDER CONSTRUCTION!</b>
-
-<p>
-Demo of using <a href="http://zipkin.io">Zipkin</a> data to understand system behavior.
-For more details on Zipkin see <a href="http://zipkin.io/pages/data_model.html">Data Model</a>
-and <a href="http://zipkin.io/pages/instrumenting.html">Instrumenting a Library</a>.
 
 <script src="http://d3js.org/d3.v3.js"></script>
 
 <script>
-console.log("Hello Javascript");
+console.log("Hello Javascript from uml.html");
 </script>
 
 </body>
