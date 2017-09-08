@@ -17,7 +17,7 @@ The following environment variables control the behavior of the Istio Analytics 
 The interactive Swagger documentation for the REST API is available at:
 
 ```
-http://<host>:<port>/api/
+http://<host>:<port>/api/v1
 ```
 
 The REST API is fully documented there.
