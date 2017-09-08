@@ -9,6 +9,7 @@ python3.6 -m venv /python3.6-venv
 
 
 #Running the requirements.txt file
+python3.6-venv/bin/pip3.6 install wheel
 python3.6-venv/bin/pip3.6 install -r istio_analytics/requirements.txt
 
 
