@@ -20,6 +20,7 @@
 	  $scope.endTime = "2017-07-31T00:00:00.0Z";
 	  $scope.max = 500;
 	  $scope.queryStatus = "";
+	  $scope.rawTraces = null;
 	  
 	  $scope.query = query;
 	  
@@ -34,9 +35,16 @@
 		}).then(function successCallback(response) {
 			    // this callback will be called asynchronously
 			    // when the response is available
-				$scope.queryStatus = JSON.stringify(response);
-				
-				// @@@ TODO
+				$scope.queryStatus = "";
+				$scope.rawTraces = response.data;
+
+				// 'traces' and 'ntrace' are globals currently -- this is a work-around for strict mode
+				// See https://stackoverflow.com/questions/9397778/how-to-declare-global-variables-when-using-the-strict-mode-pragma
+				var globals = (1,eval)('this');
+				globals.traces = $scope.rawTraces.traces_timelines;
+				globals.ntrace = 0;
+				showTrace(globals.traces, globals.ntrace);
+
 			  }, function errorCallback(response) {
 			    // alert("Failed, response is " + JSON.stringify(response));
 			    $scope.queryStatus = "Failed " + JSON.stringify(response);

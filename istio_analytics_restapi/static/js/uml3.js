@@ -23,7 +23,7 @@ var timeScale;				// We use multiplication to scale instead of SVG transforms be
 var magnification = 1;
 
 
-function showTrace(ntrace) {
+function showTrace(traces, ntrace) {
 	var selectedTrace = traces[ntrace];
 	
 	var siblingTraces = matchingTraces(traces[ntrace], traces);
