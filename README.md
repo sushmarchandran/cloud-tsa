@@ -31,6 +31,8 @@ Make sure to run the script `run_tests.sh` from inside the development VM that c
 
 ## Running the demo locally
 
+### Preferred approach: Docker
+
 First, you need to follow the instructions in [dev_env](https://github.ibm.com/istio-analytics/dev_env/) to stand up a development environment and Zipkin instance with test data.
 
 The preferred way to run Istio Analytics inside the development VM is via Docker. You need to build the `istio_analytics` Docker image and run the container. You can do so by running the following commands:
@@ -40,11 +42,11 @@ sudo /istio-analytics/restapi_server/scripts/buildDocker.sh
 sudo /istio-analytics/restapi_server/scripts/runDocker.sh
 ```
 
-### Alternative approach to run the demo locally
+### Alternative approach
 
 As an alternative, you can also run the following script to start Istio Analytics locally:
 ```bash
 ./scripts/localRunServer.sh
 ```
 
-Note, however, that before running this script you will have to make sure Python3.6 is installed and used. That might entail creating a virtual environment and installing all dependencies declared in `requirements.txt` inside the virtual environment. For that reason, it is just simpler to build the Docker image and run Istio Analytics as a Docker container.
+Note, however, that before running this script you will have to make sure Python 3.6 is installed and used. That might entail creating a virtual environment and installing all dependencies declared in `requirements.txt` inside the virtual environment. For that reason, it is just simpler to build the Docker image and run Istio Analytics as a Docker container.
