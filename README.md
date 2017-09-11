@@ -35,7 +35,7 @@ Make sure to run the script `run_tests.sh` from inside the development VM that c
 
 First, you need to follow the instructions in [dev_env](https://github.ibm.com/istio-analytics/dev_env/) to stand up a development environment and Zipkin instance with test data.
 
-The preferred way to run Istio Analytics inside the development VM is via Docker. You need to build the `istio_analytics` Docker image and run the container. You can do so by running the following commands:
+The preferred way to run Istio Analytics inside the development VM is via Docker. You need to build the `istio_analytics` Docker image and start the container. You can do so by running the following commands:
 
 ```bash
 sudo /istio-analytics/restapi_server/scripts/buildDocker.sh
