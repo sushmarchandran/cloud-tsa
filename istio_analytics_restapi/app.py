@@ -93,4 +93,4 @@ if __name__ == '__main__':
     initialize(app)
     logging.getLogger(__name__).info('Starting Istio Analytics server')
     app.run(host='0.0.0.0', debug=app.config[constants.ISTIO_ANALYTICS_DEBUG_ENV],
-            port=app.config[constants.ISTIO_ANALYTICS_SERVER_PORT_ENV])
+            port=int(app.config[constants.ISTIO_ANALYTICS_SERVER_PORT_ENV]))
