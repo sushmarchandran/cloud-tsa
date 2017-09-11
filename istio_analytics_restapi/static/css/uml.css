@@ -37,8 +37,8 @@
 .activationWhisker {
 	stroke: orange;
 	fill: none;
+	stroke-width: 2;
 }
 .activationWhiskerLabel {
 	fill: orange;
-	stroke-width: 2;
 }

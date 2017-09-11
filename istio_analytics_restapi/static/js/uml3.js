@@ -32,9 +32,6 @@ function showTrace(traces, ntrace) {
 	orderEvents(traceSummary);
 	var processes = deriveProcessesFromTrace(selectedTrace);
 	var sequenceData = { processes: processes, events: allEvents(traceSummary) };
-	//sequenceData.events.sort(function (a, b) { return a.timestamp - b.timestamp; });
-	//console.log("events are " + JSON.stringify(sequenceData.events));
-
 	
 	setupSequenceDiagram(sequenceData);
 	
@@ -875,8 +872,14 @@ function getServices(trace) {
 	if (!trace.timelines) {
 		throw new Error("trace has no timelines: " + JSON.stringify(trace));
 	}
+	
 	// Get all of the services that have timelines
 	var retval = trace.timelines.map(function (t) { return t.service; });
+	
+	// Sort by earliest timestamp
+	retval.sort(function (a, b) {
+		return getServiceTimeline(trace, a).events[0].timestamp - getServiceTimeline(trace, b).events[0].timestamp;
+	});
 	
 	// Add in the interlocutors that lack timelines
 	// console.log("trace.timelines = " + JSON.stringify(trace.timelines));
