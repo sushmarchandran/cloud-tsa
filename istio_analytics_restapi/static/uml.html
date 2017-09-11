@@ -135,6 +135,17 @@ function nextTrace() {
 		showTrace(traces, ntrace);
 	}
 }
+
+function bigger() {
+	magnification = magnification * 2;	
+	showTrace(traces, ntrace);
+}
+
+function smaller() {
+	magnification = Math.max(1, magnification / 2);
+	showTrace(traces, ntrace);
+}
+
 </script>
 
 </body>

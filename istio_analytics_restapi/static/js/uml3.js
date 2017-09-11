@@ -508,16 +508,32 @@ function toScaledBox(d, x) {
 	if (typeof x === "undefined") {
 		throw new Error("toScaledBox() got undefined x");
 	}
-	
-	var factor = (d.duration.q3 == d.duration.q1) ? 0.5 : (x - d.duration.q1)/(d.duration.q3 - d.duration.q1);
-	if (isNaN(factor)) {
-		console.log("toScaledBox() failed to calculate factor; x=" + x + ", d.duration=" + JSON.stringify(d.duration));
+
+	var retval;
+	if (d.duration.q3 == d.duration.q1) {
+		if (x < d.duration.q1) {
+			factor = (x - d.duration.q1) / d.duration.median;
+			retval = (d.start + factor * d.duration.median) * timeScale;
+		} else if (x > d.duration.q3) {
+			factor = (x - d.duration.q3) / d.duration.median;
+			retval = (d.complete + factor * d.duration.median) * timeScale;
+		} else { // x == q1 == median == q3
+			retval = (d.start+d.complete)/2 * timeScale;
+		}
+	} else {
+		var factor = (x - d.duration.q1)/(d.duration.q3 - d.duration.q1);
+
+		if (isNaN(factor)) {
+			console.log("toScaledBox() failed to calculate factor; x=" + x + ", d.duration=" + JSON.stringify(d.duration));
+		}
+		
+		retval = (d.start + factor * d.duration.median) * timeScale;
 	}
 	
-	var retval = (d.start + factor * d.duration.median) * timeScale;
 	if (isNaN(retval)) {
     	console.log("toScaledBox() failed; d.start=" + d.start + ", factor=" + factor + ", d.duration.median=" + d.duration.median);
 	}
+	
 	return retval;
 }
 
@@ -1169,17 +1185,6 @@ function prepareChart() {
 		.attr("transform", makeTranslation(timeMargin, processHeight));
 	
 	return svg;
-}
-
-
-function bigger() {
-	magnification = magnification * 2;	
-	showTrace(ntrace);
-}
-
-function smaller() {
-	magnification = Math.max(1, magnification / 2);
-	showTrace(ntrace);
 }
 
 //From https://stackoverflow.com/questions/901115/how-can-i-get-query-string-values-in-javascript
