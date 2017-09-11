@@ -134,114 +134,27 @@ function addScale(data) {
 function addActivations(data) {
 	var activations = data.events.filter(function f(evt) { return evt.type == "process_request" || evt.type == "process_response"; });
 	
-	// console.log("activations are " + JSON.stringify(activations))
-
+	// Add a lifeline for each activation, so that Javascript doesn't need to keep data in a closure
+	for (activation of activations) {
+		activation.lifelineX = lifelineX(data, activation.service);;
+	}
+	
 	var activationBoxes = d3.select("#activationBoxes")
-	.selectAll(".activationBox")
-    .data(activations);
+		.selectAll(".activationBox")
+		.data(activations);
 	activationBoxes.enter().append("rect")
 		.attr("class", "activationBox")
 		.attr("width", activationBoxWidth)
-		.on("mouseenter", function(d, i) {
-			var label = d3.select("#executionDurationLabel" + i);
-			// Don't recalculate oldTrans if we have used it before (because animations might mean transform isn't completed)
-			var oldTrans = label.attr("oldTrans");
-			if (!oldTrans) {
-				oldTrans = label.attr("transform");
-			}
-			label.transition().duration(500)
-				.text(textFiveNumberSummary(d.duration) + " selected " + prettyMicroseconds(d.duration.selected))
-				.attr("text-anchor", "start")
-				.attr("transform", "")
-				.attr("oldTrans", oldTrans);
-				// .attr("stroke", "black");
-
-		    //function scaledBoxMin(d) { return toScaledBox(d, d.duration.min);  }
-		    //function scaledBoxMax(d) { return toScaledBox(d, d.duration.max);  }
-
-		    // Don't draw whiskers if we have only one data point and no real min/q1 q3/max separation
-		    if (d.duration.min == d.duration.q1 || d.duration.max == d.duration.q3) {
-		    	return;
-		    }
-		    
-		    var whiskerTopTrue = toScaledBox(d, d.duration.min);
-		    var whiskerBottomTrue = toScaledBox(d, d.duration.max);
-		    var whiskerTop = Math.max(whiskerTopTrue, 0, timeScale * d.start - straightWhiskerMax);
-		    var whiskerBottom = Math.min(whiskerBottomTrue, height, timeScale * d.complete + straightWhiskerMax);
-		    var whiskerX = lifelineX(data, d.service)
-		    var compressTop = whiskerTopTrue < whiskerTop;
-		    var compressBottom = whiskerBottomTrue > whiskerBottom;
-		    
-			d3.select("#popups").append("line")			// Whisker top bar
-				.attr("class", "activationWhisker")
-				.attr("x1", whiskerX - activationBoxWidth/2)
-				.attr("x2", whiskerX + activationBoxWidth/2)
-				.attr("y1", whiskerTop)
-				.attr("y2", whiskerTop);
-			d3.select("#popups").append("polyline")			// Whisker top "vertical"
-				.attr("class", "activationWhisker")
-				.attr("points", boxplotPolylinePoints(compressTop, whiskerX, whiskerTop, d.start * timeScale))
-			d3.select("#popups").append("line")				// Whisker bottom bar
-				.attr("class", "activationWhisker")
-				.attr("x1", whiskerX - activationBoxWidth/2)
-				.attr("x2", whiskerX + activationBoxWidth/2)
-				.attr("y1", whiskerBottom)
-				.attr("y2", whiskerBottom);
-			d3.select("#popups").append("polyline")				// Whisker bottom vertical
-				.attr("class", "activationWhisker")
-				.attr("points", boxplotPolylinePoints(compressBottom, whiskerX, d.complete * timeScale, whiskerBottom))
-			d3.select("#popups").append("text")
-				.attr("class", "activationWhiskerLabel")
-				.attr("x", whiskerX + activationBoxWidth/2 + 5)
-				.attr("y", whiskerTop)
-				.attr("alignment-baseline", "middle")
-				.text(prettyMicroseconds(d.duration.min));
-			d3.select("#popups").append("text")
-				.attr("class", "activationWhiskerLabel")
-				.attr("x", whiskerX + activationBoxWidth/2 + 5)
-				.attr("y", whiskerBottom)
-				.attr("alignment-baseline", "middle")
-				.text(prettyMicroseconds(d.duration.max));
-			
-			// TODO: move activation if it is outside the clamping region straightWhiskerMax?
-		})
-		.on("mouseleave", function(d, i) {
-			var label = d3.select("#executionDurationLabel" + i);
-			label.transition().duration(500)
-				.text(function(d) { return formatMicroseconds(d.complete - d.start); })
-				.attr("text-anchor", "middle")
-				.attr("transform", label.attr("oldTrans"));
-			
-			// Remove the whiskers
-			d3.select("#popups").selectAll(".activationWhisker").remove();
-			d3.select("#popups").selectAll(".activationWhiskerLabel").remove();
-		});
+		.on("mouseenter", popupWhiskers)
+		.on("mouseleave", removeWhiskers);
     activationBoxes.exit().remove();
     // (Note that transition().duration(0) does nothing and should be removed throughout this code if we don't use it.)
-    activationBoxes.transition().duration(0)
-		.attr("x", function(d) { return lifelineX(data, source(d)) - activationBoxWidth/2; })
-		.attr("y", function(d) { return timeScale * d.start; })
-		.attr("fill", function(d) { return d.timeout ? "lightblue": "orange"; })
-		.attr("height", function(d) { return timeScale * (d.complete - d.start); });
-
-    function toScaledBox(d, x) {
-    	if (typeof x === "undefined") {
-    		throw new Error("toScaledBox() got undefined x");
-    	}
-    	
-    	var factor = (d.duration.q3 == d.duration.q1) ? 0.5 : (x - d.duration.q1)/(d.duration.q3 - d.duration.q1);
-    	if (isNaN(factor)) {
-    		console.log("toScaledBox() failed to calculate factor; x=" + x + ", d.duration=" + JSON.stringify(d.duration));
-    	}
-    	
-    	var retval = (d.start + factor * d.duration.median) * timeScale;
-    	if (isNaN(retval)) {
-	    	console.log("toScaledBox() failed; d.start=" + d.start + ", factor=" + factor + ", d.duration.median=" + d.duration.median);
-    	}
-    	return retval;
-    }
-    
-    function scaledBoxMedian(d) { return toScaledBox(d, d.duration.median);  }
+    activationBoxes.transition()
+    	.duration(0)
+			.attr("x", function(d) { return lifelineX(data, source(d)) - activationBoxWidth/2; })
+			.attr("y", function(d) { return timeScale * d.start; })
+			.attr("fill", function(d) { return d.timeout ? "lightblue": "orange"; })
+			.attr("height", function(d) { return timeScale * (d.complete - d.start); });
     
     var activationMedians = d3.select("#activationMedians")
 	.selectAll(".activationMedianLine")
@@ -281,23 +194,6 @@ function addActivations(data) {
 
 function addSelectedTrace(data) {
 	var activations = data.events.filter(function f(evt) { return evt.type == "process_request" || evt.type == "process_response"; });
-
-    function toScaledBox(d, x) {
-    	if (typeof x === "undefined") {
-    		throw new Error("toScaledBox() got undefined x");
-    	}
-    	
-    	var factor = (d.duration.q3 == d.duration.q1) ? 0.5 : (x - d.duration.q1)/(d.duration.q3 - d.duration.q1);
-    	if (isNaN(factor)) {
-    		console.log("toScaledBox() failed to calculate factor; x=" + x + ", d.duration=" + JSON.stringify(d.duration));
-    	}
-    	
-    	var retval = (d.start + factor * d.duration.median) * timeScale;
-    	if (isNaN(retval)) {
-	    	console.log("toScaledBox() failed; d.start=" + d.start + ", factor=" + factor + ", d.duration.median=" + d.duration.median);
-    	}
-    	return retval;
-    }
 
     var activationSelecteds = d3.select("#activationSelecteds")
 	.selectAll(".activationSelected")
@@ -419,6 +315,7 @@ function addDebugging(data) {
 }
 
 function addProcesses(data) {
+	
 	// UML process diagram process box for each process/microservice
 	var processes = d3.select("#processRectangles")
 		.selectAll(".processRect")
@@ -610,6 +507,98 @@ function addCommunication(data) {
 		.attr("visibility", function(d) { return d.response_code != "0" ? "visible" : "hidden"; });
 }
 
+function toScaledBox(d, x) {
+	if (typeof x === "undefined") {
+		throw new Error("toScaledBox() got undefined x");
+	}
+	
+	var factor = (d.duration.q3 == d.duration.q1) ? 0.5 : (x - d.duration.q1)/(d.duration.q3 - d.duration.q1);
+	if (isNaN(factor)) {
+		console.log("toScaledBox() failed to calculate factor; x=" + x + ", d.duration=" + JSON.stringify(d.duration));
+	}
+	
+	var retval = (d.start + factor * d.duration.median) * timeScale;
+	if (isNaN(retval)) {
+    	console.log("toScaledBox() failed; d.start=" + d.start + ", factor=" + factor + ", d.duration.median=" + d.duration.median);
+	}
+	return retval;
+}
+
+function scaledBoxMedian(d) { return toScaledBox(d, d.duration.median);  }
+
+function popupWhiskers(d, i) {
+	var label = d3.select("#executionDurationLabel" + i);
+	// Don't recalculate oldTrans if we have used it before (because animations might mean transform isn't completed)
+	var oldTrans = label.attr("oldTrans");
+	if (!oldTrans) {
+		oldTrans = label.attr("transform");
+	}
+	label.transition().duration(500)
+		.text(textFiveNumberSummary(d.duration) + " selected " + prettyMicroseconds(d.duration.selected))
+		.attr("text-anchor", "start")
+		.attr("transform", "")
+		.attr("oldTrans", oldTrans);
+
+    // Don't draw whiskers if we have only one data point and no real min/q1 q3/max separation
+    if (d.duration.min == d.duration.q1 || d.duration.max == d.duration.q3) {
+    	return;
+    }
+    
+    var whiskerTopTrue = toScaledBox(d, d.duration.min);
+    var whiskerBottomTrue = toScaledBox(d, d.duration.max);
+    var whiskerTop = Math.max(whiskerTopTrue, 0, timeScale * d.start - straightWhiskerMax);
+    var whiskerBottom = Math.min(whiskerBottomTrue, height, timeScale * d.complete + straightWhiskerMax);
+    var whiskerX = d.lifelineX;
+    var compressTop = whiskerTopTrue < whiskerTop;
+    var compressBottom = whiskerBottomTrue > whiskerBottom;
+    
+	d3.select("#popups").append("line")			// Whisker top bar
+		.attr("class", "activationWhisker")
+		.attr("x1", whiskerX - activationBoxWidth/2)
+		.attr("x2", whiskerX + activationBoxWidth/2)
+		.attr("y1", whiskerTop)
+		.attr("y2", whiskerTop);
+	d3.select("#popups").append("polyline")			// Whisker top "vertical"
+		.attr("class", "activationWhisker")
+		.attr("points", boxplotPolylinePoints(compressTop, whiskerX, whiskerTop, d.start * timeScale))
+	d3.select("#popups").append("line")				// Whisker bottom bar
+		.attr("class", "activationWhisker")
+		.attr("x1", whiskerX - activationBoxWidth/2)
+		.attr("x2", whiskerX + activationBoxWidth/2)
+		.attr("y1", whiskerBottom)
+		.attr("y2", whiskerBottom);
+	d3.select("#popups").append("polyline")				// Whisker bottom vertical
+		.attr("class", "activationWhisker")
+		.attr("points", boxplotPolylinePoints(compressBottom, whiskerX, d.complete * timeScale, whiskerBottom))
+	d3.select("#popups").append("text")
+		.attr("class", "activationWhiskerLabel")
+		.attr("x", whiskerX + activationBoxWidth/2 + 5)
+		.attr("y", whiskerTop)
+		.attr("alignment-baseline", "middle")
+		.text(prettyMicroseconds(d.duration.min));
+	d3.select("#popups").append("text")
+		.attr("class", "activationWhiskerLabel")
+		.attr("x", whiskerX + activationBoxWidth/2 + 5)
+		.attr("y", whiskerBottom)
+		.attr("alignment-baseline", "middle")
+		.text(prettyMicroseconds(d.duration.max));
+	
+	// TODO: move activation if it is outside the clamping region straightWhiskerMax?
+};
+
+function removeWhiskers(d, i) {
+	var label = d3.select("#executionDurationLabel" + i);
+	label.transition().duration(500)
+		.text(function(d) { return formatMicroseconds(d.complete - d.start); })
+		.attr("text-anchor", "middle")
+		.attr("transform", label.attr("oldTrans"));
+	
+	// Remove the whiskers
+	d3.select("#popups").selectAll(".activationWhisker").remove();
+	d3.select("#popups").selectAll(".activationWhiskerLabel").remove();
+}
+
+
 // makeSVGTransform makes a transform for aligning text above an arrow
 function makeSVGTransform(data, x1, y1, x2, y2) {
 	if (isNaN(y1)) {
@@ -791,7 +780,7 @@ function matchingTraces(trace, zipkin_traces) {
 	for (i in zipkin_traces) {
 		// We are interested in the request_lines (URLs), not the source/target process
 		if (strTraceEvents == JSON.stringify(traceToEvents(zipkin_traces[i]))) {
-			console.log("Trace " + i + " matches");
+			// console.log("Trace " + i + " matches");
 			count++;
 			retval.push(zipkin_traces[i]);
 		}

@@ -28,6 +28,7 @@
 		  $scope.queryStatus = "Posting query";
 		  // TODO disable button?
 		  
+		  var requestTime = new Date();
 		  $http({
 			  method: 'POST',
 			  url: '/api/v1/distributed_tracing/traces/timelines',
@@ -42,6 +43,14 @@
 				// See https://stackoverflow.com/questions/9397778/how-to-declare-global-variables-when-using-the-strict-mode-pragma
 				var globals = (1,eval)('this');
 				globals.traces = $scope.rawTraces.traces_timelines;
+				if (globals.traces.length == 0) {
+				    $scope.queryStatus = "No traces for timerange";
+				    return;
+				}
+				
+				// TODO remove
+				$scope.queryStatus = "Request took " + (new Date() - requestTime) + "ms";
+				
 				globals.ntrace = 0;
 				showTrace(globals.traces, globals.ntrace);
 

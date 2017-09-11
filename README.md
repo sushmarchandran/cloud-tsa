@@ -27,3 +27,14 @@ The REST API is fully documented there.
 The script `run_tests.sh` runs all test cases and produces a detailed code-coverage report that can be inspected by opening the HTML file `code_coverage/index.html` in your browser. The directory `code_coverage` is populated as part of the `run_tests.sh` script.
 
 Make sure to run the script `run_tests.sh` from inside the development VM that can be provisioned using vagrant. See the development-environment git repository [here](https://github.ibm.com/istio-analytics/dev_env).
+
+## Running the demo locally
+
+Follow the instructions in [dev_env](https://github.ibm.com/istio-analytics/dev_env/) to stand up
+a development environment and Zipkin instance with test data.
+
+To start the _restapi_server_ server locally, do
+
+```bash
+./scripts/localRunServer.sh
+```

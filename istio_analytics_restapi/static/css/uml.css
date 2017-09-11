@@ -40,4 +40,5 @@
 }
 .activationWhiskerLabel {
 	fill: orange;
+	stroke-width: 2;
 }

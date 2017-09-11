@@ -53,6 +53,10 @@ class ZipkinClient:
                 return msg, 502
             log.debug(u'Traces received from Zipkin: {0}'.format(response.text))
             return response.text, 200
-        except Exception as e:
+        except requests.exceptions.ConnectionError as e:
             msg = u'Error while trying to get traces from Zipkin: {0}'.format(e)
-            return msg, 504
+            return msg, 502
+        except Exception as e:
+            msg = u'Error while trying to get traces from Zipkin: {0} (a {1})'.format(e, e.__class__)
+            return msg, 500
+        
