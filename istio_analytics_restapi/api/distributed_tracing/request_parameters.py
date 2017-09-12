@@ -28,5 +28,14 @@ trace_list_body_parameters = api.model('trace_list_params', {
 # Note that this schema inherits from the schema for POST /distributed_tracing/traces/
 ####
 timelines_body_parameters = api.inherit('timelines_params',
-                                            trace_list_body_parameters, {
+                                        trace_list_body_parameters, {
+})
+
+####
+# Schema of the request body with the parameters for POST /distributed_tracing/traces/timelines/cluster
+#
+# Note that this schema inherits from the schema for POST /distributed_tracing/traces/
+####
+cluster_body_parameters = api.inherit('cluster_params',
+                                      trace_list_body_parameters, {
 })

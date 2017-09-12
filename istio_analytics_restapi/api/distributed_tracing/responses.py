@@ -118,7 +118,7 @@ event_details = api.model('event_details', {
     TIMESTAMP_STR: fields.Integer(required=True, example=1502228258105333,
                                  description='Timestamp in microsecond epoch time indicating '
                                  'when the event has started'),
-    DURATION_STR: fields.Integer(required=True, example=1502228258105333,
+    DURATION_STR: fields.Integer(required=True, example=3478,
                                  description='Duration of the event in microseconds'),
     REQUEST_URL_STR: fields.String(required=True, example='GET /catalog',
                                  description='The URL corresponding to the event'),
@@ -158,4 +158,89 @@ timelines_response = api.model('timelines_response', {
     TRACES_TIMELINES_STR: fields.List(fields.Nested(trace_timelines), required=True,
                             description='Timelines of traces. Each trace is represented by one timeline per, '
                             'microservice, where each timeline is a chronologically-sorted list of events')
+})
+
+####
+# Schema of the trace clusters produced by POST /distributed_tracing/traces/timelines/clusters
+####
+ROOT_REQUEST_STR = 'root_request'
+CLUSTERS_STR = 'clusters'
+CLUSTER_STATS_STR = 'cluster_stats'
+TRACE_IDS_STR = 'trace_ids'
+
+MIN_STR = 'min'
+MAX_STR = 'max'
+MEAN_STR = 'mean'
+STD_DEV_STR = 'stddev'
+MEDIAN_STR = 'median'
+THIRD_QUARTILE_STR = 'third_quartile'
+
+ERROR_COUNT_STR = 'error_count'
+TIMEOUT_COUNT_STR = 'timeout_count'
+RETRY_COUNT_STR = 'retry_count'
+
+base_stats = api.model('base_stats', {
+    MIN_STR: fields.Float(required=True, example=3.5,
+                          description='The mininum data point of the underlying distribution'), 
+    MAX_STR: fields.Float(required=True, example=768,
+                          description='The maximum data point of the underlying distribution'),
+    MEAN_STR: fields.Float(required=True, example=56.8,
+                           description='The mean of the underlying distribution'),
+    STD_DEV_STR: fields.Float(required=True, example=14.78,
+                              description='The standard deviation of the underlying distribution'),
+    MEDIAN_STR: fields.Float(required=True, example=70,
+                             description='The median of the underlying distribution'),
+    THIRD_QUARTILE_STR: fields.Float(required=True, example=200,
+                                     description='The third quartile of the underlying distribution')
+})
+
+event_stat_details = api.model('event_stat_details', {
+    EVENT_TYPE_STR: fields.String(required=True, example='send_request',
+                                  enum=[EVENT_SEND_REQUEST,
+                                        EVENT_SEND_RESPONSE,
+                                        EVENT_PROCESS_REQUEST,
+                                        EVENT_PROCESS_RESPONSE],
+                                  description='The event type'),
+    INTERLOCUTOR_STR: fields.String(required=True, example='catalog',
+                                    description='The other microservice participating in this event'),
+    DURATION_STR: fields.Nested(base_stats, required=True,
+                                description='Statistics on the duration of the event in microseconds'),
+    REQUEST_SIZE_STR: fields.Nested(base_stats, required=True,
+                                    description='Statistics on the size in bytes of the request related '
+                                    'to the event'),
+    RESPONSE_SIZE_STR: fields.Nested(base_stats, required=True,
+                                     description='Statistics on the size in bytes of the response '
+                                     'related to the event'),
+    ERROR_COUNT_STR: fields.Integer(required=True, example=5, min=0,
+                                    description='The number of errors (e.g., 5xx HTTP codes) '
+                                                'related to the event'),
+    TIMEOUT_COUNT_STR: fields.Integer(required=True, example=3, min=0,
+                                      description='The number of timeouts observed for the request related '
+                                                  'to the event'),
+    RETRY_COUNT_STR: fields.Integer(required=True, example=3, min=0,
+                                    description='The number retries observed for the request related '
+                                                  'to the event')
+})
+
+cluster_stats = api.model('cluster_stats', {
+    SERVICE_STR: fields.String(required=True, example='orders',
+                               description='Microservice name'),
+    EVENTS_STR: fields.List(fields.Nested(event_stat_details), required=True)
+})
+
+trace_cluster = api.model('trace_cluster', {
+    ROOT_REQUEST_STR: fields.String(required=True, example='GET /orders',
+                                    description='The URL corresponding to the root request for a cluster'),
+    TRACE_IDS_STR: fields.List(fields.String, required=True,
+                               description='List of all trace ids that are part of this cluster'),
+    CLUSTER_STATS_STR: fields.List(fields.Nested(cluster_stats), required=True)
+}) 
+
+clusters_response = api.model('clusters_response', {
+    ZIPKIN_URL_STR: fields.String(required=True, example='http://localhost:9411',
+                                  description='URL of the Zipkin service where the tracing data is stored'),
+    CLUSTERS_STR: fields.List(fields.Nested(trace_cluster), required=True,
+                            description='Clusters of traces. Each cluster combines similar traces, '
+                            'summarizing and aggregating them statistically. Statistics are computed '
+                            'for all events of all timelines of all microservices involved.')
 })

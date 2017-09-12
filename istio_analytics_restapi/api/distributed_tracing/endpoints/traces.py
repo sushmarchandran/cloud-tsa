@@ -8,6 +8,7 @@ import os
 import json
 from flask import request
 from flask_restplus import Resource
+import flask_restplus.errors
 
 from istio_analytics_restapi.api.restplus import api
 from istio_analytics_restapi.api.restplus import build_http_error
@@ -20,6 +21,8 @@ from istio_analytics_restapi.zipkin.zipkin_client import ZipkinClient
 import istio_analytics_restapi.api.distributed_tracing.zipkin_util as zipkin_util
 import istio_analytics_restapi.api.distributed_tracing.request_parameters as request_parameters
 import istio_analytics_restapi.api.distributed_tracing.responses as responses
+
+import istio_analytics_restapi.analytics.distributed_tracing as distributed_tracing
 
 distributed_tracing_namespace = api.namespace('distributed_tracing',
                                               description='Analytics on distributed-tracing data')
@@ -77,7 +80,7 @@ class Traces(Resource):
     def post(self):
         '''Retrieves a list of traces given a time interval
 
-        Each trace in the returned list is described in a compact way, similar to how Zipkin
+        Each trace in the returned list is described in a compact way, more compact than how Zipkin
         represents traces.
         '''
         log.info('Started processing request to get traces')
@@ -97,7 +100,8 @@ class Traces(Resource):
                 zipkin_util.zipkin_trace_list_to_istio_analytics_trace_list(json.loads(traces_or_error_msg))
         else:
             log.warn(traces_or_error_msg)
-            ret_val = build_http_error(traces_or_error_msg, http_code)
+            ret_val, http_code = build_http_error(traces_or_error_msg, http_code)
+            flask_restplus.errors.abort(code=http_code, message=traces_or_error_msg)
 
         log.info('Finished processing request to get traces')
         return ret_val
@@ -152,49 +156,40 @@ class Timelines(Resource):
                 zipkin_util.zipkin_trace_list_to_timelines(json.loads(traces_or_error_msg))
         else:
             log.warn(traces_or_error_msg)
-            ret_val = build_http_error(traces_or_error_msg, http_code)
+            ret_val, http_code = build_http_error(traces_or_error_msg, http_code)
+            flask_restplus.errors.abort(code=http_code, message=traces_or_error_msg)
 
         log.info('Finished processing request to get timelines')
         return ret_val
 
-# @distributed_tracing_namespace.route('/traces/timelines/cluster')
-# class TraceCluster(Resource):
-#       
-#     @api.expect(request_parameters.timelines_body_parameters, validate=True)
-#     def post(self):
-#         '''Retrieves clusters of traces timelines given a time interval.'''
-# #         pass
-# #         
-# #            The body-parameter `clustering_algorithm` determines how the clusters are constructed and
-# #            how the statistical aggregations are computed.
-# #            
-# #            Valid values (as string) for the `clustering_algorithm` parameter are:
-# #            
-# #            * `PLAIN`: groups traces strictly based on the request URL and aggregates
-# #            statistics on identical spans without taking into account structural
-# #            changes due to, for instance, retries.
-# #         '''
-# #         log.info('Started processing request to get trace clusters')
-# #         request_body = request.json
-# #         start_time_milli, end_time_milli, max_traces = process_common_parameters(request_body)
-# # 
-# #         # Call Zipkin
-# #         traces_or_error_msg, http_code = \
-# #             zipkin_client.get_traces(start_time_milli, end_time_milli, max_traces=max_traces)
-# # 
-# #         if http_code == 200:
-# #             zipkin_host = os.getenv(constants.ISTIO_ANALYTICS_ZIPKIN_HOST_ENV)
-# #             ret_val = {
-# #                 zipkin_constants.ZIPKIN_URL_STR: zipkin_host
-# #             }
-# # 
-# #             trace_list = \
-# #                 zipkin_util.zipkin_trace_list_to_istio_analytics_trace_list(json.loads(traces_or_error_msg))
-# #             
-# # 
-# #         else:
-# #             log.warn(traces_or_error_msg)
-# #             ret_val = build_http_error(traces_or_error_msg, http_code)
-# #             
-# #         log.info('Finished processing request to get trace clusters')
-# #         return ret_val
+@distributed_tracing_namespace.route('/traces/timelines/clusters')
+class TraceCluster(Resource):
+
+    @api.expect(request_parameters.cluster_body_parameters, validate=True)
+    @api.marshal_with(responses.clusters_response)
+    def post(self):
+        '''Retrieves clusters of traces timelines given a time interval'''
+        log.info('Started processing request to get clusters of traces')
+        request_body = request.json
+        start_time_milli, end_time_milli, max_traces = process_common_parameters(request_body)
+
+        # Call Zipkin
+        traces_or_error_msg, http_code = \
+            zipkin_client.get_traces(start_time_milli, end_time_milli, max_traces=max_traces)
+
+        if http_code == 200:
+            zipkin_host = os.getenv(constants.ISTIO_ANALYTICS_ZIPKIN_HOST_ENV)
+            ret_val = {
+                zipkin_constants.ZIPKIN_URL_STR: zipkin_host
+            }
+            traces_timelines = \
+                zipkin_util.zipkin_trace_list_to_timelines(json.loads(traces_or_error_msg))
+            ret_val[zipkin_constants.CLUSTERS_STR] = \
+                distributed_tracing.cluster_traces(traces_timelines)
+        else:
+            log.warn(traces_or_error_msg)
+            ret_val, http_code = build_http_error(traces_or_error_msg, http_code)
+            flask_restplus.errors.abort(code=http_code, message=traces_or_error_msg)
+
+        log.info('Finished processing request to get clusters of traces')
+        return ret_val
