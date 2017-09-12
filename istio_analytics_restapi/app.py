@@ -26,8 +26,8 @@ def index():
 def favicon():
     return app.send_static_file('favicon.ico')
 
-@app.route("/uml/trace/<traceno>")
-def uml(traceno):
+@app.route("/uml/trace/<traceno>/<view>")
+def uml(traceno, view):
     return app.send_static_file('uml.html')
 
 @app.after_request

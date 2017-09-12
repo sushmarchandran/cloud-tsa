@@ -42,3 +42,13 @@
 .activationWhiskerLabel {
 	fill: orange;
 }
+
+.traceTable tr:nth-child(even) {
+    background-color: lightgrey;
+}
+
+.processingDurationLabel {
+    font-style: italic;
+    /*font-size: x-small;*/
+    fill: white;
+}

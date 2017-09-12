@@ -1,0 +1,12 @@
+<p>
+<table class="traceTable">
+  <tr ng-repeat="category in categories | orderBy:'-Traces.length'">
+    <td>{{ category.Traces.length }}</td>
+    <td>{{ category.StructureTitle }}</td>
+    <td>
+    <span ng-repeat="trace in category.Traces">
+    <a href="uml3.html?trace={{trace}}">{{trace}}</a>{{traceAnnotations(category, trace)}}
+    </span>
+    </td>
+  </tr>
+</table>

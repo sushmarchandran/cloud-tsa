@@ -199,7 +199,9 @@ function addSelectedTrace(data) {
 		.attr("class", "activationSelected")
 		.attr("r", individualActivationRadius)
 		.on("click", function(d, i) {
-			alert("TODO: navigate to " + raw_traces.zipkin_url + " trace " + d.trace_id + " span " + d.span_id);
+			// This ignores d.span_id
+			var win = window.open(raw_traces.zipkin_url + "/zipkin/traces/" + d.trace_id, '_blank');
+			win.focus();
 		})
 		.on("mouseenter", function(d) {
 			// Add class so that the apperance changes when we mouseover
