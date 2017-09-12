@@ -2,7 +2,6 @@
 Utility functions to manipulate Zipkin data
 '''
 import logging
-from flask_restplus.inputs import ip
 log = logging.getLogger(__name__)
 
 import istio_analytics_restapi.api.distributed_tracing.responses as constants
