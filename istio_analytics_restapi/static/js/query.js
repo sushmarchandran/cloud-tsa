@@ -12,13 +12,47 @@
   // Note that in addition to referencing them here the HTML must <script src=>
   // them as well.
   angular
-        .module('istio', ['ngMaterial', 'ngMessages'])
+        .module('istio', ['ngMaterial', 'ngMessages'],
+        	// The locationProvider must be set to HTML5 mode so that we can extract
+        	// start/end from it.  We must set requireBase false or on Safari the
+        	// error "10 $digest() iterations reached. Aborting!" may trigger. 
+        	function($locationProvider) {
+            	$locationProvider.html5Mode({
+            		  enabled: true,
+            		  requireBase: false
+            		});
+        	})
         .controller('TraceQueryController', TraceQueryController);
 
-  function TraceQueryController($scope, $timeout, $q, $log, $http) {
-	  $scope.startTime = "2017-07-06T00:00:00.0Z";
-	  $scope.endTime = "2017-07-31T00:00:00.0Z";
-	  $scope.max = 500;
+  function TraceQueryController($scope, $timeout, $q, $log, $http, $location) {
+	  $scope.location = $location;
+	  if ($location.search()) {
+		  if (typeof $location.search()['start'] == "string") {
+			  $scope.startTime = $location.search()['start'];
+		  } else {
+			  $scope.startTime = "2017-07-06T00:00:00.0Z";	// default
+		  }
+		  if (typeof $location.search()['end'] == "string") {
+			  $scope.endTime = $location.search()['end'];
+		  } else {
+			  $scope.endTime = "2017-07-31T00:00:00.0Z"; // default
+		  }
+		  if (typeof $location.search()['max'] == "string") {
+			  $scope.max = parseInt($location.search()['max']);
+		  } else {
+			  $scope.max = 500;
+		  }
+		  if ($location.path().startsWith("/trace/")) {
+			  $scope.nquery = parseInt($location.path().substring(7));
+		  } else {
+			  $scope.nquery = 0;
+		  }
+	  } else {
+		  $scope.startTime = "2017-07-06T00:00:00.0Z";	// default
+		  $scope.endTime = "2017-07-31T00:00:00.0Z"; // default
+		  $scope.max = 500;
+		  $scope.nquery = 0;
+	  }
 	  $scope.queryStatus = "";
 	  $scope.rawTraces = null;
 	  
@@ -51,7 +85,7 @@
 				// TODO remove
 				$scope.queryStatus = "Request took " + (new Date() - requestTime) + "ms";
 				
-				globals.ntrace = 0;
+				globals.ntrace = $scope.nquery;
 				showTrace(globals.traces, globals.ntrace);
 
 			  }, function errorCallback(response) {

@@ -26,6 +26,10 @@ def index():
 def favicon():
     return app.send_static_file('favicon.ico')
 
+@app.route("/uml/trace/<traceno>")
+def uml(traceno):
+    return app.send_static_file('uml.html')
+
 @app.after_request
 def modify_headers(response):
     '''Sets the server HTTP header returned to the clients for all requests 
