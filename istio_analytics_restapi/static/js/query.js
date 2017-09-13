@@ -44,9 +44,10 @@
         	});
         });
 
-  function TraceQueryController($scope, $timeout, $q, $log, $http, $location) {
+    function TraceQueryController($scope, $timeout, $q, $log, $http, $location, $rootScope) {
+	    console.log("Hello from TraceQueryController");
 
-  	  $scope.location = $location;
+        $scope.location = $location;
 	  if ($location.search()) {
 		  if (typeof $location.search()['start'] == "string") {
 			  $scope.startTime = $location.search()['start'];
@@ -76,12 +77,21 @@
 	  }
 	  $scope.queryStatus = "";
 	  $scope.rawTraces = null;
+	  $scope.dataOrigin = "";
 	  
 	  $scope.query = query;
+	  
+	  $rootScope.$on('$locationChangeSuccess', function () {
+		  // I had trouble listening for $scope.$on('$routeUpdate',...) and losing trace #
+		  if ($location.path().startsWith("/trace/")) {
+			  $scope.nquery = parseInt($location.path().substring(7));
+		  }
+	  });
 	  
 	  function query() {
 		  $scope.queryStatus = "Posting query";
 		  $scope.rawTraces = null;
+		  $scope.dataOrigin = "";
 		  // TODO disable button?
 		  
 		  var requestTime = new Date();
@@ -98,7 +108,9 @@
 				// TODO remove
 				$scope.queryStatus = "Request took " + (new Date() - requestTime) + "ms";
 				
-				// showTrace(globals.traces, globals.ntrace);
+				$scope.dataOrigin = response.data.zipkin_url;
+				
+				// The visualization should watch for these changes, rather than being called here.
 
 			  }, function errorCallback(response) {
 			    // alert("Failed, response is " + JSON.stringify(response));
@@ -108,11 +120,19 @@
   } // TraceQueryController
   
     function SequenceDiagramController($scope, $log, $location) {
+    	$scope.location = $location;
+    	
   	    console.log("Hello from SequenceDiagramController");
         var svg = prepareChart();
 
   	    $scope.$parent.$watch('rawTraces', function(newValue, oldValue) {
   		    console.log("SequenceDiagramController rawTraces watcher fired ");
+  		    
+  		    if (!$scope.$parent) {
+  		    	// This seems to happen during setup of view
+  		    	console.log("$scope has no $parent at SequenceDiagramController, ignoring rawTraces change");
+  		    	return;
+  		    }
 
 			// 'traces' and 'ntrace' are globals currently -- this is a work-around for strict mode
 		    // See https://stackoverflow.com/questions/9397778/how-to-declare-global-variables-when-using-the-strict-mode-pragma
@@ -129,12 +149,26 @@
 				
 		  		showTrace(globals.traces, globals.ntrace);
 			}
-  	  });
+  	    });
+
+  	    $scope.$parent.$watch('nquery', function(newValue, oldValue) {
+  		    console.log("SequenceDiagramController nquery watcher fired, got newValue " + newValue + ", a " + typeof newValue);
+
+			// 'traces' and 'ntrace' are globals currently -- this is a work-around for strict mode
+		    // See https://stackoverflow.com/questions/9397778/how-to-declare-global-variables-when-using-the-strict-mode-pragma
+		    var globals = (1,eval)('this');
+			globals.ntrace = newValue;
+
+			if (globals.traces) {
+				showTrace(globals.traces, globals.ntrace);
+			}
+  	    });
   }
   
-  function PieController($scope, $log, $location) {
-  	  console.log("Hello from PieController");
-  	  preparePie();
+    function PieController($scope, $log, $location) {
+	    $scope.location = $location;
+  	    console.log("Hello from PieController");
+  	    preparePie();
 
   	  $scope.$parent.$watch('rawTraces', function(newValue, oldValue) {
   		  console.log("PieController rawTraces watcher fired ");
@@ -179,9 +213,11 @@
 	  }
   }
   
-  function CategoriesController($scope, $log, $location) {
+  function CategoriesController($scope, $log, $location, $window) {
   	  console.log("Hello from CategoriesController");
 
+  	  $scope.window = $window;	// Needed for categories.html to retrieve the URL query param
+  	  
       $scope.categories = null;
       $scope.traces = null;
 
