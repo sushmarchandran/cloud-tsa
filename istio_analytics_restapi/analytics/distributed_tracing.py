@@ -383,17 +383,20 @@ def cluster_traces(traces_timelines):
 
     log.debug(u'Groups of traces: {0}'.format(json.dumps(root_requests, indent=2)))
 
-    # Dictionary where all timelines (for all services) associated with a 
-    # root request are summarized/aggregated
-    cluster = {}
-
     # List of clusters to return
     ret_val = []
 
     # Process each group of traces to compute statistics
     for root_request, grouped_traces_timelines in root_requests.items():
-        cluster[responses.ROOT_REQUEST_STR] = root_request
-        cluster[responses.TRACE_IDS_STR] = grouped_traces_timelines[GROUPED_TRACE_IDS_STR]
+        # Dictionary where all timelines (for all services) associated with a
+        # root request are summarized/aggregated
+        cluster = {
+            responses.ROOT_REQUEST_STR: root_request,
+            responses.TRACE_IDS_STR: grouped_traces_timelines[GROUPED_TRACE_IDS_STR]
+        }
+
+        log.debug('Computing statistics for traces mapping to root request: {0}'.
+                  format(root_request))
         cluster[responses.CLUSTER_STATS_STR] = compute_cluster_stats(grouped_traces_timelines)
         ret_val.append(cluster)
 
