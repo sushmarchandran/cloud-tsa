@@ -657,10 +657,10 @@ def zipkin_trace_list_to_timelines(zipkin_trace_list):
             # should not create a send_response event.
             if current_event:
                 previous_event = current_event
-        
+
         timeline_list = list(events_per_service.values())
         clean_up_timelines(timeline_list)
-        
+
         trace_timelines[constants.TIMELINES_STR] = timeline_list 
         ret_val.append(trace_timelines)
 

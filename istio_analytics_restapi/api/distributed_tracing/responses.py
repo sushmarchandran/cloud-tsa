@@ -172,11 +172,16 @@ MIN_STR = 'min'
 MAX_STR = 'max'
 MEAN_STR = 'mean'
 STD_DEV_STR = 'stddev'
+FIRST_QUARTILE_STR = 'first_quartile'
 MEDIAN_STR = 'median'
 THIRD_QUARTILE_STR = 'third_quartile'
+PERCETILE_95_STR = '95th_percentile'
+PERCETILE_99_STR = '99th_percentile'
 
+EVENT_COUNT_STR = 'event_count'
 ERROR_COUNT_STR = 'error_count'
 TIMEOUT_COUNT_STR = 'timeout_count'
+AVG_TIMEOUT_SEC_STR = 'avg_timeout_seconds'
 RETRY_COUNT_STR = 'retry_count'
 
 base_stats = api.model('base_stats', {
@@ -188,10 +193,16 @@ base_stats = api.model('base_stats', {
                            description='The mean of the underlying distribution'),
     STD_DEV_STR: fields.Float(required=True, example=14.78,
                               description='The standard deviation of the underlying distribution'),
+    FIRST_QUARTILE_STR: fields.Float(required=True, example=200,
+                                     description='The first quartile of the underlying distribution'),
     MEDIAN_STR: fields.Float(required=True, example=70,
                              description='The median of the underlying distribution'),
     THIRD_QUARTILE_STR: fields.Float(required=True, example=200,
-                                     description='The third quartile of the underlying distribution')
+                                     description='The third quartile of the underlying distribution'),
+    PERCETILE_95_STR: fields.Float(required=True, example=600,
+                                     description='The 95th percentile of the underlying distribution'),
+    PERCETILE_99_STR: fields.Float(required=True, example=750,
+                                     description='The 99th percentile of the underlying distribution')
 })
 
 event_stat_details = api.model('event_stat_details', {
@@ -203,6 +214,9 @@ event_stat_details = api.model('event_stat_details', {
                                   description='The event type'),
     INTERLOCUTOR_STR: fields.String(required=True, example='catalog',
                                     description='The other microservice participating in this event'),
+    TRACE_IDS_STR: fields.List(fields.String(required=True, example='0000820a44d42d65',
+                                description='The ids (32-bit hex strings) of the traces to which '
+                                'the events aggregated under these statistics belong')),
     DURATION_STR: fields.Nested(base_stats, required=True,
                                 description='Statistics on the duration of the event in microseconds'),
     REQUEST_SIZE_STR: fields.Nested(base_stats, required=True,
@@ -211,12 +225,17 @@ event_stat_details = api.model('event_stat_details', {
     RESPONSE_SIZE_STR: fields.Nested(base_stats, required=True,
                                      description='Statistics on the size in bytes of the response '
                                      'related to the event'),
+    EVENT_COUNT_STR: fields.Integer(required=True, example=10, min=1,
+                                    description='The number of events corresponding to these '
+                                                'statistics'),
     ERROR_COUNT_STR: fields.Integer(required=True, example=5, min=0,
                                     description='The number of errors (e.g., 5xx HTTP codes) '
                                                 'related to the event'),
     TIMEOUT_COUNT_STR: fields.Integer(required=True, example=3, min=0,
                                       description='The number of timeouts observed for the request related '
                                                   'to the event'),
+    AVG_TIMEOUT_SEC_STR: fields.Float(required=True, example=3.3, min=0.0,
+                                      description='Average timeout observed for this event'),
     RETRY_COUNT_STR: fields.Integer(required=True, example=3, min=0,
                                     description='The number retries observed for the request related '
                                                   'to the event')
