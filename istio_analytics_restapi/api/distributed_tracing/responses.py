@@ -31,9 +31,9 @@ SERVER_SEND_TIMESTAMP_STR = 'ss'
 
 span_details = api.model('span_details', {
     SPAN_ID_STR: fields.String(required=True, example='0000820a44d42d65',
-                                 description='The span id (32-bit hex string)'),
+                                 description='The span id (64-bit hex string)'),
     PARENT_SPAN_ID_STR: fields.String(required=True, example='0000999a44d42d65',
-                                 description='The parent-span id (32-bit hex string)'),
+                                 description='The parent-span id (64-bit hex string)'),
     SOURCE_IP_STR: fields.String(required=True, example='172.30.88.229',
                                  description='The IP address of the microservice that made the call'),
     SOURCE_NAME_STR: fields.String(required=True, example='my_service_1',
@@ -70,7 +70,7 @@ span_details = api.model('span_details', {
 
 trace = api.model('trace', {
     TRACE_ID_STR: fields.String(required=True, example='0000820a44d42d65', 
-                                description='The trace id (32-bit hex string)'),
+                                description='The trace id (64-bit hex string)'),
     SPANS_STR: fields.List(fields.Nested(span_details))
 })
 
@@ -104,9 +104,9 @@ EVENT_PROCESS_RESPONSE = 'process_response'
 
 event_details = api.model('event_details', {
     SPAN_ID_STR: fields.String(required=True, example='0000820a44d42d65',
-                                 description='The span id (32-bit hex string)'),
+                                 description='The span id (64-bit hex string)'),
     PARENT_SPAN_ID_STR: fields.String(required=True, example='0000999a44d42d65',
-                                 description='The parent-span id (32-bit hex string)'),
+                                 description='The parent-span id (64-bit hex string)'),
     EVENT_TYPE_STR: fields.String(required=True, example='send_request',
                                   enum=[EVENT_SEND_REQUEST,
                                         EVENT_SEND_RESPONSE,
@@ -146,7 +146,7 @@ timeline_details = api.model('timeline_details', {
 
 trace_timelines = api.model('trace_timelines', {
     TRACE_ID_STR: fields.String(required=True, example='0000820a44d42d65',
-                                description='The trace id (32-bit hex string)'),
+                                description='The trace id (64-bit hex string)'),
     REQUEST_URL_STR: fields.String(required=True, example='GET /orders',
                                 description="The URL corresponding to the trace's root request"),
     TIMELINES_STR: fields.List(fields.Nested(timeline_details), required=True)
@@ -156,7 +156,7 @@ timelines_response = api.model('timelines_response', {
     ZIPKIN_URL_STR: fields.String(required=True, example='http://localhost:9411',
                                   description='URL of the Zipkin service where the tracing data is stored'),
     TRACES_TIMELINES_STR: fields.List(fields.Nested(trace_timelines), required=True,
-                            description='Timelines of traces. Each trace is represented by one timeline per, '
+                            description='Timelines of traces. Each trace is represented by one timeline per '
                             'microservice, where each timeline is a chronologically-sorted list of events')
 })
 
@@ -167,6 +167,7 @@ ROOT_REQUEST_STR = 'root_request'
 CLUSTERS_STR = 'clusters'
 CLUSTER_STATS_STR = 'cluster_stats'
 TRACE_IDS_STR = 'trace_ids'
+EVENT_SEQUENCE_NUMBER_STR = 'global_event_sequence_number'
 
 MIN_STR = 'min'
 MAX_STR = 'max'
@@ -214,9 +215,11 @@ event_stat_details = api.model('event_stat_details', {
                                   description='The event type'),
     INTERLOCUTOR_STR: fields.String(required=True, example='catalog',
                                     description='The other microservice participating in this event'),
-    TRACE_IDS_STR: fields.List(fields.String(required=True, example='0000820a44d42d65',
-                                description='The ids (32-bit hex strings) of the traces to which '
-                                'the events aggregated under these statistics belong')),
+    TRACE_IDS_STR: fields.List(fields.String, required=True,
+                                description='The ids (64-bit hex strings) of the traces to which '
+                                'the events aggregated under these statistics belong'),
+    EVENT_SEQUENCE_NUMBER_STR: fields.Integer(required=True, example=8, min=0,
+                                              description='Global event sequence number for the trace'),
     DURATION_STR: fields.Nested(base_stats, required=True,
                                 description='Statistics on the duration of the event in microseconds'),
     REQUEST_SIZE_STR: fields.Nested(base_stats, required=True,
@@ -251,7 +254,8 @@ trace_cluster = api.model('trace_cluster', {
     ROOT_REQUEST_STR: fields.String(required=True, example='GET /orders',
                                     description='The URL corresponding to the root request for a cluster'),
     TRACE_IDS_STR: fields.List(fields.String, required=True,
-                               description='List of all trace ids that are part of this cluster'),
+                               description='List of all trace ids (64-bit hex strings) that are '
+                               'part of this cluster'),
     CLUSTER_STATS_STR: fields.List(fields.Nested(cluster_stats), required=True)
 }) 
 
@@ -262,4 +266,33 @@ clusters_response = api.model('clusters_response', {
                             description='Clusters of traces. Each cluster combines similar traces, '
                             'summarizing and aggregating them statistically. Statistics are computed '
                             'for all events of all timelines of all microservices involved.')
+})
+
+####
+# Schema of the trace clusters diff produced by POST /distributed_tracing/traces/timelines/clusters/diff
+####
+BASELINE_TRACE_IDS_STR = 'baseline_trace_ids'
+CANARY_TRACE_IDS_STR = 'canary_trace_ids'
+CLUSTERS_DIFFS = 'clusters_diffs'
+
+trace_cluster_diff = api.model('trace_cluster_diff', {
+    ROOT_REQUEST_STR: fields.String(required=True, example='GET /orders',
+                                    description='The URL corresponding to the root request for a cluster'),
+    BASELINE_TRACE_IDS_STR: fields.List(fields.String, required=True,
+                               description='List of all trace ids (64-bit hex strings) that are part '
+                               'of this baseline cluster'),
+    CANARY_TRACE_IDS_STR: fields.List(fields.String, required=True,
+                               description='List of all trace ids (64-bit hex strings) that are part '
+                               'of this canary cluster')
+
+    # CLUSTER_STATS_STR: fields.List(fields.Nested(cluster_stats), required=True)
+})
+
+clusters_diff_response = api.model('clusters_diff_response', {
+    ZIPKIN_URL_STR: fields.String(required=True, example='http://localhost:9411',
+                                  description='URL of the Zipkin service where the tracing data is stored'),
+    CLUSTERS_DIFFS: fields.List(fields.Nested(trace_cluster_diff), required=True,
+                                description='A list where each element is the comparison of a cluster pair '
+                                '(baseline and canary); the compared clusters have the same '
+                                'root request')
 })

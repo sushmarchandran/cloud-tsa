@@ -246,7 +246,7 @@ def global_sort_annotations(zipkin_trace):
                                        d['annotation'][ZIPKIN_ANNOTATIONS_TIMESTAMP_STR])
     return span_dict, sorted_global_annotations
 
-def initialize_event(zipkin_span, annotation, bin_ann_dict):
+def initialize_event(zipkin_span, annotation, bin_ann_dict, event_sequence_number):
     '''
     Helper function used to initialize an event given a span, one of its regular annotations,
     and its binary annotations. After the call to this function, the caller will further
@@ -256,6 +256,7 @@ def initialize_event(zipkin_span, annotation, bin_ann_dict):
     @param zipkin_span (dictionary): The representation of a Zipkin span
     @param annotation (dictionary): The representation of a regular annotation of the given span
     @param bin_ann_dict (dictionary): Lookup table for the span's binary annotations
+    @param event_sequence_number (integer): Global (trace level) event sequence number
     
     @rtype: dictionary
     @return The representation of an event, as defined  at 
@@ -265,6 +266,7 @@ def initialize_event(zipkin_span, annotation, bin_ann_dict):
         get_binary_annotation_value(bin_ann_dict,
                                     BINARY_ANNOTATION_REQUEST_LINE_STR).split(' ')
     event = {
+        constants.EVENT_SEQUENCE_NUMBER_STR: event_sequence_number,
         constants.SPAN_ID_STR: zipkin_span[ZIPKIN_SPANID_STR],
         constants.TIMESTAMP_STR: annotation[ZIPKIN_ANNOTATIONS_TIMESTAMP_STR],
         constants.REQUEST_URL_STR: ' '.join(request_info[0:2]),
@@ -299,7 +301,8 @@ def update_events_per_span(events_per_span, event, span_id, event_type):
     events_per_span[span_id][event_type] = event
 
 def process_cs_annotation(cs_ann, zipkin_span_dict, ip_to_name_lookup_table,
-                          events_per_service, events_per_span, previous_event):
+                          events_per_service, events_per_span, previous_event,
+                          event_sequence_number):
     '''
     Processes a CS annotation to create a send_request event.
 
@@ -342,7 +345,8 @@ def process_cs_annotation(cs_ann, zipkin_span_dict, ip_to_name_lookup_table,
         }
 
     # Create a new send_request event
-    event = initialize_event(zipkin_span, cs_ann['annotation'], bin_ann_dict)
+    event = initialize_event(zipkin_span, cs_ann['annotation'], bin_ann_dict,
+                             event_sequence_number)
     event[constants.EVENT_TYPE_STR] = constants.EVENT_SEND_REQUEST
     event[constants.INTERLOCUTOR_STR] = zipkin_span[ZIPKIN_NAME_STR].split(':')[0]
 
@@ -386,7 +390,7 @@ def process_cs_annotation(cs_ann, zipkin_span_dict, ip_to_name_lookup_table,
     return event
 
 def process_sr_annotation(sr_ann, zipkin_span_dict, ip_to_name_lookup_table, 
-                          events_per_service, events_per_span):
+                          events_per_service, events_per_span, event_sequence_number):
     '''
     Processes an SR annotation to create a process_request event.
 
@@ -423,7 +427,8 @@ def process_sr_annotation(sr_ann, zipkin_span_dict, ip_to_name_lookup_table,
         }
 
     # Create a new process_request event
-    event = initialize_event(zipkin_span, sr_ann['annotation'], bin_ann_dict)
+    event = initialize_event(zipkin_span, sr_ann['annotation'], bin_ann_dict,
+                             event_sequence_number)
     event[constants.EVENT_TYPE_STR] = constants.EVENT_PROCESS_REQUEST
 
     cs_ip_address = ann_dict[ZIPKIN_CS_ANNOTATION]\
@@ -439,7 +444,8 @@ def process_sr_annotation(sr_ann, zipkin_span_dict, ip_to_name_lookup_table,
     return event
 
 def process_ss_annotation(ss_ann, zipkin_span_dict, ip_to_name_lookup_table,
-                          events_per_service, events_per_span, previous_event):
+                          events_per_service, events_per_span, previous_event,
+                          event_sequence_number):
     '''
     Processes an SS annotation to create a send_response event.
 
@@ -486,7 +492,8 @@ def process_ss_annotation(ss_ann, zipkin_span_dict, ip_to_name_lookup_table,
     service_name = ip_to_name_lookup_table[ip_address]
 
     # Create a new send_response event
-    event = initialize_event(zipkin_span, ss_ann['annotation'], bin_ann_dict)
+    event = initialize_event(zipkin_span, ss_ann['annotation'], bin_ann_dict,
+                             event_sequence_number)
     event[constants.EVENT_TYPE_STR] = constants.EVENT_SEND_RESPONSE
 
     cs_ip_address = ann_dict[ZIPKIN_CS_ANNOTATION]\
@@ -526,7 +533,7 @@ def process_ss_annotation(ss_ann, zipkin_span_dict, ip_to_name_lookup_table,
     return event
 
 def process_cr_annotation(cr_ann, zipkin_span_dict, ip_to_name_lookup_table, 
-                          events_per_service, events_per_span):
+                          events_per_service, events_per_span, event_sequence_number):
     '''
     Processes a CR annotation to create a process_response event.
 
@@ -554,7 +561,8 @@ def process_cr_annotation(cr_ann, zipkin_span_dict, ip_to_name_lookup_table,
     service_name = ip_to_name_lookup_table[ip_address]
 
     # Create a new process_response event
-    event = initialize_event(zipkin_span, cr_ann['annotation'], bin_ann_dict)
+    event = initialize_event(zipkin_span, cr_ann['annotation'], bin_ann_dict,
+                             event_sequence_number)
     event[constants.EVENT_TYPE_STR] = constants.EVENT_PROCESS_RESPONSE
 
     if get_binary_annotation_value(bin_ann_dict,
@@ -626,6 +634,12 @@ def zipkin_trace_list_to_timelines(zipkin_trace_list):
         # Lookup table that associates IP addresses to names of microservices
         ip_to_name_lookup_table = {}
 
+        # Sequence number for the events of a trace
+        # This is done so that the function distributed_tracing.cluster_traces() can
+        # explicitly indicate the global order of events for a cluster to help the
+        # UI properly place the aggregated events of a cluster on the screen
+        event_sequence_number = 0
+
         previous_event = None
         current_event = None
         for annotation in sorted_annotations:
@@ -634,29 +648,34 @@ def zipkin_trace_list_to_timelines(zipkin_trace_list):
                 current_event = process_cs_annotation(annotation, zipkin_span_dict,
                                                       ip_to_name_lookup_table,
                                                       events_per_service,
-                                                      events_per_span, previous_event)
+                                                      events_per_span, previous_event,
+                                                      event_sequence_number)
             elif annotation['annotation']\
                            [ZIPKIN_ANNOTATIONS_VALUE_STR] == ZIPKIN_SR_ANNOTATION:
                 current_event = process_sr_annotation(annotation, zipkin_span_dict,
                                                       ip_to_name_lookup_table,
-                                                      events_per_service, events_per_span)
+                                                      events_per_service, events_per_span,
+                                                      event_sequence_number)
             elif annotation['annotation']\
                            [ZIPKIN_ANNOTATIONS_VALUE_STR] == ZIPKIN_SS_ANNOTATION:
                 current_event = process_ss_annotation(annotation, zipkin_span_dict,
                                                       ip_to_name_lookup_table, 
                                                       events_per_service, 
-                                                      events_per_span, previous_event)
+                                                      events_per_span, previous_event,
+                                                      event_sequence_number)
             elif annotation['annotation']\
                            [ZIPKIN_ANNOTATIONS_VALUE_STR] == ZIPKIN_CR_ANNOTATION:
                 current_event = process_cr_annotation(annotation,  zipkin_span_dict,
                                                       ip_to_name_lookup_table,
-                                                      events_per_service, events_per_span)
+                                                      events_per_service, events_per_span,
+                                                      event_sequence_number)
             # Note that current_event can be None if this is an SS annotation 
             # in a span with a timeout.
             # In this case, because a send_request event has timed out, we
             # should not create a send_response event.
             if current_event:
                 previous_event = current_event
+                event_sequence_number += 1
 
         timeline_list = list(events_per_service.values())
         clean_up_timelines(timeline_list)

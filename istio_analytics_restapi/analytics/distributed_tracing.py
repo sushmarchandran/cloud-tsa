@@ -9,7 +9,6 @@ import json
 import statistics
 
 import istio_analytics_restapi.api.distributed_tracing.responses as responses
-
 import istio_analytics_restapi.analytics.distribution_stats as distribution_stats
 
 ####
@@ -117,6 +116,9 @@ def aggregate_events(events_to_aggregate):
     timeout_distribution = []
 
     for event in events_to_aggregate:
+        event_stats[responses.EVENT_SEQUENCE_NUMBER_STR] = \
+            event[responses.EVENT_SEQUENCE_NUMBER_STR]
+
         if responses.DURATION_STR in event:
             # We compute statistics on duration for all event types
             duration_distribution.append(event[responses.DURATION_STR])
