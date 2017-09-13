@@ -274,7 +274,7 @@ def compute_cluster_stats(grouped_traces_timelines):
                       format(service, json.dumps(event_list, indent=2)))
 
         # Dictionary with all event lists
-        # The dictionary is indexed by list size, and reversely sorted by size
+        # The dictionary is reversely sorted by size
         event_list_and_sizes = sorted([{SIZE:len(l), EVENT_LIST:l, TRACE_ID: id}
                                         for l,id in zip(events_lists,
                                                         grouped_traces_timelines[GROUPED_TRACE_IDS_STR])
