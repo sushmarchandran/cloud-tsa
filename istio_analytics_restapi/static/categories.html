@@ -1,3 +1,7 @@
+<b>Types</b> |
+<a href="{{ location.absUrl().replace('/categories', '/sequence') }}">Sequence</a> |
+<a href="{{ location.absUrl().replace('/categories', '/pie') }}">Time</a><br>
+
 <p>
 <table class="traceTable">
   <tr ng-repeat="category in categories | orderBy:'-Traces.length'">
@@ -5,7 +9,7 @@
     <td>{{ category.StructureTitle }}</td>
     <td>
     <span ng-repeat="trace in category.Traces">
-    <a href="uml3.html?trace={{trace}}">{{trace}}</a>{{traceAnnotations(category, trace)}}
+    <a href="/uml/trace/{{trace}}/sequence{{ window.location.search }}">{{trace}}</a>{{traceAnnotations(category, trace)}}
     </span>
     </td>
   </tr>

@@ -1,8 +1,19 @@
+<!--
+// Licensed Materials - Property of IBM
+// (C) Copyright IBM Corp. 2017. All Rights Reserved.
+// US Government Users Restricted Rights - Use, duplication or
+// disclosure restricted by GSA ADP Schedule Contract with IBM Corp.
+-->
+
+<a href="{{ location.absUrl().replace('/sequence', '/categories') }}">Types</a> |
+<b>Sequence</b> |
+<a href="{{ location.absUrl().replace('/sequence', '/pie') }}">Time</a><br>
+
+<p>
 Trace: <span id="traceno"></span> /
 Sibling traces: <span id="sibling_cnt"></span> /
 Initiated at: <span id="initiated"></span>;
 Duration: <span id="tracelength"></span> /
-Reporting server: <a href="" id="data_origin"></a> <!-- span id="data_origin"></span -->
 
 <br>
 <button id="prevTrace" type="button" onclick="prevTrace()" disabled>&lt;</button>
