@@ -158,14 +158,17 @@ def aggregate_events(events_to_aggregate):
         event_stats[responses.TRACE_IDS_STR].append(event[TRACE_ID])
 
     # Compute statistics on the data distributions
-    event_stats[responses.DURATION_STR] = \
-        distribution_stats.compute_stats(duration_distribution)
+    if len(duration_distribution) > 0:
+        event_stats[responses.DURATION_STR] = \
+            distribution_stats.compute_stats(duration_distribution)
     if event_type == responses.EVENT_SEND_REQUEST:
-        event_stats[responses.REQUEST_SIZE_STR] = \
-            distribution_stats.compute_stats(request_size_distribution)
+        if len(request_size_distribution) > 0:
+            event_stats[responses.REQUEST_SIZE_STR] = \
+                distribution_stats.compute_stats(request_size_distribution)
     elif event_type == responses.EVENT_SEND_RESPONSE:
-        event_stats[responses.RESPONSE_SIZE_STR] = \
-            distribution_stats.compute_stats(response_size_distribution)
+        if len(response_size_distribution) > 0:
+            event_stats[responses.RESPONSE_SIZE_STR] = \
+                distribution_stats.compute_stats(response_size_distribution)
 
     event_stats[responses.ERROR_COUNT_STR] = error_count
     event_stats[responses.TIMEOUT_COUNT_STR] = timeout_count
