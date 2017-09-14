@@ -239,6 +239,12 @@
   		    showPie();
   	    });
         
+        $scope.$watch('nflow', function() {
+            console.log("PieController nflow watcher fired");
+            // TODO update URL?
+  		    showPie();
+  	    });
+
         $scope.prevFlow = function() {
         	if ($scope.nflow > 0) {
         		$scope.nflow--;

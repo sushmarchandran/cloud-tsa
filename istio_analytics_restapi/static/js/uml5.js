@@ -464,7 +464,7 @@ function addCommunication(data) {
 		});
     messageLabels.exit().remove();
     messageLabels.transition().duration(0)
-		.text(function(d) { return "TODO" /*d.request*/; })
+		.text(function(d) { return d.request; })
 		.attr("transform", function(d) {
 			return makeSVGTransform(
 					data,
@@ -562,6 +562,10 @@ function nicenum(x, round) {
 }
 
 function prettyMicroseconds(ms, msOfLargest) {
+	if (ms==null) {
+		return "null";
+	}
+	
 	// If we get a second parameter, format the first using the units of the second
 	if (typeof msOfLargest == "undefined") {
 		msOfLargest = ms;

@@ -10,8 +10,8 @@
 <b>Time</b>
 
 <p>
-<button id="prevFlow" type="button" ng-click="prevFlow()">&lt;</button>
-<button id="nextFlow" type="button" ng-click="nextFlow()">&gt;</button>
+<button id="prevFlow" type="button" ng-click="prevFlow()" ng-disabled="nflow < 1">&lt;</button>
+<button id="nextFlow" type="button" ng-click="nextFlow()" ng-disabled="nflow >= clusters.length-1">&gt;</button>
 Flow: {{ clusters[nflow].root_request }}
 
 <p>
