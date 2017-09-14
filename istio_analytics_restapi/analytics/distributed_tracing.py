@@ -102,6 +102,7 @@ def aggregate_events(events_to_aggregate):
 
     event_stats = {
         responses.EVENT_TYPE_STR: event_type,
+        responses.REQUEST_URL_STR: events_to_aggregate[0][responses.REQUEST_URL_STR],
         responses.INTERLOCUTOR_STR: events_to_aggregate[0][responses.INTERLOCUTOR_STR],
         responses.TRACE_IDS_STR: []
     }

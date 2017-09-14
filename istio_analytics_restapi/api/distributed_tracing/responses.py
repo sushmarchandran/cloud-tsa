@@ -215,6 +215,8 @@ event_stat_details = api.model('event_stat_details', {
                                   description='The event type'),
     INTERLOCUTOR_STR: fields.String(required=True, example='catalog',
                                     description='The other microservice participating in this event'),
+    REQUEST_URL_STR: fields.String(required=True, example='GET /catalog',
+                                 description='The URL corresponding to the event'),
     TRACE_IDS_STR: fields.List(fields.String, required=True,
                                 description='The ids (64-bit hex strings) of the traces to which '
                                 'the events aggregated under these statistics belong'),
