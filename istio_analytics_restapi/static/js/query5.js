@@ -95,13 +95,22 @@
 				$scope.queryStatus = "Request took " + (new Date() - requestTime) + "ms";
 					
 				$scope.dataOrigin = response.data.zipkin_url;
-					
+
+				annotateFlows(response.data.clusters);
+				
 				// The visualizations watch for these changes, rather than being called here.
 
 	        }, function errorCallback(response) {
 				    $scope.queryStatus = "Failed " + JSON.stringify(response);
 				    $scope.clusters = [];
 	        });
+        }
+        
+        function annotateFlows(flows) {
+        	// Explicitly set the index, so that we can retrieve the true index after sorting
+        	for (var nflow in flows) {
+        		flows[nflow].index = nflow;
+        	}
         }
     } // TraceQueryController
   
@@ -125,8 +134,14 @@
         });
         
         $scope.$parent.$watch('clusters', function(newValue, oldValue) {
-            console.log("CategoriesController clusters watcher fired, got newValue " + newValue + ", a " + typeof newValue);
+            console.log("SequenceDiagramController clusters watcher fired");
   		    $scope.clusters = newValue;
+  		    refreshTrace();
+  	    });
+
+        $scope.$watch('nflow', function() {
+            console.log("SequenceDiagramController nflow watcher fired");
+            // TODO update URL?
   		    refreshTrace();
   	    });
 
@@ -137,11 +152,40 @@
         
         $scope.categoriesUrl = function() {
         	return $location.absUrl().replace(/sequence\/flow\/[0-9]+\/trace\/[0-9]+/, 'categories');
-        }
+        };
+        
         $scope.pieUrl = function() {
         	return $location.absUrl().replace(/sequence\/flow\/([0-9]+)\/trace\/[0-9]+/, 'pie/flow/$1');
+        };
+        
+        $scope.selectedFlowTitle = function() {
+        	if (!$scope.clusters[$scope.nflow]) {
+        		return "";
+        	}
+        	
+        	return $scope.clusters[$scope.nflow].root_request;
+        };
+        
+        $scope.selectedTraceId = function() {
+        	if (!$scope.clusters[$scope.nflow]) {
+        		return "";
+        	}
+        	
+        	return $scope.clusters[$scope.nflow].trace_ids[$scope.ntrace];
+        }
+        
+        $scope.prevFlow = function() {
+        	if ($scope.nflow > 0) {
+        		$scope.nflow--;
+        	}
         }
 
+        $scope.nextFlow = function() {
+        	if ($scope.nflow < $scope.clusters.length-1) {
+        		$scope.nflow++;
+        	}
+        }
+        
         function refreshTrace() {
   		    if ($scope.nflow >= $scope.clusters.length) {
   	  		    showTrace({cluster_stats: []}, $scope.magnification);
@@ -152,8 +196,6 @@
         }
         
         function parseForFlowAndTraceno() {
-        	console.log("Parsing flow and traceno");
-        	
 			var ndx = $location.path().indexOf("/flow/")
 			if (ndx > 0) {
 				$scope.nflow = parseInt($location.path().substring(ndx+6));
@@ -167,6 +209,9 @@
 			} else {
 				$scope.ntrace = 0;
 			}
+			
+        	console.log("Parsing flow and traceno yielded " + $scope.nflow + ":" + $scope.ntrace);
+        	// $scope.clusters may not be ready yet.
 	    };
 
 	    function bigger() {
@@ -323,7 +368,7 @@
         $scope.clusters = [];	// Array of {root_request:, trace_ids:, cluster_stats: }
 
         $scope.$parent.$watch('clusters', function(newValue, oldValue) {
-            console.log("CategoriesController clusters watcher fired, got newValue " + newValue + ", a " + typeof newValue);
+            // console.log("CategoriesController clusters watcher fired, got newValue " + newValue + ", a " + typeof newValue);
   		    $scope.clusters = newValue;
   	    });
     } // CategoriesController
