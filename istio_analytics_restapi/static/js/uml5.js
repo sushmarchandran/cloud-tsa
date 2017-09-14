@@ -464,7 +464,7 @@ function addCommunication(data) {
 		});
     messageLabels.exit().remove();
     messageLabels.transition().duration(0)
-		.text(function(d) { return d.request; })
+		.text(function(d) { return "TODO" /*d.request*/; })
 		.attr("transform", function(d) {
 			return makeSVGTransform(
 					data,
@@ -643,18 +643,18 @@ function toScaledBox(d, x) {
 	}
 
 	var retval;
-	if (d.duration.q3 == d.duration.q1) {
-		if (x < d.duration.q1) {
-			factor = (x - d.duration.q1) / d.duration.median;
+	if (d.duration.third_quartile == d.duration.first_quartile) {
+		if (x < d.duration.first_quartile) {
+			factor = (x - d.duration.first_quartile) / d.duration.median;
 			retval = (d.start + factor * d.duration.median) * timeScale;
-		} else if (x > d.duration.q3) {
-			factor = (x - d.duration.q3) / d.duration.median;
+		} else if (x > d.duration.third_quartile) {
+			factor = (x - d.duration.third_quartile) / d.duration.median;
 			retval = (d.complete + factor * d.duration.median) * timeScale;
-		} else { // x == q1 == median == q3
+		} else { // x == first_quartile == median == third_quartile
 			retval = (d.start+d.complete)/2 * timeScale;
 		}
 	} else {
-		var factor = (x - d.duration.q1)/(d.duration.q3 - d.duration.q1);
+		var factor = (x - d.duration.first_quartile)/(d.duration.third_quartile - d.duration.first_quartile);
 
 		if (isNaN(factor)) {
 			console.log("toScaledBox() failed to calculate factor; x=" + x + ", d.duration=" + JSON.stringify(d.duration));
@@ -680,13 +680,13 @@ function popupWhiskers(d, i) {
 		oldTrans = label.attr("transform");
 	}
 	label.transition().duration(500)
-		.text(textFiveNumberSummary(d.duration) + " selected " + prettyMicroseconds(d.duration.selected))
+		.text(textFiveNumberSummary(d.duration) /* + " selected " + prettyMicroseconds(d.duration.selected)*/)
 		.attr("text-anchor", "start")
 		.attr("transform", "")
 		.attr("oldTrans", oldTrans);
 
-    // Don't draw whiskers if we have only one data point and no real min/q1 q3/max separation
-    if (d.duration.min == d.duration.q1 || d.duration.max == d.duration.q3) {
+    // Don't draw whiskers if we have only one data point and no real min/first_quartile third_quartile/max separation
+    if (d.duration.min == d.duration.first_quartile || d.duration.max == d.duration.third_quartile) {
     	return;
     }
     
@@ -763,5 +763,52 @@ function source(event) {
 function target(event) {
 	var retval = event.interlocutor;
 	// console.log(retval + " is the target of " + JSON.stringify(event));
+	return retval;
+}
+
+function textFiveNumberSummary(details) {
+	// By passing max with the desired number we ensure the units are the same on all examples
+	var retval = "{min} {first_quartile} {median} {third_quartile} {max}"
+		.replace("{min}", prettyMicroseconds(details.min, details.max))
+		.replace("{first_quartile}", prettyMicroseconds(details.first_quartile, details.max))
+		.replace("{median}", prettyMicroseconds(details.median, details.max))
+		.replace("{third_quartile}", prettyMicroseconds(details.third_quartile, details.max))
+		.replace("{max}", prettyMicroseconds(details.max));
+	
+	return retval;
+}
+
+//Draw a whisker line, optionally with an indication that it is long and has been shortened
+function boxplotPolylinePoints(longline, x, start, finish) {
+	var retval;
+
+	if (longline) {
+		
+		// Draw a long line break
+		//
+		//  | x, y1
+		//  |
+		//   - xp, yb1 AKA x + width, y1 + .45*(y2-y1)
+		//  /
+		// -   xm, yb2 AKA y - width, y1 + .55*(y2-y1)/3
+		//  |
+		//  | x, y2
+
+		var width = 5;
+		//var str = "x,y1 x,yb1 xp,yb1 xm,yb2 x,yb2 x,y2";
+		var str = "x,y1, x,yb1, xp,yb1, xm,yb2, x,yb2, x,y2";
+		var y1 = start, y2 = finish;
+		var retval = str.replace(/y1/g, start).replace(/y2/g, finish)
+			.replace(/xp/g, x+width).replace(/xm/g, x-width)
+			.replace(/yb1/g, y1+.45*(y2-y1)).replace(/yb2/g, y1+.55*(y2-y1))
+			.replace(/x/g, x);
+	} else {
+	
+		// Finish is fine, no need to make a long line break
+		var str = "x,y1 x,y2";
+		var retval = str.replace(/x/g, x).replace("y1", start).replace("y2", finish);
+	}
+	
+	// console.log("boxplotPolylinePoints returning " + retval);
 	return retval;
 }
