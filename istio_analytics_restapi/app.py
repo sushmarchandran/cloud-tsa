@@ -30,6 +30,18 @@ def favicon():
 def uml(traceno, view):
     return app.send_static_file('uml.html')
 
+@app.route("/uml5/sequence/flow/<flow>/trace/<traceid>")
+def uml5sequence(flow, traceid):
+    return app.send_static_file('uml5.html')
+
+@app.route("/uml5/categories")
+def uml5categories():
+    return app.send_static_file('uml5.html')
+
+@app.route("/uml5/pie/flow/<flow>")
+def uml5pie(flow):
+    return app.send_static_file('uml5.html')
+
 @app.after_request
 def modify_headers(response):
     '''Sets the server HTTP header returned to the clients for all requests 
