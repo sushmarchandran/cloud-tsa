@@ -52,3 +52,7 @@
     /*font-size: x-small;*/
     fill: white;
 }
+
+.selfMessage {
+    fill: none;
+}

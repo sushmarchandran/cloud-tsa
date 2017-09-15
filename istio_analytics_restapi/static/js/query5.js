@@ -158,6 +158,8 @@
         	return $location.absUrl().replace(/sequence\/flow\/([0-9]+)\/trace\/[0-9]+/, 'pie/flow/$1');
         };
         
+        $scope.dumpFlow = function () { alert(JSON.stringify($scope.clusters[$scope.nflow])); };
+        
         $scope.selectedFlowTitle = function() {
         	if (!$scope.clusters[$scope.nflow]) {
         		return "";

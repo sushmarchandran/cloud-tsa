@@ -143,35 +143,35 @@ function orderEvents(trace) {
 	var requests = {};
 	
 	// Remember the send_request for each span
-	var spans = {}
+	//var spans = {}
 	
 	var basetime = 0;
 	for (var i in events) {
-		//console.log("setting next/start/complete for " + events[i].service + "/" 
-		//		+ events[i].type + " " + events[i].request + " which has timeout " 
-		//		+ JSON.stringify(events[i].timeout));
+		console.log("setting next/start/complete for " + events[i].service + "/" 
+				+ events[i].type + " " + events[i].request + " which has " 
+				+ events[i].timeout_count + "timeout(s)");
 		
 		//events[i].nextEvent = events[i+1];
 		//events[i].prevEvent = events[i-1];
 		
 		if (events[i].type == "send_request") {
 			requests[events[i].service] = events[i];
-			spans[events[i].span_id] = events[i];
+			// spans[events[i].span_id] = events[i];
 		}
 		
-		if (events[i].timeout && events[i].type == "process_response") {
-			// When we are processing as a result of timing out, the start time
-			// should be the timeout median after the previous send_request from the same service.
-			basetime = requests[events[i].service].start + events[i].timeout.median;
-		}
+		//if (events[i].timeout && events[i].type == "process_response") {
+		//	// When we are processing as a result of timing out, the start time
+		//	// should be the timeout median after the previous send_request from the same service.
+		//	basetime = requests[events[i].service].start + events[i].timeout.median;
+		//}
 		
-		if (events[i].type == "process_request") {
-			// Set the basetime/start from the send_request's stop time.
-			if (spans[events[i].span_id] == undefined) {
-				throw new Error("Expected to find span " + events[i].span_id + " but the only spans are " + JSON.stringify(Object.keys(spans)));
-			}
-			basetime = spans[events[i].span_id].complete;
-		}
+		//if (events[i].type == "process_request") {
+		//	// Set the basetime/start from the send_request's stop time.
+		//	if (spans[events[i].span_id] == undefined) {
+		//		throw new Error("Expected to find span " + events[i].span_id + " but the only spans are " + JSON.stringify(Object.keys(spans)));
+		//	}
+		//	basetime = spans[events[i].span_id].complete;
+		//}
 		
 		events[i].start = basetime;
 		events[i].complete = basetime + events[i].duration.median;
@@ -419,6 +419,9 @@ function addCommunication(data) {
 	.selectAll(".message")
     .data(requests);
 	messageArrows.enter().append("line")
+		.on("click", function(d) {
+			alert("Debug: This is global event " + d.global_event_sequence_number); // TODO remove
+		})
 		.attr("class", "message");
 	messageArrows.exit().remove();
 	// TODO x1 and x2 are incorrect if x1 > x2
@@ -430,6 +433,25 @@ function addCommunication(data) {
 		.attr("marker-end", function (d) { return d.timeout ? "url(#SolidTimeoutArrowhead)" : "url(#SolidArrowhead)"; })
 		.attr("y2", function(d) { return d.complete * timeScale; })
 		.attr("visibility", function(d) { return (source(d) != target(d)) ? "visible" : "hidden"; });
+	
+	// Some messages (e.g. DLaaS health checks) have the same source and target.
+	var selfRequests = requests.filter(function f(d) { return source(d) == target(d); });
+	for (var selfRequest of selfRequests) {
+		selfRequest.lifelineX = lifelineX(data, selfRequest.service);
+	}
+	var messageArrows = d3.select("#messageArrows")
+		.selectAll(".selfMessage")
+		.data(selfRequests);
+	messageArrows.enter().append("polyline")
+		.on("click", function(d) {
+			alert("Debug: This is global event " + d.global_event_sequence_number); // TODO remove
+		})
+		.attr("class", "selfMessage");
+	messageArrows.exit().remove();
+	messageArrows.transition().duration(0)
+		.attr("points", selfRequestPoints)
+		.attr("stroke", function (d) { return d.timeout ? "lightblue" : "black"; })
+		.attr("marker-end", function (d) { return d.timeout ? "url(#SolidTimeoutArrowhead)" : "url(#SolidArrowhead)"; })
 		
 	var messageLabels = d3.select("#messageLabels")
 	.selectAll(".messageLabel")
@@ -438,7 +460,7 @@ function addCommunication(data) {
 		.attr("class", "messageLabel")
 		.attr("text-anchor", "middle")
 		.attr("alignment-baseline", "middle")
-		.attr("fill", "black")
+		.attr("fill", messageLabelFillColor)
 		.on("mouseenter", function(d, i) {
 			var t = d3.select("#popups").append("text")
 				.attr("class", "messageLabelDetails")
@@ -448,7 +470,10 @@ function addCommunication(data) {
 				.attr("filter", "url(#LabelBackground)")
 				//.text(textFiveNumberSummary(d.duration))
 				t.append("tspan").attr("x", 0).attr("dy", "1.2em").text(textFiveNumberSummary(d.duration))
-				t.append("tspan").attr("x", 0).attr("dy", "1.2em").text("{count} request(s)".replace("{count}", d.duration.count))
+				t.append("tspan").attr("x", 0).attr("dy", "1.2em").text("{count} request(s)".replace("{count}", d.event_count))
+				t.append("tspan").attr("x", 0).attr("dy", "1.2em").text("{error_count} error(s)".replace("{error_count}", d.error_count))
+				t.append("tspan").attr("x", 0).attr("dy", "1.2em").text("{timeout_count} timeout(s)".replace("{timeout_count}", d.timeout_count))
+				t.append("tspan").attr("x", 0).attr("dy", "1.2em").text("{retry_count} retry(ies)".replace("{retry_count}", d.retry_count))
 				t.attr("transform", function(innerd) {
 					return makeSVGTransform(
 							data,
@@ -484,6 +509,9 @@ function addCommunication(data) {
 		.attr("class", "returnMessage")
 		.attr("stroke", "black")
 		.attr("stroke-dasharray", "2,2")
+		.on("click", function(d) {
+			alert("Debug: This is global event " + d.global_event_sequence_number); // TODO remove
+		})
 		.attr("marker-end", "url(#OpenArrowhead)");
 	returnMessages.exit().remove();
 	returnMessages.transition().duration(0)
@@ -509,7 +537,7 @@ function addCommunication(data) {
 				.attr("filter", "url(#LabelBackground)")
 				.attr("fill", "black")
 				t.append("tspan").attr("x", 0).attr("dy", "1.2em").text(textFiveNumberSummary(d.duration))
-				t.append("tspan").attr("x", 0).attr("dy", "1.2em").text("{count} request(s)".replace("{count}", d.duration.count))
+				t.append("tspan").attr("x", 0).attr("dy", "1.2em").text("{count} request(s)".replace("{count}", d.event_count))
 				t.attr("transform", function(innerd) {
 					return makeSVGTransform(
 							data,
@@ -594,6 +622,9 @@ function addActivations(data) {
 	activationBoxes.enter().append("rect")
 		.attr("class", "activationBox")
 		.attr("width", activationBoxWidth)
+		.on("click", function(d) {
+			alert("Debug: This is global event " + d.global_event_sequence_number); // TODO remove
+		})
 		.on("mouseenter", popupWhiskers)
 		.on("mouseleave", removeWhiskers);
     activationBoxes.exit().remove();
@@ -782,7 +813,22 @@ function textFiveNumberSummary(details) {
 	return retval;
 }
 
-//Draw a whisker line, optionally with an indication that it is long and has been shortened
+// Generate points for a polyline from self to self that looks like a UML process diagram
+// activation box sending a message to the same process.
+function selfRequestPoints(d) {
+	// ---
+	//    |
+	// <--
+
+	var retval = "x1,y1, x2,y1, x2,y2, x1,y2"
+		.replace(/x1/g, d.lifelineX + activationBoxWidth/2)
+		.replace(/x2/g, d.lifelineX + activationBoxWidth/2 + 10)
+		.replace(/y1/g, d.start * timeScale)
+		.replace(/y2/g, d.complete * timeScale);
+	return retval;
+}
+
+// Draw a whisker line, optionally with an indication that it is long and has been shortened
 function boxplotPolylinePoints(longline, x, start, finish) {
 	var retval;
 
@@ -815,4 +861,21 @@ function boxplotPolylinePoints(longline, x, start, finish) {
 	
 	// console.log("boxplotPolylinePoints returning " + retval);
 	return retval;
+}
+
+// TODO replace this with adding a class so that we can use CSS to define colors
+function messageLabelFillColor(d) {
+	if (d.error_count > 0 && d.timeout_count) {
+		return "purple";
+	}
+	
+	if (d.error_count > 0) {
+		return "red";
+	}
+	
+	if (d.timeout_count) {
+		return "lightblue";
+	}
+
+	return "black";
 }
