@@ -67,10 +67,10 @@ function prepareChart() {
 		.attr("id", "timeoutRetries")
 		.attr("transform", makeTranslation(timeMargin, processHeight));
 	svg.append("g")
-		.attr("id", "popups")
+		.attr("id", "debugging")
 		.attr("transform", makeTranslation(timeMargin, processHeight));
 	svg.append("g")
-		.attr("id", "debugging")
+		.attr("id", "popups")
 		.attr("transform", makeTranslation(timeMargin, processHeight));
 	
 	return svg;
@@ -274,6 +274,8 @@ function setupSequenceDiagram(data, magnification) {
 	addCommunication(data);
 	
 // TODO RESTORE	addRetries(data);
+	
+	addDebugging(data);
 }
 
 function greatestTime(events) {
@@ -565,6 +567,37 @@ function addCommunication(data) {
 					);
 		})
 		.attr("visibility", function(d) { return d.response_code != "0" ? "visible" : "hidden"; });
+}
+
+function addDebugging(data) {
+	var activations = data.events.filter(function f(evt) { return evt.type == "process_request" || evt.type == "process_response"; });
+	var communication = data.events.filter(function f(evt) { return evt.type == "send_request" || evt.type == "send_response"; });
+
+	var activationSequence = d3.select("#debugging")
+		.selectAll(".sequenceActivation")
+		.data(activations);
+	activationSequence.enter().append("text")
+		.attr("class", "sequenceActivation")
+    	.attr("text-anchor", "middle")
+    	.attr("alignment-baseline", "middle");
+	activationSequence.exit().remove();
+	activationSequence.transition().duration(0)
+		.attr("x", function(d) { return d.lifelineX; })
+		.attr("y", function(d) { return timeScale * (d.start + d.complete) / 2.0; })
+		.text(function (d, i) { return d.global_event_sequence_number; })
+
+	var communicationSequence = d3.select("#debugging")
+		.selectAll(".sequenceCommunication")
+		.data(communication);
+	communicationSequence.enter().append("text")
+		.attr("class", "sequenceCommunication")
+    	.attr("text-anchor", "middle")
+    	.attr("alignment-baseline", "middle");
+	communicationSequence.exit().remove();
+	communicationSequence.transition().duration(0)
+		.attr("x", function(d) { return (lifelineX(data, source(d)) + lifelineX(data, target(d))) / 2.0; })
+		.attr("y", function(d) { return timeScale * (d.start + d.complete) / 2.0; })
+		.text(function (d, i) { return d.global_event_sequence_number; })
 }
 
 //nicenum() finds a "nice" number approximately equal to x.  If `round` is `true` rounds, otherwise takes ceiling.
