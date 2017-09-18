@@ -7,7 +7,7 @@
 
 (function(angular) {
     'use strict';
-  
+
     // Define module, that requires modules ngMaterial and ngMessages
     // Note that in addition to referencing them here the HTML must <script src=>
     // them as well.
@@ -53,20 +53,20 @@
         $scope.startTime = "";
         $scope.endTime = "";
         $scope.maxTraces = 500;
-      
+
         $scope.query = query;
-      
+
         $rootScope.$on('$locationChangeSuccess', function () {
             // I had trouble listening for $scope.$on('$routeUpdate',...) and losing trace #
             console.log("TraceQueryController $locationChangeSuccess triggered, $location.path()=" + $location.path());
-            
+
             $scope.startTime = $location.search()['start'];
             $scope.endTime = $location.search()['end'];
             if ('max' in $location.search()) {
                 $scope.maxTraces = parseInt($location.search()['max']);
             }
         });
-      
+
         function query() {
             $scope.queryStatus = "Posting query";
             $scope.dataOrigin = "";
@@ -78,7 +78,7 @@
             $scope.dataOrigin = response_data.zipkin_url;
             $scope.clusters = response_data.clusters;
             */
-            
+
             var requestTime = new Date();
             $http({
                   method: 'POST',
@@ -93,11 +93,11 @@
 
                 // TODO remove
                 $scope.queryStatus = "Request took " + (new Date() - requestTime) + "ms";
-                    
+
                 $scope.dataOrigin = response.data.zipkin_url;
 
                 annotateFlows(response.data.clusters);
-                
+
                 // The visualizations watch for these changes, rather than being called here.
 
             }, function errorCallback(response) {
@@ -113,10 +113,10 @@
             }
         }
     } // TraceQueryController
-  
+
     function SequenceDiagramController($scope, $log, $location, $rootScope) {
         $scope.location = $location;
-        
+
         $scope.clusters = [];    // Array of {root_request:, trace_ids:, cluster_stats: }
         $scope.nflow = 0;        // Cursor for cluster in clusters
         $scope.ntrace = 0;        // Cursor for trace in the selected cluster
@@ -126,30 +126,43 @@
         $scope.smaller = smaller;
         $scope.magnification = 1;
 
-          console.log("Hello from SequenceDiagramController");
+        // Although scroll is presentation putting it in the controller makes it easy to watch etc.
+        $scope.up = up;
+        $scope.down = down;
+        $scope.start = 0;
+        var scrollAmount = 5; // const
+
+        console.log("Hello from SequenceDiagramController");
 
         $rootScope.$on('$locationChangeSuccess', function() {
             console.log("SequenceDiagramController $locationChangeSuccess triggered, $location.path()=" + $location.path());
             parseForFlowAndTraceno();
         });
-        
+
         $scope.$parent.$watch('clusters', function(newValue, oldValue) {
             console.log("SequenceDiagramController clusters watcher fired");
               $scope.clusters = newValue;
+              $scope.start = 0;
               refreshTrace();
           });
 
         $scope.$watch('nflow', function() {
             console.log("SequenceDiagramController nflow watcher fired");
+            $scope.start = 0;
             // TODO update URL?
               refreshTrace();
           });
 
         $scope.$watch('magnification', refreshTrace);
 
+        $scope.$watch('start', function() {
+            console.log("SequenceDiagramController start watcher fired");
+            scrollTrace($scope.start);
+          });
+
         parseForFlowAndTraceno();
         prepareChart();
-        
+
         $scope.categoriesUrl = function() {
             return $location.absUrl().replace(/sequence\/flow\/[0-9]+\/trace\/[0-9]+/, 'categories');
         };
@@ -218,10 +231,20 @@
 
         function bigger() {
             $scope.magnification = $scope.magnification * 2;  
+            $scope.start = $scope.start * 2;
         }
 
         function smaller() {
             $scope.magnification = Math.max(1, $scope.magnification / 2);
+            $scope.start = $scope.start / 2;
+        }
+
+        function up() {
+            $scope.start = Math.max(0, $scope.start - (Math.log2($scope.magnification) + 1) * scrollAmount);
+        }
+
+        function down() {
+            $scope.start += (Math.log2($scope.magnification) + 1) * scrollAmount;
         }
 
         // TODO remove
@@ -310,12 +333,12 @@
             
             var selectedTrace = $scope.clusters[$scope.nflow];
             // console.log("selectedTrace is " + JSON.stringify(selectedTrace));
-            
+
             // var siblingTraces = matchingTraces(traces[ntrace], traces);
             var processes = deriveProcessesFromTrace(selectedTrace);
             processes.push({id:"communication", title:"Communication", color:"black"});
             var sequenceData = { processes: processes, processToDuration: measureProcessAndNetworkDuration(selectedTrace) };
-            
+
             setupPieDiagram(sequenceData);
         }
 

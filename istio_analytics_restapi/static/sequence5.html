@@ -10,6 +10,8 @@
 <a href="{{ pieUrl() }}">Time</a><br>
 
 <p>
+<button id="up" type="button" ng-click="up()" ng-disabled="start == 0">▲</button>
+<button id="down" type="button" ng-click="down()">▼</button>
 <button id="bigger" type="button" ng-click="bigger()">+</button>
 <button id="smaller" type="button" ng-click="smaller()" ng-disabled="magnification <= 1">-</button>
 Zoom: {{ magnification }}

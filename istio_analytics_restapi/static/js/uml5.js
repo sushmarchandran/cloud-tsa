@@ -8,11 +8,13 @@
 
 'use strict';
 
-var margin = {top: 10, right: 10, bottom: 10, left: 10},    // const
+//var margin = {top: 10, right: 10, bottom: 10, left: 10},    // const
+var margin = {top: 0, right: 0, bottom: 0, left: 0},    // const
     width = 1200 - margin.left - margin.right,    // const
     height = 1000 - margin.top - margin.bottom;    // const
 var processWidth = 100;        // Width of process boxes at the top of the UML diagram.
-var processMargin = 10;        // Horizontal distance between process boxes.  (They are spaced (processWidth+processMargin) * N) 
+var processMargin = 10;        // Horizontal distance between process boxes.  (They are spaced (processWidth+processMargin) * N)
+
 var processHeight = 20;    // const
 var activationBoxWidth = 20;    // const
 var arrowheadWidth = 5;    // const
@@ -28,18 +30,16 @@ function prepareChart() {
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
       .append("g")
-        .attr("transform", 
+        .attr("id", "scroller")
+        .attr("transform",
               "translate(" + margin.left + "," + margin.top + ")");
-          
-    // These aren't really needed ... we use them to make it easier to find a particular 
+
+    // These aren't really needed ... we use them to make it easier to find a particular
+
     // SVG element in the Elements debug view.  We could add directly to SVG.
     svg.append("g")
         .attr("id", "scale")
         .attr("transform", makeTranslation(timeMargin, processHeight));
-    svg.append("g")
-        .attr("id", "processRectangles");
-    svg.append("g")
-        .attr("id", "processRectLabels")
     svg.append("g")
         .attr("id", "lifelines")
     svg.append("g")
@@ -67,17 +67,21 @@ function prepareChart() {
         .attr("id", "timeoutRetries")
         .attr("transform", makeTranslation(timeMargin, processHeight));
     svg.append("g")
+        .attr("id", "processRectangles");
+    svg.append("g")
+        .attr("id", "processRectLabels")
+    svg.append("g")
         .attr("id", "debugging")
         .attr("transform", makeTranslation(timeMargin, processHeight));
     svg.append("g")
         .attr("id", "popups")
         .attr("transform", makeTranslation(timeMargin, processHeight));
-    
+
     return svg;
 }
 
 function makeTranslation(timeMargin, processHeight) {
-     
+
     return "translate(0 " + (timeMargin+processHeight) + ")"
 }
 
@@ -86,7 +90,7 @@ function makeSVGTransform(data, x1, y1, x2, y2) {
     if (isNaN(y1)) {
         throw new Error("makeSVGTransform called with y1 as NaN");
     }
-    
+
     var adjacent = x2-x1;
     var opposite = y2-y1;
     var theta_rad = Math.atan2(opposite, adjacent);
@@ -99,7 +103,7 @@ function makeSVGTransform(data, x1, y1, x2, y2) {
     if (isNaN(theta_deg)) {
         console.log("NaN theta_deg; x1=" + x1 + ", y1=" + y1 + ", x2=" + x2 + ", y2=" + y2);
     }
-    
+
     return "rotate(angle x y) translate(x y)"
         .replace("angle", theta_deg)
         .replace(/x/g, (x1+x2)/2-5)
@@ -112,13 +116,26 @@ function showTrace(traceSummary, magnification) {
         clearSequenceDiagram();
         return;
     }
-    
+
     annotateSummary(traceSummary);
     var allEvents = orderEvents(traceSummary);
     var processes = deriveProcessesFromTrace(traceSummary);
     var sequenceData = { processes: processes, events: allEvents };
-    
+
     setupSequenceDiagram(sequenceData, magnification);
+}
+
+function scrollTrace(scrollAmt) {
+    d3.select("#scroller")
+        .attr("transform",
+                "translate(" + margin.left + "," + (margin.top - scrollAmt) + ")");
+
+    d3.select("#processRectangles")
+        .attr("transform",
+            "translate(0 " + scrollAmt + ")");
+    d3.select("#processRectLabels")
+        .attr("transform",
+            "translate(0 " + scrollAmt + ")");
 }
 
 // Prepare a summary by denormalizing
@@ -130,41 +147,44 @@ function annotateSummary(traceSummary) {
     }
 }
 
-// orderEvents() adds .start and .complete to each event.  
+// orderEvents() adds .start and .complete to each event.
+
 // These are timestamps relative to 0 for the whole trace, based on median time of previous events.
 function orderEvents(trace) {
-    
+
     var events = trace.cluster_stats.reduce(function (accumulator, timeline) { return accumulator.concat(timeline.events); }, []);
 
     // sort by sequence number
     events.sort(function (a, b) { return a.global_event_sequence_number - b.global_event_sequence_number; });
-    
+
     // Remember the previous send_request for each service
     var requests = {};
-    
+
     // Remember the send_request for each span
     //var spans = {}
-    
+
     var basetime = 0;
     for (var i in events) {
-        console.log("setting next/start/complete for " + events[i].service + "/" 
-                + events[i].type + " " + events[i].request + " which has " 
+        console.log("setting next/start/complete for " + events[i].service + "/"
+
+                + events[i].type + " " + events[i].request + " which has "
+
                 + events[i].timeout_count + "timeout(s)");
-        
+
         //events[i].nextEvent = events[i+1];
         //events[i].prevEvent = events[i-1];
-        
+
         if (events[i].type == "send_request") {
             requests[events[i].service] = events[i];
             // spans[events[i].span_id] = events[i];
         }
-        
+
         //if (events[i].timeout && events[i].type == "process_response") {
         //    // When we are processing as a result of timing out, the start time
         //    // should be the timeout median after the previous send_request from the same service.
         //    basetime = requests[events[i].service].start + events[i].timeout.median;
         //}
-        
+
         //if (events[i].type == "process_request") {
         //    // Set the basetime/start from the send_request's stop time.
         //    if (spans[events[i].span_id] == undefined) {
@@ -172,33 +192,36 @@ function orderEvents(trace) {
         //    }
         //    basetime = spans[events[i].span_id].complete;
         //}
-        
+
         events[i].start = basetime;
         events[i].complete = basetime + events[i].duration.median;
         if (events[i].duration.median < 0) {
             console.log("Warning: negative duration for event " + JSON.stringify(events[i]));
         }
         basetime = basetime + events[i].duration.median;
-        
-        //console.log("Set start to " + events[i].start + " for " + events[i].service + "/" 
+
+        //console.log("Set start to " + events[i].start + " for " + events[i].service + "/"
+
         //        + events[i].type + " " + events[i].request);
     }
-    
+
     return events;
 }
 
 //Returns an array of {id:"productpage", title:"productpage", color:"purple"}
 function deriveProcessesFromTrace(trace) {
     // console.log("messages is " + JSON.stringify(messages));
-    
+
     var defaultColors = ["purple", "red", "gold", "navy"];
     var processes = getServices(trace);
-    
+
     var internalServices = trace.cluster_stats.map(function (t) { return t.service; });
 
     return processes.map(function(process, index) {
-        return {id: process, title: prettyProcessName(process), 
-            color: defaultColors[index%defaultColors.length], 
+        return {id: process, title: prettyProcessName(process),
+
+            color: defaultColors[index%defaultColors.length],
+
             external: internalServices.indexOf(process) < 0
         };
     });
@@ -208,15 +231,15 @@ function getServices(trace) {
     if (!trace.cluster_stats) {
         throw new Error("trace has no cluster_stats: " + JSON.stringify(trace));
     }
-    
+
     // Get all of the services that have timelines
     var retval = trace.cluster_stats.map(function (t) { return t.service; });
-    
+
     // Sort by earliest timestamp
     retval.sort(function (a, b) {
         return getServiceTimeline(trace, a).events[0].start - getServiceTimeline(trace, b).events[0].start;
     });
-    
+
     // Add in the interlocutors that lack timelines
     // console.log("trace.cluster_stats = " + JSON.stringify(trace.cluster_stats));
     for (var timeline of trace.cluster_stats) {
@@ -227,7 +250,7 @@ function getServices(trace) {
             }
         }
     }
-    
+
     return retval;
 }
 
@@ -235,12 +258,12 @@ function prettyProcessName(host) {
     if (typeof host != "string") {
         throw new Error("'host' must be a string but got " + JSON.stringify(host));
     }
-    
+
     // Is this a numeric IP?  If so, use it unchanged
     if (/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(host)) {
         return host;
     }
-    
+
     // In the interest of space chop off the namespace and domain name
     return  host.split('.')[0];
 }
@@ -250,7 +273,7 @@ function getServiceTimeline(trace, service) {
     if (retval) {
         return retval;
     }
-    
+
     // Create a dummy empty timeline for interlocutors that lack an entry.
     return { service: service, events: []};
 }
@@ -262,7 +285,7 @@ function setupSequenceDiagram(data, magnification) {
         // This sometimes happens if there is null duration on every event
         timeScale = 1 * 0.3 * magnification;
     }
-    
+
     addScale(data)
 
     // UML process diagram process box for each process/microservice
@@ -287,11 +310,11 @@ function greatestTime(events) {
 }
 
 function addScale(data) {
-    // inspired by Paul Heckbert, "Nice Numbers for Graph Labels" from _Graphics Gems_, Academic Press, 1990 
+    // inspired by Paul Heckbert, "Nice Numbers for Graph Labels" from _Graphics Gems_, Academic Press, 1990
 
     // We want to show about 10 ticks
     var ntick = 10;  // desired tickmarks
-    
+
     var min = 0;
     var max = greatestTime(data.events);
 
@@ -300,12 +323,12 @@ function addScale(data) {
         d3.select("#scale").selectAll(".scaleTick").remove();
         return;
     }
-    
+
     if (max <= 0) {
         console.log("Max problem; max=" + max);
         max = 500;
-    } 
-    
+    }
+
     /* we expect min!=max */
     var range = nicenum(max-min, false);
     var delta = nicenum(range/(ntick-1), true);        // increment
@@ -317,7 +340,7 @@ function addScale(data) {
     }
 
     var dummy = new Array(Math.ceil((max + 0.5 * delta - min) / delta));    // dummy array entry for each tick we want to see
-    
+
     // Ticks
     var scaleTicks = d3.select("#scale")
         .selectAll(".scaleTick")
@@ -329,7 +352,7 @@ function addScale(data) {
     scaleTicks.transition().duration(0)
         .attr("y1", tickPosition)
         .attr("y2", tickPosition);
-    
+
     // Labels for ticks
     var tickLables = d3.select("#scale")
         .selectAll(".tickLabel")
@@ -346,7 +369,7 @@ function addScale(data) {
 }
 
 function addProcesses(data) {
-    
+
     // UML process diagram process box for each process/microservice
     var processes = d3.select("#processRectangles")
         .selectAll(".processRect")
@@ -386,7 +409,7 @@ function addProcesses(data) {
         .attr("x1", function(d, i) { return (i + 0.5) * (processWidth+processMargin); })
         .attr("x2", function(d, i) { return (i + 0.5) * (processWidth+processMargin); })
         .attr("y1", processHeight)
-        .attr("y2", height)
+        .attr("y2", height * 100)
         .attr("stroke", "black")
         .attr("stroke-dasharray", "5,5");
     lifelines.exit().remove();
@@ -436,7 +459,7 @@ function addCommunication(data) {
         .attr("marker-end", function (d) { return d.timeout ? "url(#SolidTimeoutArrowhead)" : "url(#SolidArrowhead)"; })
         .attr("y2", function(d) { return d.complete * timeScale; })
         .attr("visibility", function(d) { return (source(d) != target(d)) ? "visible" : "hidden"; });
-    
+
     // Some messages (e.g. DLaaS health checks) have the same source and target.
     var selfRequests = requests.filter(function f(d) { return source(d) == target(d); });
     for (var selfRequest of selfRequests) {
@@ -455,7 +478,7 @@ function addCommunication(data) {
         .attr("points", selfRequestPoints)
         .attr("stroke", function (d) { return d.timeout ? "lightblue" : "black"; })
         .attr("marker-end", function (d) { return d.timeout ? "url(#SolidTimeoutArrowhead)" : "url(#SolidArrowhead)"; })
-        
+
     var messageLabels = d3.select("#messageLabels")
     .selectAll(".messageLabel")
     .data(requests);
@@ -604,11 +627,11 @@ function addDebugging(data) {
 //nicenum() finds a "nice" number approximately equal to x.  If `round` is `true` rounds, otherwise takes ceiling.
 function nicenum(x, round) {
     // inspired by Paul Heckbert, "Nice Numbers for Graph Labels" from _Graphics Gems_, Academic Press, 1990
-    
+
     var expv = Math.floor(Math.log10(x));    // exponent of x
     var f = x/Math.pow(10., expv);            // fractional part of x; between 1 and 10
     var nf;                                    // nice, rounded fraction
-    
+
     if (round)
         if (f<1.5) nf = 1;
         else if (f<3) nf = 2;
@@ -627,12 +650,12 @@ function prettyMicroseconds(ms, msOfLargest) {
     if (ms==null) {
         return "null";
     }
-    
+
     // If we get a second parameter, format the first using the units of the second
     if (typeof msOfLargest == "undefined") {
         msOfLargest = ms;
     }
-    
+
     if (msOfLargest < 1000) {
         return ms.toFixed() + "μs";    // We use toFixed(), which isn't needed for Zipkin data, to be general
     }
@@ -644,12 +667,12 @@ function prettyMicroseconds(ms, msOfLargest) {
 
 function addActivations(data) {
     var activations = data.events.filter(function f(evt) { return evt.type == "process_request" || evt.type == "process_response"; });
-    
+
     // Add a lifeline for each activation, so that Javascript doesn't need to keep data in a closure
     for (var activation of activations) {
         activation.lifelineX = lifelineX(data, activation.service);
     }
-    
+
     var activationBoxes = d3.select("#activationBoxes")
         .selectAll(".activationBox")
         .data(activations);
@@ -669,7 +692,7 @@ function addActivations(data) {
             .attr("y", function(d) { return timeScale * d.start; })
             .attr("fill", function(d) { return d.timeout ? "lightblue": "orange"; })
             .attr("height", function(d) { return timeScale * (d.complete - d.start); });
-    
+
     var activationMedians = d3.select("#activationMedians")
     .selectAll(".activationMedianLine")
     .data(activations);
@@ -682,7 +705,7 @@ function addActivations(data) {
         .attr("x2", function(d, i) { return lifelineX(data, source(d)) + activationBoxWidth/2; })
         .attr("y1", scaledBoxMedian)
         .attr("y2", scaledBoxMedian);
-    
+
     var activationDurations = d3.select("#activation_durations")
     .selectAll(".executionDurationLabel")
     .data(activations);
@@ -700,7 +723,8 @@ function addActivations(data) {
         .attr("transform", function(d) {
             return "rotate(90 x y)"
                 .replace("x", lifelineX(data, source(d)) + activationBoxWidth/2+5)
-                .replace("y", (d.complete + d.start)/2 * timeScale); 
+                .replace("y", (d.complete + d.start)/2 * timeScale);
+
         })
         .attr("visibility", function(d) { return ((d.complete - d.start) > 1000) ? "visible" : "hidden"; });
 
@@ -719,7 +743,8 @@ function addDurations(data) {
         for (var traceId of activation.trace_ids) {
             if (activation.traceDurations[traceId]) {
                 durations.push({
-                    lifelineX: activation.lifelineX, 
+                    lifelineX: activation.lifelineX,
+
                     y: toScaledBox(activation, activation.traceDurations[traceId]),
                     traceId: traceId
                 });
@@ -797,7 +822,7 @@ function popupWhiskers(d, i) {
     if (d.duration.min == d.duration.first_quartile || d.duration.max == d.duration.third_quartile) {
         return;
     }
-    
+
     var whiskerTopTrue = toScaledBox(d, d.duration.min);
     var whiskerBottomTrue = toScaledBox(d, d.duration.max);
     var whiskerTop = Math.max(whiskerTopTrue, 0, timeScale * d.start - straightWhiskerMax);
@@ -805,7 +830,7 @@ function popupWhiskers(d, i) {
     var whiskerX = d.lifelineX;
     var compressTop = whiskerTopTrue < whiskerTop;
     var compressBottom = whiskerBottomTrue > whiskerBottom;
-    
+
     d3.select("#popups").append("line")            // Whisker top bar
         .attr("class", "activationWhisker")
         .attr("x1", whiskerX - activationBoxWidth/2)
@@ -836,7 +861,7 @@ function popupWhiskers(d, i) {
         .attr("y", whiskerBottom)
         .attr("alignment-baseline", "middle")
         .text(prettyMicroseconds(d.duration.max));
-    
+
     // TODO: move activation if it is outside the clamping region straightWhiskerMax?
 };
 
@@ -846,7 +871,7 @@ function removeWhiskers(d, i) {
         .text(function(d) { return prettyMicroseconds(d.complete - d.start); })
         .attr("text-anchor", "middle")
         .attr("transform", label.attr("oldTrans"));
-    
+
     // Remove the whiskers
     d3.select("#popups").selectAll(".activationWhisker").remove();
     d3.select("#popups").selectAll(".activationWhiskerLabel").remove();
@@ -857,7 +882,7 @@ function lifelineX(data, processName) {
     if (!processName) {
         throw new Error("missing processName");
     }
-    
+
     var index = data.processes.findIndex(function(ele) { return ele.id == processName; });
     return (index + 0.5) * (processWidth+processMargin);
 }
@@ -882,7 +907,7 @@ function textFiveNumberSummary(details) {
         .replace("{median}", prettyMicroseconds(details.median, details.max))
         .replace("{third_quartile}", prettyMicroseconds(details.third_quartile, details.max))
         .replace("{max}", prettyMicroseconds(details.max));
-    
+
     return retval;
 }
 
@@ -906,7 +931,7 @@ function boxplotPolylinePoints(longline, x, start, finish) {
     var retval;
 
     if (longline) {
-        
+
         // Draw a long line break
         //
         //  | x, y1
@@ -926,12 +951,12 @@ function boxplotPolylinePoints(longline, x, start, finish) {
             .replace(/yb1/g, y1+.45*(y2-y1)).replace(/yb2/g, y1+.55*(y2-y1))
             .replace(/x/g, x);
     } else {
-    
+
         // Finish is fine, no need to make a long line break
         var str = "x,y1 x,y2";
         var retval = str.replace(/x/g, x).replace("y1", start).replace("y2", finish);
     }
-    
+
     // console.log("boxplotPolylinePoints returning " + retval);
     return retval;
 }
@@ -941,11 +966,11 @@ function messageLabelFillColor(d) {
     if (d.error_count > 0 && d.timeout_count) {
         return "purple";
     }
-    
+
     if (d.error_count > 0) {
         return "red";
     }
-    
+
     if (d.timeout_count) {
         return "lightblue";
     }
