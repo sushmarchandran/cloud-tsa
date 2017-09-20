@@ -83,7 +83,7 @@
 	  
 	  $rootScope.$on('$locationChangeSuccess', function () {
 		  // I had trouble listening for $scope.$on('$routeUpdate',...) and losing trace #
-		  if ($location.path().startsWith("/trace/")) {
+		  if ($location.path() && $location.path().startsWith("/trace/")) {
 			  $scope.nquery = parseInt($location.path().substring(7));
 		  }
 	  });
