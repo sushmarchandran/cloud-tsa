@@ -105,7 +105,7 @@
                     $scope.clusters = [];
             });
         }
-        
+
         function annotateFlows(flows) {
             // Explicitly set the index, so that we can retrieve the true index after sorting
             for (var nflow in flows) {

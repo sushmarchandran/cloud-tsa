@@ -60,3 +60,7 @@
 #chart {
     margin-left: 10px;
 }
+
+.duration {
+    fill: lightgrey;
+}

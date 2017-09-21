@@ -21,7 +21,7 @@ Duration: <span id="tracelength"></span> /
 <button id="bigger" type="button" onclick="bigger()">+</button>
 <button id="smaller" type="button" onclick="smaller()" disabled>-</button>
 Zoom: <span id="zoomlevel"></span>
-<br><button id="dump" type="button" onclick="alert(JSON.stringify(traces[ntrace]));">dump</button>
+<!-- <br><button id="dump" type="button" onclick="alert(JSON.stringify(traces[ntrace]));">dump</button> -->
 
 <p>
 <svg id="chart">
@@ -59,6 +59,11 @@ Zoom: <span id="zoomlevel"></span>
     </filter>
   </defs>
 </svg>
+
+<p>
+<button ng-click="dumpFlow()">dump</button>
+<button ng-click="randomizeCanary()">randomize canary</button>
+<button onclick="showDurations = !showDurations; showTrace(traces, ntrace)">toggle durations</button>
 
 <script>
 console.log("Hello Javascript from sequence.html");
