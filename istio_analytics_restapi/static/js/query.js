@@ -170,7 +170,22 @@
 
         // TODO remove
         $scope.randomizeCanary = function () {
-            alert("TODO randomize canary");
+            // Hack.  We don't have a global for the summary, so assign random
+            // deltas to ALL events.
+            for (var traces of $scope.$parent.rawTraces.traces_timelines) {
+                for (var timeline of traces.timelines) {
+                    for (var event of timeline.events) {
+                        event.delta = Math.random() * 300 - 150;
+                    }
+                }
+            }
+
+            // Hack.  Always turning on canary indicators
+            var globals = (1,eval)('this');
+            globals.showCanaries = true;
+
+            showTrace($scope.$parent.rawTraces.traces_timelines,
+                    $scope.$parent.nquery);
         };
     }
 

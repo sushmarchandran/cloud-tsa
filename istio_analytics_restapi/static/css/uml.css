@@ -64,3 +64,7 @@
 .duration {
     fill: lightgrey;
 }
+
+.canarySelectedMouseover {
+    fill: lightgrey;
+}

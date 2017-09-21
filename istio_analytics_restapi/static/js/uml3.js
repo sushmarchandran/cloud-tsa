@@ -22,6 +22,7 @@ var straightWhiskerMax = 200; // const
 var timeScale;                // We use multiplication to scale instead of SVG transforms because they look squashed
 var magnification = 1;
 var showDurations = true;
+var showCanaries = false;
 
 
 function showTrace(traces, ntrace) {
@@ -42,7 +43,7 @@ function showTrace(traces, ntrace) {
     document.getElementById("tracelength").textContent = formatMicroseconds(greatestTime(sequenceData.events));
     document.getElementById("sibling_cnt").textContent = siblingTraces.length;
     document.getElementById("zoomlevel").textContent = magnification.toString();
-    
+
     document.getElementById("prevTrace").disabled = (ntrace <= 0);
     document.getElementById("nextTrace").disabled = (ntrace >= traces.length - 1);
     document.getElementById("smaller").disabled = (magnification <= 1);
@@ -67,15 +68,12 @@ function setupSequenceDiagram(data) {
 
     addSelectedTrace(data);
 
-    //// Label message so we can find the titles etc without closure
-    //for (var message of data.messages) {
-    //    message.data = data;
-    //}
-
     addCommunication(data);
-    
+
     addRetries(data);
-    
+
+    addCanaryIndicators(data);
+
     addDebugging(data);
 }
 
@@ -284,7 +282,7 @@ function addRetries(data) {
         if (event.timeout == null || event.type != "send_request") {
             continue;
         }
-        
+
         var details = event.parent_span_id + "/" + event.service + "/" + event.interlocutor + "/" + event.request;
         if (timeoutTimestamps[details]) {
             inferredRetries.push({
@@ -301,7 +299,7 @@ function addRetries(data) {
     function timeoutX(d) {
         return lifelineX(data, d.service) + processWidth/2;
     }
-    
+
     var timeoutRetries = d3.select("#timeoutRetries")
         .selectAll(".retryInterval")
         .data(inferredRetries);
@@ -336,9 +334,70 @@ function addRetries(data) {
         });
 }
 
+function addCanaryIndicators(data) {
+    var activations = data.events.filter(function f(evt) { return evt.type == "process_request" || evt.type == "process_response"; });
+
+    var canaryIndicators = d3.select("#activationSelecteds")
+        .selectAll(".canaryIndicatorNeedle")
+        .data(activations);
+    canaryIndicators.enter().append("polygon")
+        .attr("class", "canaryIndicatorNeedle")
+        .on("mouseenter", function(d) {
+            // Add class so that the apperance changes when we mouseover
+            var activation = d3.select(this);
+            activation.classed("canarySelectedMouseover", true);
+
+            // Add a label
+            var t = d3.select("#popups").append("text")
+                .attr("class", "canaryNeedleDetails")
+                .attr("alignment-baseline", "middle")
+                .attr("fill", "black")
+                .attr("x", lifelineX(data, source(d)))
+                .attr("y", (d.complete + d.start)/2 * timeScale)
+                .text(d.delta.toFixed() + "%");
+        })
+        .on("mouseleave", function(d, i) {
+            // Remove class to restore original appearance
+            d3.select(this).classed("canarySelectedMouseover", false);
+
+            // Remove the label
+            d3.select("#popups").selectAll(".canaryNeedleDetails").remove();
+        });
+    canaryIndicators.exit().remove();
+    canaryIndicators.transition().duration(0)
+        .attr("points", "0,-20 -2,20, 2,20")
+        .attr("visibility", function(d) { return showCanaries ? "visible" : "hidden"; })
+        .attr("transform", function(d) {
+            var theta_deg = Math.max(Math.min(d.delta, 80), -80);
+            return "rotate(angle x y) translate(x y)"
+                .replace("angle", theta_deg)
+                .replace(/x/g, lifelineX(data, source(d)))
+                .replace(/y/g, (d.complete + d.start)/2 * timeScale); 
+        });
+
+    var responses = data.events.filter(function f(evt) { return evt.type == "send_response"; });
+
+    var canaryIndicators = d3.select("#activationSelecteds")
+        .selectAll(".canaryResponseNeedle")
+        .data(responses);
+    canaryIndicators.enter().append("polygon")
+        .attr("class", "canaryResponseNeedle")
+    canaryIndicators.exit().remove();
+    canaryIndicators.transition().duration(0)
+        .attr("points", "0,-20 -2,20, 2,20")
+        .attr("visibility", function(d) { return showCanaries ? "visible" : "hidden"; })
+        .attr("transform", function(d) {
+            var theta_deg = 0; // TODO restore // Math.max(Math.min(d.delta, 80), -80);
+            return "rotate(angle x y) translate(x y)"
+                .replace("angle", theta_deg)
+                .replace(/x/g, (lifelineX(data, source(d)) + lifelineX(data, target(d))) / 2)
+                .replace(/y/g, (d.complete + d.start)/2 * timeScale); 
+        });
+}
+
 function addDebugging(data) {
     return; // comment out to get the debugging visualization
-    
+
     // For debugging, add an indicator for the timestamps to make sure the rendering is
     // roughly congruent to the timestamps when a single trace is used.
     var timestamps = d3.select("#debugging")
@@ -891,6 +950,7 @@ function summarizeTraces(siblingTraces, selectedTrace) {
                     duration: summarize(nthBlockingEvents.map(function (evt) { return evt.duration; })),
                     timestamp: selectedEvent.timestamp,
                     traceDurations: {},
+                    delta: selectedEvent.delta || 0,                     // Hack. We should get delta by comparison against a baseline, not from the randomize delta hack
                 };
                 if (!selectedEvents[i].timeout) {
                     summaryEvent.duration.selected = selectedEvents[i].duration;
