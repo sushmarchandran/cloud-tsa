@@ -65,6 +65,12 @@
     fill: lightgrey;
 }
 
+.durationHighlighted {
+    fill: orange;
+    stroke-width: 1;
+    stroke: black;
+}
+
 .canarySelectedMouseover {
     fill: lightgrey;
 }

@@ -247,7 +247,7 @@ function addSelectedTrace(data) {
             // Add class so that the apperance changes when we mouseover
             var activation = d3.select(this);
             activation.classed("activationSelectedMouseover", true);
-            
+
             // Add a label
             var t = d3.select("#popups").append("text")
                 .attr("class", "activationDetails")

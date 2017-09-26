@@ -166,26 +166,26 @@
         $scope.categoriesUrl = function() {
             return $location.absUrl().replace(/sequence\/flow\/[0-9]+\/trace\/[0-9]+/, 'categories');
         };
-        
+
         $scope.pieUrl = function() {
             return $location.absUrl().replace(/sequence\/flow\/([0-9]+)\/trace\/[0-9]+/, 'pie/flow/$1');
         };
-        
+
         $scope.dumpFlow = function () { alert(JSON.stringify($scope.clusters[$scope.nflow])); };
-        
+
         $scope.selectedFlowTitle = function() {
             if (!$scope.clusters[$scope.nflow]) {
                 return "";
             }
-            
+
             return $scope.clusters[$scope.nflow].root_request;
         };
-        
+
         $scope.selectedTraceId = function() {
             if (!$scope.clusters[$scope.nflow]) {
                 return "";
             }
-            
+
             return $scope.clusters[$scope.nflow].trace_ids[$scope.ntrace];
         }
 
@@ -203,11 +203,12 @@
 
         function refreshTrace() {
               if ($scope.nflow >= $scope.clusters.length) {
-                    showTrace({cluster_stats: []}, $scope.magnification);
+                    showTrace({cluster_stats: []}, $scope.magnification, {});
                   return;
               }
 
-              showTrace($scope.clusters[$scope.nflow], $scope.magnification);
+              showTrace($scope.clusters[$scope.nflow], $scope.magnification,
+                      { zipkinUrl: $scope.$parent.dataOrigin });
         }
 
         function parseForFlowAndTraceno() {

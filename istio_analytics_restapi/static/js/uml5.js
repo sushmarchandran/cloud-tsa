@@ -111,7 +111,7 @@ function makeSVGTransform(data, x1, y1, x2, y2) {
 }
 
 // showTrace() shows a traceSummary which is { cluster_stats: [...] }
-function showTrace(traceSummary, magnification) {
+function showTrace(traceSummary, magnification, context) {
     if (traceSummary.cluster_stats.length == 0) {
         clearSequenceDiagram();
         return;
@@ -120,7 +120,11 @@ function showTrace(traceSummary, magnification) {
     annotateSummary(traceSummary);
     var allEvents = orderEvents(traceSummary);
     var processes = deriveProcessesFromTrace(traceSummary);
-    var sequenceData = { processes: processes, events: allEvents };
+    var sequenceData = {
+            processes: processes,
+            events: allEvents,
+            zipkinUrl: context.zipkinUrl
+    };
 
     setupSequenceDiagram(sequenceData, magnification);
 }
@@ -682,8 +686,8 @@ function addActivations(data) {
         .on("click", function(d) {
             alert("Debug: This is global event " + d.global_event_sequence_number); // TODO remove
         })
-        .on("mouseenter", popupWhiskers)
-        .on("mouseleave", removeWhiskers);
+        .on("mouseenter", showActivation)
+        .on("mouseleave", hideActivation);
     activationBoxes.exit().remove();
     // (Note that transition().duration(0) does nothing and should be removed throughout this code if we don't use it.)
     activationBoxes.transition()
@@ -736,19 +740,21 @@ function addDurations(data) {
     // Durations have {lifelineX:, y:}
     var durations = [];
     for (var activation of activations) {
-        if (!activation.traceDurations) {
+        if (!activation.durations_and_codes) {
             continue;
         }
 
-        for (var traceId of activation.trace_ids) {
-            if (activation.traceDurations[traceId]) {
-                durations.push({
-                    lifelineX: activation.lifelineX,
+        for (var nTraceId in activation.trace_ids) {
+            var durAndCode = activation.durations_and_codes[nTraceId];
+            durations.push({
+                lifelineX: activation.lifelineX,
 
-                    y: toScaledBox(activation, activation.traceDurations[traceId]),
-                    traceId: traceId
-                });
-            }
+                y: toScaledBox(activation, durAndCode.duration),
+                responseCode: durAndCode.response_code,
+                traceId: activation.trace_ids[nTraceId],
+                url: data.zipkinUrl + "/zipkin/traces/" + activation.trace_ids[nTraceId],
+                sequenceNumber: activation.global_event_sequence_number
+            });
         }
     }
 
@@ -760,12 +766,12 @@ function addDurations(data) {
         .attr("r", individualActivationRadius)
         .style("opacity", 0.5)
         .on("click", function(d) {
-            alert("TODO: navigate to trace " + d.traceId);
-            //var win = window.open(raw_traces.zipkin_url + "/zipkin/traces/" + d.trace_id, '_blank');
-            //win.focus();
+            var win = window.open(d.url, '_blank');
+            win.focus();
         });
     durationsCircles.exit().remove();
     durationsCircles.transition().duration(0)
+            .attr("fill", function(d) { return responseCodeToColor(d.responseCode); })
             .attr("cx", function(d) { return d.lifelineX; })
             .attr("cy", function(d) { return d.y; });
 }
@@ -804,6 +810,20 @@ function toScaledBox(d, x) {
 }
 
 function scaledBoxMedian(d) { return toScaledBox(d, d.duration.median);  }
+
+function showActivation(d, i) {
+    console.log("@@@ ecs reached showActivation for " + JSON.stringify(d));
+    var durationsCircles = d3.select("#activation_durations")
+        .selectAll(".duration")
+        .filter(function(dur) { return dur.sequenceNumber == d.global_event_sequence_number; })
+        .classed("durationHighlighted", true);
+}
+
+function hideActivation(d, i) {
+    var durationsCircles = d3.select("#activation_durations")
+        .selectAll(".duration")
+        .classed("durationHighlighted", false);
+}
 
 function popupWhiskers(d, i) {
     var label = d3.select("#executionDurationLabel" + i);
@@ -976,4 +996,18 @@ function messageLabelFillColor(d) {
     }
 
     return "black";
+}
+
+function responseCodeToColor(responseCode) {
+    // Server error
+    if (responseCode >= 500) {
+        return "red";
+    }
+
+    // Client error
+    if (responseCode >= 400) {
+        return "fuchsia";
+    }
+
+    return "";  // Use default from CSS
 }
