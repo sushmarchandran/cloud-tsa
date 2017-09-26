@@ -123,7 +123,8 @@ function showTrace(traceSummary, magnification, context) {
     var sequenceData = {
             processes: processes,
             events: allEvents,
-            zipkinUrl: context.zipkinUrl
+            zipkinUrl: context.zipkinUrl,
+            debugUI: context.debugUI,
     };
 
     setupSequenceDiagram(sequenceData, magnification);
@@ -169,11 +170,9 @@ function orderEvents(trace) {
 
     var basetime = 0;
     for (var i in events) {
-        console.log("setting next/start/complete for " + events[i].service + "/"
-
-                + events[i].type + " " + events[i].request + " which has "
-
-                + events[i].timeout_count + "timeout(s)");
+        //console.log("setting next/start/complete for " + events[i].service + "/"
+         //       + events[i].type + " " + events[i].request + " which has "
+         //       + events[i].timeout_count + " timeout(s)");
 
         //events[i].nextEvent = events[i+1];
         //events[i].prevEvent = events[i-1];
@@ -223,9 +222,7 @@ function deriveProcessesFromTrace(trace) {
 
     return processes.map(function(process, index) {
         return {id: process, title: prettyProcessName(process),
-
             color: defaultColors[index%defaultColors.length],
-
             external: internalServices.indexOf(process) < 0
         };
     });
@@ -303,7 +300,13 @@ function setupSequenceDiagram(data, magnification) {
 
     // TODO RESTORE    addRetries(data);
 
-    addDebugging(data);
+    if (data.debugUI) {
+        addDebugging(data);
+    } else {
+        d3.select("#debugging")
+             .selectAll(function() { return this.childNodes; })
+             .remove();
+    }
 }
 
 function greatestTime(events) {

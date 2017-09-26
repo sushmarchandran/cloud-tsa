@@ -120,6 +120,7 @@
         $scope.clusters = [];    // Array of {root_request:, trace_ids:, cluster_stats: }
         $scope.nflow = 0;        // Cursor for cluster in clusters
         $scope.ntrace = 0;        // Cursor for trace in the selected cluster
+        $scope.debugUI = false;
 
         // Although magnification is presentation putting it in the controller makes it easy to watch etc.
         $scope.bigger = bigger;
@@ -154,6 +155,7 @@
           });
 
         $scope.$watch('magnification', refreshTrace);
+        $scope.$watch('debugUI', refreshTrace);
 
         $scope.$watch('start', function() {
             console.log("SequenceDiagramController start watcher fired");
@@ -203,12 +205,16 @@
 
         function refreshTrace() {
               if ($scope.nflow >= $scope.clusters.length) {
-                    showTrace({cluster_stats: []}, $scope.magnification, {});
+                    showTrace({cluster_stats: []}, $scope.magnification,
+                            { debugUI: $scope.debugUI });
                   return;
               }
 
               showTrace($scope.clusters[$scope.nflow], $scope.magnification,
-                      { zipkinUrl: $scope.$parent.dataOrigin });
+                  {
+                      zipkinUrl: $scope.$parent.dataOrigin,
+                      debugUI: $scope.debugUI,
+                  });
         }
 
         function parseForFlowAndTraceno() {
@@ -248,58 +254,24 @@
             $scope.start += (Math.log2($scope.magnification) + 1) * scrollAmount;
         }
 
-        // TODO remove
-        $scope.randomizeDurations = function () {
-            var cluster = $scope.clusters[$scope.nflow];
-
-            for (var service of cluster.cluster_stats) {
-                for (var event of service.events) {
-
-                    event.traceDurations = {};
-
-                    var bases = [
-                        event.duration.min,
-                        event.duration.first_quartile,
-                        event.duration.median,
-                        event.duration.third_quartile];
-                    var ranges = [
-                        event.duration.first_quartile - event.duration.min, 
-                        event.duration.median - event.duration.first_quartile,
-                        event.duration.third_quartile - event.duration.median,
-                        event.duration.max - event.duration.third_quartile];
-
-                    for (var ntrace in event.trace_ids) {
-                        var traceId = event.trace_ids[ntrace];
-                        var quartile = Math.floor(4 * ntrace / event.trace_ids.length);
-                        event.traceDurations[traceId] = Math.random() * ranges[quartile] + bases[quartile];
-                    }
-
-                    event.traceDurations[event.trace_ids[0]] = event.duration.min;
-                    event.traceDurations[event.trace_ids[event.trace_ids.length-1]] = event.duration.max;
-                }
-            }
-
-            refreshTrace();
-        }
-
     } // SequenceDiagramController
 
     function PieController($scope, $log, $location) {
 
         $scope.location = $location;
-        
+
         $scope.clusters = [];    // Array of {root_request:, trace_ids:, cluster_stats: }
         $scope.nflow = 0;        // Cursor for cluster in clusters
 
         console.log("Hello from PieController");
-        
+
         $scope.$parent.$watch('clusters', function(newValue, oldValue) {
             console.log("PieController clusters watcher fired, got newValue " + newValue + ", a " + typeof newValue);
               $scope.clusters = newValue;
-              
+
               showPie();
           });
-        
+
         $scope.$watch('nflow', function() {
             console.log("PieController nflow watcher fired");
             // TODO update URL?
@@ -317,7 +289,7 @@
                 $scope.nflow++;
             }
         }
-        
+
         $scope.categoriesUrl = function() {
             return $location.absUrl().replace(/pie\/flow\/[0-9]+/, 'categories');
         }
@@ -326,12 +298,12 @@
         }
 
         preparePie();
-        
+
         function showPie() {
             if ($scope.clusters.length <= $scope.nflow) {
                 return;
             }
-            
+
             var selectedTrace = $scope.clusters[$scope.nflow];
             // console.log("selectedTrace is " + JSON.stringify(selectedTrace));
 

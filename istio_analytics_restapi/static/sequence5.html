@@ -65,4 +65,4 @@ Traces: {{ clusters[nflow].trace_ids.length }}
 
 <p>
 <button id="dumpFlow" type="button" ng-click="dumpFlow()">dump</button>
-<button id="randomizeDurations" type="button" ng-click="randomizeDurations()">randomize durations</button>
+<input type="checkbox" ng-model="debugUI" ng-true-value="true" ng-false-value="false"> Debug
