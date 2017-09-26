@@ -179,6 +179,8 @@ THIRD_QUARTILE_STR = 'third_quartile'
 PERCETILE_95_STR = '95th_percentile'
 PERCETILE_99_STR = '99th_percentile'
 
+DURATIONS_AND_CODES_STR = 'durations_and_codes'
+
 EVENT_COUNT_STR = 'event_count'
 ERROR_COUNT_STR = 'error_count'
 TIMEOUT_COUNT_STR = 'timeout_count'
@@ -204,6 +206,13 @@ base_stats = api.model('base_stats', {
                                      description='The 95th percentile of the underlying distribution'),
     PERCETILE_99_STR: fields.Float(required=True, example=750,
                                      description='The 99th percentile of the underlying distribution')
+})
+
+duration_and_code = api.model('duration_and_code', {
+    DURATION_STR: fields.Integer(required=True, example=3478,
+                                 description='Duration of one event in microseconds'),
+    RESPONSE_CODE_STR: fields.Integer(required=True, example=200, min=0,
+                                 description='The response code (e.g., HTTP code) related to the event'),
 })
 
 event_stat_details = api.model('event_stat_details', {
@@ -243,7 +252,9 @@ event_stat_details = api.model('event_stat_details', {
                                       description='Average timeout observed for this event'),
     RETRY_COUNT_STR: fields.Integer(required=True, example=3, min=0,
                                     description='The number retries observed for the request related '
-                                                  'to the event')
+                                                  'to the event'),
+    DURATIONS_AND_CODES_STR: fields.List(fields.Nested(duration_and_code), required=True,
+                                         description='Data points used to compute the duration statistics')
 })
 
 cluster_stats = api.model('cluster_stats', {

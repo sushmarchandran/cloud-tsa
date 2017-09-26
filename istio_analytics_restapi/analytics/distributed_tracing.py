@@ -115,6 +115,7 @@ def aggregate_events(events_to_aggregate):
     request_size_distribution = []
     response_size_distribution = []
     timeout_distribution = []
+    durations_and_codes = []
 
     for event in events_to_aggregate:
         event_stats[responses.EVENT_SEQUENCE_NUMBER_STR] = \
@@ -123,6 +124,10 @@ def aggregate_events(events_to_aggregate):
         if responses.DURATION_STR in event:
             # We compute statistics on duration for all event types
             duration_distribution.append(event[responses.DURATION_STR])
+            durations_and_codes.append({
+                responses.DURATION_STR: event[responses.DURATION_STR],
+                responses.RESPONSE_CODE_STR: event[responses.RESPONSE_CODE_STR]
+            })
         if event_type == responses.EVENT_SEND_REQUEST:
             # We compute statistics on request size only for send_request events
             if responses.REQUEST_SIZE_STR in event:
@@ -181,7 +186,10 @@ def aggregate_events(events_to_aggregate):
     if timeout_distribution:
         avg_microseconds = statistics.mean(timeout_distribution)
         event_stats[responses.AVG_TIMEOUT_SEC_STR] = \
-            round(avg_microseconds/1000000.0, 2) 
+            round(avg_microseconds/1000000.0, 2)
+
+    if durations_and_codes:
+        event_stats[responses.DURATIONS_AND_CODES_STR] = durations_and_codes
 
     log.debug('Event stats: {0}'.format(json.dumps(event_stats, indent=2)))
     return event_stats
