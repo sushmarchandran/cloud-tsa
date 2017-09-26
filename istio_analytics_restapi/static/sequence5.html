@@ -20,9 +20,11 @@ Zoom: {{ magnification }}
 <button id="nextFlow" type="button" ng-click="nextFlow()" ng-disabled="nflow >= clusters.length-1">&gt;</button>
 Flow: {{ nflow }} {{ selectedFlowTitle() }}
 
+<!-- 
 <button id="prevTrace" type="button" onclick="alert('TODO')" disabled>&lt;</button>
 <button id="nextTrace" type="button" onclick="alert('TODO')" disabled>&gt;</button>
-Trace: {{ ntrace }} Trace ID: {{ selectedTraceId() }}
+Trace: {{ ntrace }} Trace ID: {{ selectedTraceId() }}  -->
+Traces: {{ clusters[nflow].trace_ids.length }}
 
 <p>
 <svg id="chart">

@@ -812,7 +812,6 @@ function toScaledBox(d, x) {
 function scaledBoxMedian(d) { return toScaledBox(d, d.duration.median);  }
 
 function showActivation(d, i) {
-    console.log("@@@ ecs reached showActivation for " + JSON.stringify(d));
     var durationsCircles = d3.select("#activation_durations")
         .selectAll(".duration")
         .filter(function(dur) { return dur.sequenceNumber == d.global_event_sequence_number; })
