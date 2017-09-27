@@ -1140,12 +1140,12 @@ function summarizeResponseCodes(codes) {
 
     var bucketToCodes = {};
     var bucketCounts = {};
-    
+
     for (var code of codes) {
         var bucket = bucketHttpStatusCode(code);
-        
+
         bucketCounts[bucket] = (bucketCounts[bucket] || 0) + 1;
-        
+
         if (!bucketToCodes[bucket]) {
             bucketToCodes[bucket] = [];
         }
@@ -1163,13 +1163,13 @@ function summarizeResponseCodes(codes) {
             if (bucketCounts[bucket]/codes.length == 1) {
                 return summarizeBucketCodes(bucket, bucketToCodes[bucket]);
             }
-            
+
             return "{bucket} {percent}"
                 .replace("{bucket}", summarizeBucketCodes(bucket, bucketToCodes[bucket]))
                 .replace("{percent}", prettyPercent(bucketCounts[bucket]/codes.length));
         })
         .join(", ");
-    
+
     return (codes.length == 1) ?
             breakdown :
             "{breakdown} (count {count})"
@@ -1182,7 +1182,7 @@ function summarizeBucketCodes(summaryLabel, codes) {
     if (summaryLabel == "timeout") {
         return "timeout";
     }
-    
+
     return (codes.length > 1) ? summaryLabel : codes[0];
 }
 

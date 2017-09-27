@@ -586,8 +586,7 @@ function addCommunication(data) {
         })
     messageLabels.exit().remove();
     messageLabels.transition().duration(0)
-        // .text(function(d) { return d.response_code; })
-        .text(function(d) { return d.responseCodes; })
+        .text(function(d) { return responseCodes(d); })
         .attr("transform", function(d) {
             return makeSVGTransform(
                     data,
@@ -596,8 +595,7 @@ function addCommunication(data) {
                     lifelineX(data, source(d))-activationBoxWidth/2,
                     d.start * timeScale + 4
                     );
-        })
-        .attr("visibility", function(d) { return d.response_code != "0" ? "visible" : "hidden"; });
+        });
 }
 
 function addDebugging(data) {
@@ -1012,4 +1010,112 @@ function responseCodeToColor(responseCode) {
     }
 
     return "";  // Use default from CSS
+}
+
+function responseCodes(event) {
+    return summarizeResponseCodes(event.durations_and_codes.map(function (dac) {
+        return dac.response_code;
+    }));
+}
+
+// Given an array of integers, create a string that explains them.
+// TODO have short/medium/longterm option
+function summarizeResponseCodes(codes) {
+    // Given [200, 401, 401, 401, 401, 401, 401, 401, 401, 401,
+    //        200, 200, 200, 200, 200, 200, 200, 200, 500,   0]
+    // produce "401 (45%), 500 (5%), timeout (5%) count 20"
+
+    var bucketToCodes = {};
+    var bucketCounts = {};
+
+    for (var code of codes) {
+        var bucket = bucketHttpStatusCode(code);
+
+        bucketCounts[bucket] = (bucketCounts[bucket] || 0) + 1;
+
+        if (!bucketToCodes[bucket]) {
+            bucketToCodes[bucket] = [];
+        }
+        if (bucketToCodes[bucket].indexOf(code) < 0) {
+            bucketToCodes[bucket].push(code);
+         }
+     }
+
+     var breakdown = Object.keys(bucketCounts)
+         // Originally I filtered out the 20x which looks better but prevents the mouse-over from working
+         //.filter(function (bucket) {
+         //    return bucket != "20x";
+         //})
+     .map(function (bucket) {
+         if (bucketCounts[bucket]/codes.length == 1) {
+             return summarizeBucketCodes(bucket, bucketToCodes[bucket]);
+         }
+
+         return "{bucket} {percent}"
+             .replace("{bucket}", summarizeBucketCodes(bucket, bucketToCodes[bucket]))
+             .replace("{percent}", prettyPercent(bucketCounts[bucket]/codes.length));
+     })
+     .join(", ");
+
+     return (codes.length == 1) ?
+             breakdown :
+             "{breakdown} (count {count})"
+             .replace("{breakdown}", breakdown)
+             .replace("{count}", codes.length);
+}
+
+// Given an HTTP code, combine codes that are rarely cared about
+function bucketHttpStatusCode(code) {
+    if (code == 0) {
+        return "timeout";
+    }
+
+    // See https://en.wikipedia.org/wiki/List_of_HTTP_status_codes
+    if (code < 100) {
+        return code;
+    }
+    if (code == 202) {
+        return code;
+    }
+    if (code < 300) {
+        return "20x";
+    }
+    if (code < 400) {
+        return "30x";
+    }
+    if (code == 401 || code == 403) {
+        return code;
+    }
+    if (code == 502 || code == 504) {
+        return code;
+    }
+    if (code < 500) {
+        return "40x";
+    }
+    if (code < 600) {
+        return "50x";
+    }
+    return code;
+}
+
+// If there is only one code return it, otherwise return the summary label
+function summarizeBucketCodes(summaryLabel, codes) {
+    if (summaryLabel == "timeout") {
+        return "timeout";
+    }
+
+    return (codes.length > 1) ? summaryLabel : codes[0];
+}
+
+function prettyPercent(pct) {
+    if (pct > 0.01) {
+        return (pct*100).toFixed() + "%";
+    }
+    if (pct > 0.001) {
+        return (pct*100).toFixed(1) + "%";
+    }
+    if (pct > 0.0001) {
+        return (pct*100).toFixed(2) + "%";
+    }
+    return "<0.01%";
 }
