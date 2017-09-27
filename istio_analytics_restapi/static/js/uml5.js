@@ -494,35 +494,40 @@ function addCommunication(data) {
         .attr("text-anchor", "middle")
         .attr("alignment-baseline", "middle")
         .attr("fill", messageLabelFillColor)
-        .on("mouseenter", function(d, i) {
-            var t = d3.select("#popups").append("text")
-                .attr("class", "messageLabelDetails")
-                .attr("text-anchor", "middle")
-                .attr("alignment-baseline", "middle")
-                .attr("fill", "black")
-                .attr("filter", "url(#LabelBackground)")
-                //.text(textFiveNumberSummary(d.duration))
-                t.append("tspan").attr("x", 0).attr("dy", "1.2em").text(textFiveNumberSummary(d.duration))
-                t.append("tspan").attr("x", 0).attr("dy", "1.2em").text("{count} request(s)".replace("{count}", d.event_count))
-                t.append("tspan").attr("x", 0).attr("dy", "1.2em").text("{error_count} error(s)".replace("{error_count}", d.error_count))
-                t.append("tspan").attr("x", 0).attr("dy", "1.2em").text("{timeout_count} timeout(s)".replace("{timeout_count}", d.timeout_count))
-                t.append("tspan").attr("x", 0).attr("dy", "1.2em").text("{retry_count} retry(ies)".replace("{retry_count}", d.retry_count))
-                t.attr("transform", function(innerd) {
-                    return makeSVGTransform(
-                            data,
-                            outgoingProcessBoxEdge(d),
-                            d.start * timeScale + 2,
-                            incomingProcessBoxEdge(d),
-                            d.complete * timeScale + 2
-                            );
-                });
-            })
         .on("mouseleave", function(d, i) {
             d3.select("#popups").selectAll(".messageLabelDetails").remove();
         });
     messageLabels.exit().remove();
     messageLabels.transition().duration(0)
         .text(function(d) { return d.request; })
+        .each(function (d) {
+            // We can't do transition().on() so we use each() and do the on() there.
+            // This is because 'data' is a closure and will be stale if we set on()
+            // during enter().
+            d3.select(this)
+                .on("mouseenter", function(d2) {
+                    var t = d3.select("#popups").append("text")
+                    .attr("class", "messageLabelDetails")
+                    .attr("text-anchor", "middle")
+                    .attr("alignment-baseline", "middle")
+                    .attr("fill", "black")
+                    .attr("filter", "url(#LabelBackground)")
+                    t.append("tspan").attr("x", 0).attr("dy", "1.2em").text(textFiveNumberSummary(d.duration))
+                    t.append("tspan").attr("x", 0).attr("dy", "1.2em").text("{count} request(s)".replace("{count}", d.event_count))
+                    t.append("tspan").attr("x", 0).attr("dy", "1.2em").text("{error_count} error(s)".replace("{error_count}", d.error_count))
+                    t.append("tspan").attr("x", 0).attr("dy", "1.2em").text("{timeout_count} timeout(s)".replace("{timeout_count}", d.timeout_count))
+                    t.append("tspan").attr("x", 0).attr("dy", "1.2em").text("{retry_count} retry(ies)".replace("{retry_count}", d.retry_count))
+                    t.attr("transform", function(innerd) {
+                        return makeSVGTransform(
+                                data,
+                                outgoingProcessBoxEdge(d),
+                                d.start * timeScale + 2,
+                                incomingProcessBoxEdge(d),
+                                d.complete * timeScale + 2
+                                );
+                    });
+                });
+        })
         .attr("transform", function(d) {
             return makeSVGTransform(
                     data,
@@ -562,31 +567,37 @@ function addCommunication(data) {
         .attr("class", "messageLabel")
         .attr("text-anchor", "middle")
         .attr("fill", "black")
-        .on("mouseenter", function(d, i) {
-            var t = d3.select("#popups").append("text")
-                .attr("class", "messageLabelDetails")
-                .attr("text-anchor", "middle")
-                .attr("alignment-baseline", "middle")
-                .attr("filter", "url(#LabelBackground)")
-                .attr("fill", "black")
-                t.append("tspan").attr("x", 0).attr("dy", "1.2em").text(textFiveNumberSummary(d.duration))
-                t.append("tspan").attr("x", 0).attr("dy", "1.2em").text("{count} request(s)".replace("{count}", d.event_count))
-                t.attr("transform", function(innerd) {
-                    return makeSVGTransform(
-                            data,
-                            lifelineX(data, target(d))+activationBoxWidth/2,
-                            d.complete * timeScale + 2,
-                            lifelineX(data, source(d))-activationBoxWidth/2,
-                            d.start * timeScale + 2
-                            );
-                });
-            })
         .on("mouseleave", function(d, i) {
             d3.select("#popups").selectAll(".messageLabelDetails").remove();
         })
     messageLabels.exit().remove();
     messageLabels.transition().duration(0)
         .text(function(d) { return responseCodes(d); })
+        .each(function (d) {
+            // We can't do transition().on() so we use each() and do the on() there.
+            // This is because 'data' is a closure and will be stale if we set on()
+            // during enter().
+            d3.select(this)
+                .on("mouseenter", function(d2) {
+                    var t = d3.select("#popups").append("text")
+                    .attr("class", "messageLabelDetails")
+                    .attr("text-anchor", "middle")
+                    .attr("alignment-baseline", "middle")
+                    .attr("filter", "url(#LabelBackground)")
+                    .attr("fill", "black")
+                    t.append("tspan").attr("x", 0).attr("dy", "1.2em").text(textFiveNumberSummary(d.duration))
+                    t.append("tspan").attr("x", 0).attr("dy", "1.2em").text("{count} request(s)".replace("{count}", d.event_count))
+                    t.attr("transform", function(innerd) {
+                        return makeSVGTransform(
+                                data,
+                                lifelineX(data, target(d))+activationBoxWidth/2,
+                                d.complete * timeScale + 2,
+                                lifelineX(data, source(d))-activationBoxWidth/2,
+                                d.start * timeScale + 2
+                                );
+                    });
+                });
+        })
         .attr("transform", function(d) {
             return makeSVGTransform(
                     data,
