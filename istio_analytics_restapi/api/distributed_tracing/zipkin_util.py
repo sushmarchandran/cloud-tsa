@@ -262,9 +262,17 @@ def initialize_event(zipkin_span, annotation, bin_ann_dict, event_sequence_numbe
     @return The representation of an event, as defined  at 
       istio_analytics_restapi.api.distributed_tracing.responses.event_details.
     '''
-    request_info = \
-        get_binary_annotation_value(bin_ann_dict,
-                                    BINARY_ANNOTATION_REQUEST_LINE_STR).split(' ')
+
+    request_info = None
+    if BINARY_ANNOTATION_REQUEST_LINE_STR in bin_ann_dict:
+        request_info = \
+            get_binary_annotation_value(bin_ann_dict,
+                                        BINARY_ANNOTATION_REQUEST_LINE_STR).split(' ')
+    else:
+        request_info = [bin_ann_dict.get('http.method', 'MISSING-METHOD'),
+                        bin_ann_dict.get('http.url', 'MISSING-URL'),
+                        bin_ann_dict.get('http.protocol', 'MISSING-PROTOCOL')]
+
     event = {
         constants.EVENT_SEQUENCE_NUMBER_STR: event_sequence_number,
         constants.SPAN_ID_STR: zipkin_span[ZIPKIN_SPANID_STR],
@@ -431,10 +439,10 @@ def process_sr_annotation(sr_ann, zipkin_span_dict, ip_to_name_lookup_table,
                              event_sequence_number)
     event[constants.EVENT_TYPE_STR] = constants.EVENT_PROCESS_REQUEST
 
-    cs_ip_address = ann_dict[ZIPKIN_CS_ANNOTATION]\
-                            [ZIPKIN_ANNOTATIONS_ENDPOINT_STR]\
-                            [ZIPKIN_ANNOTATIONS_ENDPOINT_IPV4_STR]
-    event[constants.INTERLOCUTOR_STR] = ip_to_name_lookup_table[cs_ip_address]
+    cs_ip_address = ann_dict.get(ZIPKIN_CS_ANNOTATION, {})\
+                            .get(ZIPKIN_ANNOTATIONS_ENDPOINT_STR, {})\
+                            .get(ZIPKIN_ANNOTATIONS_ENDPOINT_IPV4_STR, "NO-IP")
+    event[constants.INTERLOCUTOR_STR] = ip_to_name_lookup_table.get(cs_ip_address, "NO-NAME")
 
     # Add the new event to the list of events of the service receiving the call
     events_per_service[service_name][constants.EVENTS_STR].append(event)
@@ -496,10 +504,10 @@ def process_ss_annotation(ss_ann, zipkin_span_dict, ip_to_name_lookup_table,
                              event_sequence_number)
     event[constants.EVENT_TYPE_STR] = constants.EVENT_SEND_RESPONSE
 
-    cs_ip_address = ann_dict[ZIPKIN_CS_ANNOTATION]\
-                            [ZIPKIN_ANNOTATIONS_ENDPOINT_STR]\
-                            [ZIPKIN_ANNOTATIONS_ENDPOINT_IPV4_STR]
-    event[constants.INTERLOCUTOR_STR] = ip_to_name_lookup_table[cs_ip_address]
+    cs_ip_address = ann_dict.get(ZIPKIN_CS_ANNOTATION, {})\
+                            .get(ZIPKIN_ANNOTATIONS_ENDPOINT_STR, {})\
+                            .get(ZIPKIN_ANNOTATIONS_ENDPOINT_IPV4_STR, "NO-IP")
+    event[constants.INTERLOCUTOR_STR] = ip_to_name_lookup_table.get(cs_ip_address, "NO-NAME")
 
     if ZIPKIN_CR_ANNOTATION in ann_dict:
         # Set the duration of the new send_response event

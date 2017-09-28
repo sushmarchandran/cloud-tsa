@@ -207,6 +207,8 @@ def detect_retries(event_list, coalesce=False):
         event = event_list[cur_index]
         current_event_type = event[responses.EVENT_TYPE_STR]
         current_interlocutor = event[responses.INTERLOCUTOR_STR]
+        if event.get(responses.RESPONSE_CODE_STR, '') == '':
+            event[responses.RESPONSE_CODE_STR] = "-1"
         response_code = int(event[responses.RESPONSE_CODE_STR])
         if ((current_event_type == responses.EVENT_SEND_REQUEST) and
             (responses.TIMEOUT_STR in event or response_code >= 500)):
@@ -354,6 +356,9 @@ def cluster_traces(traces_timelines):
     for trace_timelines in traces_timelines:
         root_service = get_root_service_name(trace_timelines)
         request_info = trace_timelines[responses.REQUEST_URL_STR].split(' ')
+        if request_info == ['']:
+            request_info = ['MISSING-METHOD', 'MISSING-URL']
+
         root_url = u'{0} {1}{2}'.format(request_info[0], root_service,
                                         request_info[1])
 
