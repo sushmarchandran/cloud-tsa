@@ -368,7 +368,10 @@ function addCanaryIndicators(data) {
         .attr("points", "0,-20 -2,20, 2,20")
         .attr("visibility", function(d) { return showCanaries ? "visible" : "hidden"; })
         .attr("transform", function(d) {
-            var theta_deg = Math.max(Math.min(d.delta, 80), -80);
+            var theta_deg = Math.max(Math.min(d.delta || 0, 80), -80);
+            if (isNaN(theta_deg)) {
+                console.warn("NaN theta_deg; d.delta=" + d.delta);
+            }
             return "rotate(angle x y) translate(x y)"
                 .replace("angle", theta_deg)
                 .replace(/x/g, lifelineX(data, source(d)))
@@ -731,9 +734,9 @@ function makeSVGTransform(data, x1, y1, x2, y2) {
         theta_deg = 0;
     }
     if (isNaN(theta_deg)) {
-        console.log("NaN theta_deg; x1=" + x1 + ", y1=" + y1 + ", x2=" + x2 + ", y2=" + y2);
+        console.warn("NaN theta_deg; x1=" + x1 + ", y1=" + y1 + ", x2=" + x2 + ", y2=" + y2);
     }
-    
+
     return "rotate(angle x y) translate(x y)"
         .replace("angle", theta_deg)
         .replace(/x/g, (x1+x2)/2-5)

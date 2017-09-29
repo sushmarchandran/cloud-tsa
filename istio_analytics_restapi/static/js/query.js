@@ -87,7 +87,7 @@
               $scope.nquery = parseInt($location.path().substring(7));
           }
       });
-      
+
       function query() {
           $scope.queryStatus = "Posting query";
           $scope.rawTraces = null;
@@ -117,6 +117,17 @@
                 $scope.queryStatus = "Failed " + JSON.stringify(response);
               });
           }
+
+        $scope.advance = function(seconds) {
+            var d = new Date(0);
+            d.setUTCMilliseconds(Date.parse($scope.endTime)+seconds*1000);
+            $scope.endTime = d.toISOString();
+        }
+
+        $scope.advanceToNow = function() {
+            var d = new Date();
+            $scope.endTime = d.toISOString();
+        }
     } // TraceQueryController
 
     function SequenceDiagramController($scope, $log, $location) {
@@ -210,16 +221,16 @@
                 $scope.queryStatus = "No traces for timerange";
                 return;
             }
-            
+
             globals.ntrace = $scope.$parent.nquery;
             }
-            
+
             showPie(globals.traces, globals.ntrace);
         });
-        
+
       $scope.prevTrace = prevTrace;
       $scope.nextTrace = nextTrace;
-      
+
       function prevTrace() {
           // TODO Watch nquery instead of explicitly updating
         if ($scope.$parent.nquery > 0) {
@@ -227,7 +238,7 @@
             showPie($scope.$parent.rawTraces.traces_timelines, $scope.$parent.nquery);
         }
       }
-    
+
       function nextTrace() {
           // TODO Watch nquery instead of explicitly updating
         if ($scope.$parent.nquery < $scope.$parent.rawTraces.traces_timelines.length-1) {
@@ -236,12 +247,12 @@
         }
       }
   }
-  
+
   function CategoriesController($scope, $log, $location, $window) {
         console.log("Hello from CategoriesController");
 
         $scope.window = $window;    // Needed for categories.html to retrieve the URL query param
-        
+
       $scope.categories = null;
       $scope.traces = null;
 
@@ -255,19 +266,19 @@
                 $scope.categories = null;
             }
         });
-        
+
       $scope.traceAnnotations = function(categoryDetails, ntrace) {
           // If we have no statistical details, show no annotations
           if (categoryDetails.durationSummary.min == categoryDetails.durationSummary.max) {
               return "";
           }
-          
+
           var duration = calculateDuration($scope.traces[ntrace]);
-          
+
           var retval = "";
-          
+
           // Note that the down tack and up tack don't change when bolded on OSX.
-          
+
           // Show min as "down tack"
           if (duration <= categoryDetails.durationSummary.min) {
               retval += "⊤";    // or perhaps use ⫧ or ⫪
