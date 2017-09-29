@@ -30,7 +30,7 @@ function showTrace(traces, ntrace) {
 
     var siblingTraces = matchingTraces(traces[ntrace], traces);
     var traceSummary = summarizeTraces(siblingTraces, selectedTrace);
-    // console.log("traceSummary is " + JSON.stringify(traceSummary));
+    console.log("traceSummary is " + JSON.stringify(traceSummary));
     orderEvents(traceSummary);
     var processes = deriveProcessesFromTrace(selectedTrace);
     var sequenceData = { processes: processes, events: allEvents(traceSummary) };
@@ -940,7 +940,7 @@ function summarizeTraces(siblingTraces, selectedTrace) {
                 var summaryEvent = {
                     trace_id: selectedTrace.trace_id,
                     span_id: selectedEvent.span_id,
-                    parent_spand_id: selectedEvent.parent_span_id,
+                    parent_span_id: selectedEvent.parent_span_id,
                     type: selectedEvent.type,
                     service: service,                            // denormalize the service (each event shall refer to it)
                     interlocutor: selectedEvent.interlocutor, 
@@ -1078,32 +1078,32 @@ function allEvents(trace) {
 // Add .nextEvent to each event
 // Also adds .start and .complete to each event.  These are timestamps relative to 0 for the whole trace, based on median time.
 function orderEvents(trace) {
-    
+
     var events = allEvents(trace)
-    
+
     // Just sort by timestamp
     events.sort(function (a, b) { return a.timestamp - b.timestamp; });
-    
+
     // Remember the previous send_request for each service
     var requests = {};
-    
+
     // Remember the send_request for each span
     var spans = {}
-    
+
     var basetime = 0;
     for (var i in events) {
         //console.log("setting next/start/complete for " + events[i].service + "/" 
         //        + events[i].type + " " + events[i].request + " which has timeout " 
         //        + JSON.stringify(events[i].timeout));
-        
+
         events[i].nextEvent = allEvents[i+1];
         events[i].prevEvent = allEvents[i-1];
-        
+
         if (events[i].type == "send_request") {
             requests[events[i].service] = events[i];
             spans[events[i].span_id] = events[i];
         }
-        
+
         if (events[i].timeout && events[i].type == "process_response") {
             // When we are processing as a result of timing out, the start time
             // should be the timeout median after the previous send_request from the same service.
@@ -1113,9 +1113,10 @@ function orderEvents(trace) {
         if (events[i].type == "process_request") {
             // Set the basetime/start from the send_request's stop time.
             if (spans[events[i].span_id] == undefined) {
-                throw new Error("Expected to find span " + events[i].span_id + " but the only spans are " + JSON.stringify(Object.keys(spans)));
+                console.warn("Expected to find span " + events[i].span_id + " but the only send_request spans are " + JSON.stringify(Object.keys(spans)));
+            } else {
+                basetime = spans[events[i].span_id].complete;
             }
-            basetime = spans[events[i].span_id].complete;
         }
 
         events[i].start = basetime;

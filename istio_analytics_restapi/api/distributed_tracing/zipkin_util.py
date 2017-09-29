@@ -28,6 +28,11 @@ BINARY_ANNOTATION_RESPONSE_CODE_STR = 'response_code'
 BINARY_ANNOTATION_RESPONSE_SIZE_STR = 'response_size'
 BINARY_ANNOTATION_USER_AGENT_STR = 'user_agent'
 
+# Open Tracing standardize keys
+BINARY_ANNOTATION_ALIASES = {
+    BINARY_ANNOTATION_RESPONSE_CODE_STR: "http.status_code",
+}
+
 # Values of Zipkin regular annotations
 ZIPKIN_CS_ANNOTATION = 'cs'
 ZIPKIN_CR_ANNOTATION = 'cr'
@@ -62,7 +67,7 @@ def build_annotation_dict(zipkin_span):
     return ann_dict
 
 
-def get_binary_annotation_value(binary_annotation_dic, key):
+def get_binary_annotation_value(binary_annotation_dic, key, defaultVal=''):
     '''Gets the value a binary annotation identified by the given key
     
     @param binary_annotation_dic (dictionary): A dictionary with a span's binary annotations
@@ -74,8 +79,10 @@ def get_binary_annotation_value(binary_annotation_dic, key):
     '''
     if key in binary_annotation_dic:
         return binary_annotation_dic[key]
+    elif key in BINARY_ANNOTATION_ALIASES and BINARY_ANNOTATION_ALIASES[key] in binary_annotation_dic:
+        return binary_annotation_dic[BINARY_ANNOTATION_ALIASES[key]]
     else:
-        return ''
+        return defaultVal
 
 def get_trace_root_request(zipkin_trace):
     '''Returns the request URL of the trace's root span
@@ -182,13 +189,15 @@ def zipkin_trace_list_to_istio_analytics_trace_list(zipkin_trace_list):
                 # target service name.
                 istio_analytics_span[constants.TARGET_NAME_STR] = \
                     zipkin_span[ZIPKIN_NAME_STR].split(':')[0]
-                    
+
             istio_analytics_span[constants.RESPONSE_SIZE_STR] = \
                 get_binary_annotation_value(bin_ann_dict,
                                             BINARY_ANNOTATION_RESPONSE_SIZE_STR)
+
             istio_analytics_span[constants.RESPONSE_CODE_STR] = \
-                get_binary_annotation_value(bin_ann_dict,
-                                            BINARY_ANNOTATION_RESPONSE_CODE_STR)
+                    get_binary_annotation_value(bin_ann_dict,
+                                                BINARY_ANNOTATION_RESPONSE_CODE_STR, '-1')
+
             istio_analytics_span[constants.USER_AGENT_STR] = \
                 get_binary_annotation_value(bin_ann_dict,
                                             BINARY_ANNOTATION_USER_AGENT_STR)
@@ -284,7 +293,7 @@ def initialize_event(zipkin_span, annotation, bin_ann_dict, event_sequence_numbe
         constants.RESPONSE_SIZE_STR: get_binary_annotation_value(bin_ann_dict,
                                         BINARY_ANNOTATION_RESPONSE_SIZE_STR),
         constants.RESPONSE_CODE_STR: get_binary_annotation_value(bin_ann_dict,
-                                        BINARY_ANNOTATION_RESPONSE_CODE_STR),
+                                        BINARY_ANNOTATION_RESPONSE_CODE_STR, '-1'),
         constants.USER_AGENT_STR: get_binary_annotation_value(bin_ann_dict,
                                         BINARY_ANNOTATION_USER_AGENT_STR),
     }
@@ -442,6 +451,8 @@ def process_sr_annotation(sr_ann, zipkin_span_dict, ip_to_name_lookup_table,
     cs_ip_address = ann_dict.get(ZIPKIN_CS_ANNOTATION, {})\
                             .get(ZIPKIN_ANNOTATIONS_ENDPOINT_STR, {})\
                             .get(ZIPKIN_ANNOTATIONS_ENDPOINT_IPV4_STR, "NO-IP")
+    if cs_ip_address == 'NO-IP':
+        log.warn("Could not find cs IP address in {annotations}".format(annotations=ann_dict))
     event[constants.INTERLOCUTOR_STR] = ip_to_name_lookup_table.get(cs_ip_address, "NO-NAME")
 
     # Add the new event to the list of events of the service receiving the call
@@ -507,6 +518,8 @@ def process_ss_annotation(ss_ann, zipkin_span_dict, ip_to_name_lookup_table,
     cs_ip_address = ann_dict.get(ZIPKIN_CS_ANNOTATION, {})\
                             .get(ZIPKIN_ANNOTATIONS_ENDPOINT_STR, {})\
                             .get(ZIPKIN_ANNOTATIONS_ENDPOINT_IPV4_STR, "NO-IP")
+    if cs_ip_address == 'NO-IP':
+        log.warn("Could not find cs IP address in {annotations}".format(annotations=ann_dict))
     event[constants.INTERLOCUTOR_STR] = ip_to_name_lookup_table.get(cs_ip_address, "NO-NAME")
 
     if ZIPKIN_CR_ANNOTATION in ann_dict:
