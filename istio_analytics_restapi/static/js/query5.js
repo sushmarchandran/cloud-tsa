@@ -31,15 +31,18 @@
             .when('/sequence/flow/:flow/trace/:traceid', {
                 templateUrl: '/static/sequence5.html',
                 templateNamespace: 'svg',
-                controller: 'SequenceDiagramController'
+                controller: 'SequenceDiagramController',
+                reloadOnSearch: false,
             })
             .when('/categories', {
                 templateUrl: '/static/categories5.html',
-                controller: 'CategoriesController'
+                controller: 'CategoriesController',
+                reloadOnSearch: false,
             })
             .when('/pie/flow/:flow', {
                 templateUrl: '/static/pie5.html',
-                controller: 'PieController'
+                controller: 'PieController',
+                reloadOnSearch: false,
             });
         });
 
@@ -79,6 +82,10 @@
             $scope.clusters = response_data.clusters;
             */
 
+            // See https://stackoverflow.com/questions/20884551/set-url-query-parameters-without-state-change-using-angular-ui-router
+            //$state.transitionTo('search', {q: 'updated search term'}, { notify: false });
+            $location.search({ start: $scope.startTime, end: $scope.endTime });
+
             var requestTime = new Date();
             $http({
                   method: 'POST',
@@ -89,6 +96,11 @@
                 // when the response is available
                 $scope.queryStatus = "";
                 $scope.dataOrigin = response.data.zipkin_url;
+                // We sort the data so that if we query again the flow # in the UI is stable
+                response.data.clusters.sort(function (a, b) { 
+                    return a.root_request < b.root_request ? -1 :
+                        (a.root_request > b.root_request ? 1 : 0);
+                });
                 $scope.clusters = response.data.clusters;
 
                 // TODO remove
@@ -112,6 +124,18 @@
                 flows[nflow].index = nflow;
             }
         }
+
+        $scope.advance = function(seconds) {
+            var d = new Date(0);
+            d.setUTCMilliseconds(Date.parse($scope.endTime)+seconds*1000);
+            $scope.endTime = d.toISOString();
+        }
+
+        $scope.advanceToNow = function() {
+            var d = new Date();
+            $scope.endTime = d.toISOString();
+        }
+
     } // TraceQueryController
 
     function SequenceDiagramController($scope, $log, $location, $rootScope) {
@@ -135,10 +159,10 @@
 
         console.log("Hello from SequenceDiagramController");
 
-        $rootScope.$on('$locationChangeSuccess', function() {
-            console.log("SequenceDiagramController $locationChangeSuccess triggered, $location.path()=" + $location.path());
-            parseForFlowAndTraceno();
-        });
+        //$rootScope.$on('$locationChangeSuccess', function() {
+        //    console.log("SequenceDiagramController $locationChangeSuccess triggered, $location.path()=" + $location.path());
+        //    parseForFlowAndTraceno();
+        //});
 
         $scope.$parent.$watch('clusters', function(newValue, oldValue) {
             console.log("SequenceDiagramController clusters watcher fired");
@@ -207,6 +231,11 @@
               if ($scope.nflow >= $scope.clusters.length) {
                     showTrace({cluster_stats: []}, $scope.magnification,
                             { debugUI: $scope.debugUI });
+                  return;
+              }
+
+              if ($scope.$parent == null) {
+                  console.error("Reached refreshTrace() with null parent");
                   return;
               }
 
@@ -321,9 +350,9 @@
             var height = +svg.attr("height");
             var radius = Math.min(width, height) / 2;
             var g = d3.select("#translatedPie");
-            
+
             g.attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
-            
+
             var path = d3.svg.arc()
                 .outerRadius(radius - 10)
                 .innerRadius(0);
@@ -336,9 +365,9 @@
                 // .sort(null)
                 .value(function(d) { return data.processToDuration[d.id] || 0; });
             var pieData = pie(data.processes);
-            
+
             // console.log("pieData = " + JSON.stringify(pieData));
-            
+
             var aPathData = g.selectAll(".arcPath")
                 .data(pieData);
             aPathData.enter()
@@ -370,10 +399,10 @@
                 .text("No data");    // This gets covered if there is data
             return svg; 
         }
-        
+
         function measureProcessAndNetworkDuration(trace) {
             var retval = {};
-            
+
             // Measure processing time
             for (var timeline of trace.cluster_stats) {
                 retval[timeline.service] = timeline.events
@@ -391,15 +420,15 @@
                         return accum + evt.duration.mean;
                     }, 0);
             }
-            
+
             retval["communication"] = communicationTime;
-            
+
             console.log("durations: " + JSON.stringify(retval));
-            
+
             return retval;
         }
     } // PieController
-  
+
     function CategoriesController($scope, $log, $location, $window) {
           console.log("Hello from CategoriesController");
 
@@ -411,6 +440,6 @@
               $scope.clusters = newValue;
           });
     } // CategoriesController
-  
+
 })(window.angular);
 

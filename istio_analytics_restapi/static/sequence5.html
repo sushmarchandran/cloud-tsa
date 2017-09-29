@@ -18,7 +18,7 @@ Zoom: {{ magnification }}
 
 <button id="prevFlow" type="button" ng-click="prevFlow()" ng-disabled="nflow < 1">&lt;</button>
 <button id="nextFlow" type="button" ng-click="nextFlow()" ng-disabled="nflow >= clusters.length-1">&gt;</button>
-Flow: {{ nflow }} {{ selectedFlowTitle() }}
+Flow: {{ nflow }} of {{ clusters.length }} {{ selectedFlowTitle() }}
 
 <!-- 
 <button id="prevTrace" type="button" onclick="alert('TODO')" disabled>&lt;</button>
