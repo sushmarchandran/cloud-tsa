@@ -100,8 +100,18 @@ def get_trace_root_request(zipkin_trace):
             request_info = binary_annotation[ZIPKIN_BINARY_ANNOTATIONS_VALUE_STR].split(' ')
             return ' '.join(request_info[0:2])
 
-    # We do not expect to get here, as the request URL must be present
-    return ''
+    # Look for the new, three-part version
+    method = 'MISSING-METHOD'
+    url = 'MISSING-URL'
+    protocol = 'MISSING-PROTOCOL'
+    for binary_annotation in binary_annotations:
+        if binary_annotation[ZIPKIN_BINARY_ANNOTATIONS_KEY_STR] == 'http.method':
+            method = binary_annotation[ZIPKIN_BINARY_ANNOTATIONS_VALUE_STR]
+        elif binary_annotation[ZIPKIN_BINARY_ANNOTATIONS_KEY_STR] == 'http.url':
+            url = binary_annotation[ZIPKIN_BINARY_ANNOTATIONS_VALUE_STR]
+        elif binary_annotation[ZIPKIN_BINARY_ANNOTATIONS_KEY_STR] == 'http.protocol':
+            protocol = binary_annotation[ZIPKIN_BINARY_ANNOTATIONS_VALUE_STR]
+    return ' '.join([method, url, protocol])
 
 def has_sr_annotation(zipkin_span):
     '''Checks if the given Zipkin span contains an SR (Server Receive) annotation
