@@ -214,10 +214,11 @@ def zipkin_trace_list_to_istio_analytics_trace_list(zipkin_trace_list):
 
             request_info = \
                 get_binary_annotation_value(bin_ann_dict,
-                                            BINARY_ANNOTATION_REQUEST_LINE_STR).split(' ')
+                                            BINARY_ANNOTATION_REQUEST_LINE_STR,
+                                            "NO-METHOD NO-URL NO-PROTOCOL").split(' ')
             istio_analytics_span[constants.REQUEST_URL_STR] = ' '.join(request_info[0:2])
             istio_analytics_span[constants.PROTOCOL_STR] = request_info[2]
-            
+
             istio_analytics_span[constants.REQUEST_SIZE_STR] = \
                 get_binary_annotation_value(bin_ann_dict,
                                             BINARY_ANNOTATION_REQUEST_SIZE_STR)
@@ -225,9 +226,9 @@ def zipkin_trace_list_to_istio_analytics_trace_list(zipkin_trace_list):
             istio_analytics_span[constants.SPAN_ID_STR] = zipkin_span[ZIPKIN_SPANID_STR]
             if ZIPKIN_PARENT_SPANID_STR in zipkin_span:
                 istio_analytics_span[constants.PARENT_SPAN_ID_STR] = zipkin_span[ZIPKIN_PARENT_SPANID_STR]
-                
+
             istio_analytics_spans.append(istio_analytics_span)
-            
+
         istio_analytics_trace[constants.SPANS_STR] = istio_analytics_spans
         ret_val.append(istio_analytics_trace)
 
