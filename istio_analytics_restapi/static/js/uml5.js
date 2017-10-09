@@ -1024,6 +1024,10 @@ function responseCodeToColor(responseCode) {
 }
 
 function responseCodes(event) {
+    if (!event.durations_and_codes) {
+        return "none";
+    }
+
     return summarizeResponseCodes(event.durations_and_codes.map(function (dac) {
         return dac.response_code;
     }));

@@ -70,6 +70,11 @@
          </div> -->
 
          <md-content>
+          <md-button class="md-raised md-primary"
+            ng-click="openCanary()"
+            data-ng-disabled="!baselineStart || !baselineEnd || !canaryStart || !canaryEnd"
+            >Show Detailed Canary</md-button>
+
             <p>
             Demo of using <a href="http://zipkin.io">Zipkin</a> data to understand system behavior.
             For more details on Zipkin see <a href="http://zipkin.io/pages/data_model.html">Data Model</a>

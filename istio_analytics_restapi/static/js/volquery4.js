@@ -36,6 +36,11 @@
         $scope.endTime = "";
         $scope.maxTraces = 500;
 
+        $scope.baselineStart = null;
+        $scope.baselineEnd = null;
+        $scope.canaryStart = null;
+        $scope.canaryEnd = null;
+
         $scope.query = query;
 
         $rootScope.$on('$locationChangeSuccess', function () {
@@ -99,7 +104,7 @@
             });
 
             if ($scope.context == null) {
-                $scope.context = prepareChart("#volchart");
+                $scope.context = prepareChart("#volchart", $scope);
             }
 
         }
@@ -128,6 +133,13 @@
                 };
                 return retval;
             });
+        }
+
+        $scope.openCanary = function() {
+            window.location.href = '/uml5/sequence/flow/0/trace/0?start='
+                    + $scope.baselineStart.toISOString() + '&end=' + $scope.baselineEnd.toISOString()
+                    + "&canaryStart=" + $scope.canaryStart.toISOString()
+                    + "&canaryEnd=" + $scope.canaryEnd.toISOString();
         }
 
     } // VolumeQueryController
