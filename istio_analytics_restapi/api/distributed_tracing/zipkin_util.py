@@ -400,11 +400,12 @@ def process_cs_annotation(cs_ann, zipkin_span_dict, ip_to_name_lookup_table,
     # Add the new event to the list of events of the service making the call
     events_per_service[service_name][constants.EVENTS_STR].append(event)
     update_events_per_span(events_per_span, event, span_id, constants.EVENT_SEND_REQUEST)
-    
+
     if previous_event:
         if (  (previous_event[constants.EVENT_TYPE_STR] == constants.EVENT_PROCESS_REQUEST and
                previous_event[constants.SPAN_ID_STR] == event[constants.PARENT_SPAN_ID_STR]) or
               (previous_event[constants.EVENT_TYPE_STR] == constants.EVENT_PROCESS_RESPONSE and
+               constants.PARENT_SPAN_ID_STR in previous_event and
                previous_event[constants.PARENT_SPAN_ID_STR] == event[constants.PARENT_SPAN_ID_STR])
            ):
             # If this event follows either a process_request event of a parent span,
@@ -546,8 +547,9 @@ def process_ss_annotation(ss_ann, zipkin_span_dict, ip_to_name_lookup_table,
     if previous_event:
         if (  (previous_event[constants.EVENT_TYPE_STR] == constants.EVENT_PROCESS_REQUEST and
                previous_event[constants.SPAN_ID_STR] == event[constants.SPAN_ID_STR]) or
-            
+
               (previous_event[constants.EVENT_TYPE_STR] == constants.EVENT_PROCESS_RESPONSE and
+               constants.PARENT_SPAN_ID_STR in previous_event and
                previous_event[constants.PARENT_SPAN_ID_STR] == event[constants.SPAN_ID_STR] and 
                events_per_span[previous_event[constants.SPAN_ID_STR]]
                               [constants.EVENT_SEND_REQUEST][constants.TIMESTAMP_STR] >
