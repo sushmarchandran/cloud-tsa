@@ -48,6 +48,10 @@ def build_binary_annotation_dict(zipkin_span):
     @return: Dictionary with all binary annotations of the span
     '''
     binary_ann_dict = {}
+    if ZIPKIN_BINARY_ANNOTATIONS_STR not in zipkin_span:
+        log.warn("No annotations in {}".format(zipkin_span))
+        return binary_ann_dict
+
     for binary_annotation in zipkin_span[ZIPKIN_BINARY_ANNOTATIONS_STR]:
         binary_ann_dict[binary_annotation[ZIPKIN_BINARY_ANNOTATIONS_KEY_STR]] = \
             binary_annotation[ZIPKIN_BINARY_ANNOTATIONS_VALUE_STR]
@@ -151,11 +155,16 @@ def zipkin_trace_list_to_istio_analytics_trace_list(zipkin_trace_list):
         
         # Lookup table that associates IP addresses to names of microservices
         ip_to_name_lookup_table = {}
-        
+
         # Process each span of the current trace
         for zipkin_span in zipkin_trace:
             bin_ann_dict = build_binary_annotation_dict(zipkin_span)
             istio_analytics_span = {}
+            if ZIPKIN_ANNOTATIONS_STR not in zipkin_span:
+                log.warn("span {} does not contain annotations"
+                         .format(zipkin_span.get("id", "<MISSING_ID>")))
+                continue
+
             annotations = zipkin_span[ZIPKIN_ANNOTATIONS_STR]
             # Process each regular annotation of the span
             for annotation in annotations:
@@ -165,10 +174,10 @@ def zipkin_trace_list_to_istio_analytics_trace_list(zipkin_trace_list):
                 # Set IP and name for source and target based on the current annotation being processed
                 if annotation[ZIPKIN_ANNOTATIONS_VALUE_STR] == ZIPKIN_CS_ANNOTATION:
                     # This is the source (microservice that made the call)
-                    
+
                     # Set the source IP address
                     istio_analytics_span[constants.SOURCE_IP_STR] = ip_address                    
-                    
+
                     # Set the source name
                     if ip_address not in ip_to_name_lookup_table:
                         # This is the root span of the trace
@@ -202,7 +211,7 @@ def zipkin_trace_list_to_istio_analytics_trace_list(zipkin_trace_list):
 
             istio_analytics_span[constants.RESPONSE_SIZE_STR] = \
                 get_binary_annotation_value(bin_ann_dict,
-                                            BINARY_ANNOTATION_RESPONSE_SIZE_STR)
+                                            BINARY_ANNOTATION_RESPONSE_SIZE_STR, 0)
 
             istio_analytics_span[constants.RESPONSE_CODE_STR] = \
                     get_binary_annotation_value(bin_ann_dict,
@@ -221,7 +230,7 @@ def zipkin_trace_list_to_istio_analytics_trace_list(zipkin_trace_list):
 
             istio_analytics_span[constants.REQUEST_SIZE_STR] = \
                 get_binary_annotation_value(bin_ann_dict,
-                                            BINARY_ANNOTATION_REQUEST_SIZE_STR)
+                                            BINARY_ANNOTATION_REQUEST_SIZE_STR, 0)
 
             istio_analytics_span[constants.SPAN_ID_STR] = zipkin_span[ZIPKIN_SPANID_STR]
             if ZIPKIN_PARENT_SPANID_STR in zipkin_span:
@@ -299,10 +308,10 @@ def initialize_event(zipkin_span, annotation, bin_ann_dict, event_sequence_numbe
         constants.TIMESTAMP_STR: annotation[ZIPKIN_ANNOTATIONS_TIMESTAMP_STR],
         constants.REQUEST_URL_STR: ' '.join(request_info[0:2]),
         constants.REQUEST_SIZE_STR: get_binary_annotation_value(bin_ann_dict,
-                                        BINARY_ANNOTATION_REQUEST_SIZE_STR),
+                                        BINARY_ANNOTATION_REQUEST_SIZE_STR, 0),
         constants.PROTOCOL_STR: request_info[2],
         constants.RESPONSE_SIZE_STR: get_binary_annotation_value(bin_ann_dict,
-                                        BINARY_ANNOTATION_RESPONSE_SIZE_STR),
+                                        BINARY_ANNOTATION_RESPONSE_SIZE_STR, 0),
         constants.RESPONSE_CODE_STR: get_binary_annotation_value(bin_ann_dict,
                                         BINARY_ANNOTATION_RESPONSE_CODE_STR, '-1'),
         constants.USER_AGENT_STR: get_binary_annotation_value(bin_ann_dict,
