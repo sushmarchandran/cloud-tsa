@@ -26,6 +26,10 @@ var showCanaries = false;
 
 
 function showTrace(traces, ntrace) {
+    if (ntrace >= traces.length) {
+        console.log("Warning: invalid ntrace " + ntrace + ", only " + traces.length + " traces");
+        ntrace = 0;
+    }
     var selectedTrace = traces[ntrace];
 
     var siblingTraces = matchingTraces(traces[ntrace], traces);
@@ -890,6 +894,9 @@ function traceToEvents(trace) {
 function matchingTraces(trace, zipkin_traces) {
     // return [trace];
 
+    if (trace == null) {
+        throw new Error("matchingTraces() got null trace");
+    }
     console.log("Chosen trace has " + trace.timelines.length + " processes");
     var strTraceEvents = JSON.stringify(traceToEvents(trace));
     console.log("Chosen trace has events" + strTraceEvents);
@@ -904,7 +911,7 @@ function matchingTraces(trace, zipkin_traces) {
             retval.push(zipkin_traces[i]);
         }
     }
-    
+
     console.log("Found " + count + " matching traces");
     return retval;
 }

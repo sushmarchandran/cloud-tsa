@@ -38,6 +38,10 @@ ZIPKIN_CS_ANNOTATION = 'cs'
 ZIPKIN_CR_ANNOTATION = 'cr'
 ZIPKIN_SS_ANNOTATION = 'ss'
 ZIPKIN_SR_ANNOTATION = 'sr'
+# Currently there is no support for ms (message send), mr (message receive),
+# and lc (local component) for async and within-process messages.
+# See https://github.com/openzipkin/zipkin/issues/808
+# See https://github.com/openzipkin/zipkin/issues/1243
 
 def build_binary_annotation_dict(zipkin_span):
     '''Given a Zipkin span, creates a dictionary for all of its binary annotations
@@ -49,7 +53,8 @@ def build_binary_annotation_dict(zipkin_span):
     '''
     binary_ann_dict = {}
     if ZIPKIN_BINARY_ANNOTATIONS_STR not in zipkin_span:
-        log.warn("No annotations in {}".format(zipkin_span))
+        log.warn("No binary annotations in {}"
+                 .format(zipkin_span.get("id", "<MISSING ID>")))
         return binary_ann_dict
 
     for binary_annotation in zipkin_span[ZIPKIN_BINARY_ANNOTATIONS_STR]:
@@ -66,6 +71,11 @@ def build_annotation_dict(zipkin_span):
     @return: Dictionary with all regular annotations of the span
     '''
     ann_dict = {}
+    if ZIPKIN_ANNOTATIONS_STR not in zipkin_span:
+        log.warn("no annotations in {}"
+                 .format(zipkin_span.get("id", "<MISSING ID>")))
+        return ann_dict
+
     for annotation in zipkin_span[ZIPKIN_ANNOTATIONS_STR]:
         ann_dict[annotation[ZIPKIN_ANNOTATIONS_VALUE_STR]] = annotation
     return ann_dict
@@ -97,6 +107,11 @@ def get_trace_root_request(zipkin_trace):
     @return: the request URL of the given trace's root span
              empty string if the request URL is not found (this should never be the case)
     '''
+    if ZIPKIN_BINARY_ANNOTATIONS_STR not in zipkin_trace[0]:
+        log.warn("no binary annotations in {}"
+                 .format(zipkin_trace[0].get("id", "<MISSING_ID>")))
+        return 'MISSING-METHOD ' + zipkin_trace[0].get("name", "<MISSING_NAME>") + ' MISSING-PROTOCOL'
+
     binary_annotations = zipkin_trace[0][ZIPKIN_BINARY_ANNOTATIONS_STR]
     for binary_annotation in binary_annotations:
         if binary_annotation[ZIPKIN_BINARY_ANNOTATIONS_KEY_STR] == \
@@ -265,7 +280,7 @@ def global_sort_annotations(zipkin_trace):
             'binary_annotations': build_binary_annotation_dict(zipkin_span),
             'annotations': build_annotation_dict(zipkin_span)
         }
-        for annotation in zipkin_span[ZIPKIN_ANNOTATIONS_STR]:
+        for annotation in zipkin_span.get(ZIPKIN_ANNOTATIONS_STR, []):
             global_annotations.append({
                 'span_id': zipkin_span[ZIPKIN_SPANID_STR],
                 'annotation': annotation
@@ -669,7 +684,7 @@ def zipkin_trace_list_to_timelines(zipkin_trace_list):
         # Events per service; the keys of this dictionary are service names;
         # each value contains a service name and an array of events
         events_per_service = {}
-        
+
         # Events per span; the outter keys of this dictionary are span ids,
         # the inner keys are event types, and the actual values are events
         events_per_span = {}

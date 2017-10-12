@@ -757,7 +757,7 @@ function addDurations(data) {
         }
 
         for (var nTraceId in activation.trace_ids) {
-            var durAndCode = activation.durations_and_codes[nTraceId];
+            var durAndCode = activation.durations_and_codes[nTraceId] || { duration: 0};
             durations.push({
                 lifelineX: activation.lifelineX,
 
