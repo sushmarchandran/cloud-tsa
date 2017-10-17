@@ -90,7 +90,7 @@
             $http({
                   method: 'POST',
                   url: '/api/v1/distributed_tracing/traces/timelines/clusters',
-                  data: { start_time: $scope.startTime, end_time: $scope.endTime, max: $scope.max }
+                  data: { start_time: $scope.startTime, end_time: $scope.endTime, max: $scope.maxTraces }
             }).then(function successCallback(response) {
                 // this callback will be called asynchronously
                 // when the response is available

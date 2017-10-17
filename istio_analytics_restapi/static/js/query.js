@@ -78,9 +78,9 @@
       $scope.queryStatus = "";
       $scope.rawTraces = null;
       $scope.dataOrigin = "";
-      
+
       $scope.query = query;
-      
+
       $rootScope.$on('$locationChangeSuccess', function () {
           // I had trouble listening for $scope.$on('$routeUpdate',...) and losing trace #
           if ($location.path() && $location.path().startsWith("/trace/")) {
