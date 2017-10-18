@@ -10,6 +10,7 @@ import statistics
 
 import istio_analytics_restapi.api.distributed_tracing.responses as responses
 import istio_analytics_restapi.analytics.distribution_stats as distribution_stats
+import istio_analytics_restapi.analytics.canary_comparison as canary_comparison
 
 ####
 # Local constants
@@ -416,4 +417,106 @@ def cluster_traces(traces_timelines):
         cluster[responses.CLUSTER_STATS_STR] = compute_cluster_stats(grouped_traces_timelines)
         ret_val.append(cluster)
 
+    return ret_val
+
+def get_simplified_event(agg_event):
+    simplified_event = {}
+    for key in agg_event.keys():
+        if key not in [responses.EVENT_TYPE_STR, 
+                       responses.INTERLOCUTOR_STR, 
+                       responses.REQUEST_URL_STR]:
+            simplified_event[key] = agg_event[key]
+    return simplified_event
+
+def compare_clusters(baseline_clusters, canary_clusters):
+    '''Given two lists of trace clusters, each list produced by a call to
+       cluster_traces(), produce a delta comparison
+       of the canary clusters with respect to the corresponding baseline clusters.
+
+    @param baseline_clusters (list): List of trace clusters as returned by
+    cluster_traces(), corresponding to the baseline for comparison
+    @param canary_clusters (list): List of trace clusters as returned by
+    cluster_traces(), corresponding to the canary to be compared against the baseline
+    '''
+    # Hash table for the canary clusters, where the key is the root request
+    canary_clusters_hash_table = {}
+    for canary_cluster in canary_clusters:
+        canary_clusters_hash_table[canary_cluster[responses.ROOT_REQUEST_STR]] = \
+            canary_cluster
+
+    ret_val = []
+
+    # Go through each baseline cluster and look for the corresponding canary cluster
+    # to compare
+    for baseline_cluster in baseline_clusters:
+        root_request = baseline_cluster[responses.ROOT_REQUEST_STR]
+        canary_cluster = canary_clusters_hash_table[root_request]
+        
+        if not canary_cluster:
+            log.debug(u'Could not find canary match for root request {}'.
+                      format(root_request))
+            continue
+
+        cluster_diff = {
+            responses.ROOT_REQUEST_STR: root_request,
+            responses.BASELINE_TRACE_IDS_STR: baseline_cluster[responses.TRACE_IDS_STR],
+            responses.CANARY_TRACE_IDS_STR: canary_cluster[responses.TRACE_IDS_STR]
+        }
+
+        # Hash table for the aggregated events in the canary cluster, where the key 
+        # is a service name and the value is a list of aggregated events
+        canary_cluster_events_hash_table = {}
+        for canary_cluster_stat in canary_cluster[responses.CLUSTER_STATS_STR]:
+            canary_cluster_events_hash_table[canary_cluster_stat[responses.SERVICE_STR]] = \
+                canary_cluster_stat[responses.EVENTS_STR]
+
+        cluster_stats_diff_list = []
+
+        # Iterate over each service to get its aggregated events
+        for baseline_cluster_stat in baseline_cluster[responses.CLUSTER_STATS_STR]:
+            canary_agg_events = canary_cluster_events_hash_table[
+                                baseline_cluster_stat[responses.SERVICE_STR]]
+            baseline_agg_events = baseline_cluster_stat[responses.EVENTS_STR]
+
+            cluster_stats_diff = {
+                responses.SERVICE_STR: baseline_cluster_stat[responses.SERVICE_STR],
+                responses.EVENTS_STR: []
+            }
+
+            # TODO: The current implementation is rather simplistic. It assumes
+            # the clusters have the same "shape" and blindly disregards non-matching events. 
+            # This behavior needs to change to be more generic.
+            c_index = 0
+            for baseline_agg_event in baseline_agg_events:
+                if c_index != len(canary_agg_events):
+                    canary_agg_event = canary_agg_events[c_index]
+
+                    if (baseline_agg_event[responses.EVENT_TYPE_STR] == 
+                        canary_agg_event[responses.EVENT_TYPE_STR] and
+                        baseline_agg_event[responses.INTERLOCUTOR_STR] == 
+                        canary_agg_event[responses.INTERLOCUTOR_STR] and
+                        baseline_agg_event[responses.REQUEST_URL_STR]  == 
+                        canary_agg_event[responses.REQUEST_URL_STR]):
+                        # The aggregated events from baseline and canary match
+                        event_diff = {
+                            responses.EVENT_TYPE_STR: baseline_agg_event[responses.EVENT_TYPE_STR],
+                            responses.INTERLOCUTOR_STR:  baseline_agg_event[responses.INTERLOCUTOR_STR],
+                            responses.REQUEST_URL_STR: baseline_agg_event[responses.REQUEST_URL_STR]
+                        }
+                        event_diff[responses.BASELINE_STATS_STR] = \
+                            get_simplified_event(baseline_agg_event)
+                        event_diff[responses.CANARY_STATS_STR] = \
+                            get_simplified_event(canary_agg_event)
+
+                        event_diff[responses.DELTA_STR] = \
+                            canary_comparison.canary_simple_comparison(baseline_agg_event, 
+                                                                       canary_agg_event)
+                        cluster_stats_diff[responses.EVENTS_STR].append(event_diff)
+                else:
+                    break
+                c_index += 1
+            cluster_stats_diff_list.append(cluster_stats_diff)
+
+        cluster_diff[responses.CLUSTER_STATS_DIFF_STR] = cluster_stats_diff_list
+        ret_val.append(cluster_diff)
     return ret_val
