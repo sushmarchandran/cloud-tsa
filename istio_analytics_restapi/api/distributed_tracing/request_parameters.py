@@ -39,3 +39,15 @@ timelines_body_parameters = api.inherit('timelines_params',
 cluster_body_parameters = api.inherit('cluster_params',
                                       trace_list_body_parameters, {
 })
+
+####
+# Schema of the request body with the parameters for POST /distributed_tracing/traces/timelines/cluster/diff
+#
+####
+BASELINE_STR = 'baseline'
+CANARY_STR = 'canary'
+
+cluster_diff_body_parameters = api.model('cluster_diff_params',{
+    BASELINE_STR: fields.Nested(cluster_body_parameters, required=True),
+    CANARY_STR: fields.Nested(cluster_body_parameters, required=True)
+})

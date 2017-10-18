@@ -193,3 +193,68 @@ class TraceCluster(Resource):
 
         log.info('Finished processing request to get clusters of traces')
         return ret_val
+
+@distributed_tracing_namespace.route('/traces/timelines/clusters/diff')
+class TraceClusterDiff(Resource):
+
+    @api.expect(request_parameters.cluster_diff_body_parameters, validate=True)
+    @api.marshal_with(responses.clusters_diff_response)
+    def post(self):
+        '''
+        Compares two sets of clusters of traces given two time intervals
+
+        The baseline and canary parameters specify the queries to retrieve the two sets of traces that 
+        will be compared. 
+        '''
+        log.info('Started processing request to compare clusters of traces')
+        request_body = request.json
+
+        start_time_milli_baseline, end_time_milli_baseline, max_traces_baseline = \
+            process_common_parameters(request_body[request_parameters.BASELINE_STR])
+        start_time_milli_canary, end_time_milli_canary, max_traces_canary = \
+            process_common_parameters(request_body[request_parameters.CANARY_STR])
+
+        # Call Zipkin to get traces corresponding to the baseline period
+        baseline_traces_or_error_msg, http_code = \
+            zipkin_client.get_traces(start_time_milli_baseline,
+                                     end_time_milli_baseline,
+                                     max_traces=max_traces_baseline)
+
+        if http_code == 200:
+            zipkin_host = os.getenv(constants.ISTIO_ANALYTICS_ZIPKIN_HOST_ENV)
+            ret_val = {
+                zipkin_constants.ZIPKIN_URL_STR: zipkin_host
+            }
+
+            # Call Zipkin to get traces corresponding to the canary period
+            canary_traces_or_error_msg, http_code = \
+                zipkin_client.get_traces(start_time_milli_canary,
+                                     end_time_milli_canary,
+                                     max_traces=max_traces_canary)
+            if http_code != 200:
+                log.warn(canary_traces_or_error_msg)
+                ret_val, http_code = build_http_error(canary_traces_or_error_msg, http_code)
+                flask_restplus.errors.abort(code=http_code, message=canary_traces_or_error_msg)
+                
+            # Cluster the baseline traces
+            baseline_traces_timelines = \
+                zipkin_util.zipkin_trace_list_to_timelines(json.loads(baseline_traces_or_error_msg))
+            baseline_clusters = \
+                distributed_tracing.cluster_traces(baseline_traces_timelines)
+
+            # Cluster the canary traces
+            canary_traces_timelines = \
+                zipkin_util.zipkin_trace_list_to_timelines(json.loads(baseline_traces_or_error_msg))
+            canary_clusters = \
+                distributed_tracing.cluster_traces(baseline_traces_timelines)
+
+        else:
+            log.warn(baseline_traces_or_error_msg)
+            ret_val, http_code = build_http_error(baseline_traces_or_error_msg, http_code)
+            flask_restplus.errors.abort(code=http_code, message=baseline_traces_or_error_msg)
+ 
+        log.info('Finished processing request to compare clusters of traces')
+        ret_val = {
+            zipkin_constants.ZIPKIN_URL_STR: os.getenv(constants.ISTIO_ANALYTICS_ZIPKIN_HOST_ENV)
+        }
+        return ret_val

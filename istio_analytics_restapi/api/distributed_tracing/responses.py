@@ -287,6 +287,129 @@ clusters_response = api.model('clusters_response', {
 BASELINE_TRACE_IDS_STR = 'baseline_trace_ids'
 CANARY_TRACE_IDS_STR = 'canary_trace_ids'
 CLUSTERS_DIFFS = 'clusters_diffs'
+CLUSTER_STATS_DIFF_STR = 'cluster_stats_diff'
+BASELINE_STATS_STR = 'baseline_stats'
+CANARY_STATS_STR = 'canary_stats'
+
+DELTA_STR = 'delta'
+
+DECISION_STR = 'decision'
+OVERALL_DECISION_STR = 'overall_decision'
+DECISION_REASON_STR = 'reason'
+DELTA_MEAN_STR = 'delta_mean'
+DELTA_MEAN_PCT_STR = 'delta_mean_percentage'
+DELTA_STDDEV_STR = 'delta_stddev'
+DELTA_STDDEV_PCT_STR = 'delta_stddev_percentage'
+BASELINE_DATA_POINTS_STR = 'baseline_data_points'
+CANARY_DATA_POINTS_STR = 'canary_data_points'
+
+DECISION_BETTER_STR = 'better'
+DECISION_WORSE_STR = 'worse'
+DECISION_NEEDS_MORE_DATA = 'needs_more_data'
+
+all_stats = api.model('all_stats', {
+    TRACE_IDS_STR: fields.List(fields.String, required=True,
+                                description='The ids (64-bit hex strings) of the traces to which '
+                                'the events aggregated under these statistics belong'),
+    EVENT_SEQUENCE_NUMBER_STR: fields.Integer(required=True, example=8, min=0,
+                                              description='Global event sequence number for the trace'),
+    DURATION_STR: fields.Nested(base_stats, required=True,
+                                description='Statistics on the duration of the event in microseconds'),
+    REQUEST_SIZE_STR: fields.Nested(base_stats, required=True,
+                                    description='Statistics on the size in bytes of the request related '
+                                    'to the event'),
+    RESPONSE_SIZE_STR: fields.Nested(base_stats, required=True,
+                                     description='Statistics on the size in bytes of the response '
+                                     'related to the event'),
+    EVENT_COUNT_STR: fields.Integer(required=True, example=10, min=1,
+                                    description='The number of events corresponding to these '
+                                                'statistics'),
+    ERROR_COUNT_STR: fields.Integer(required=True, example=5, min=0,
+                                    description='The number of errors (e.g., 5xx HTTP codes) '
+                                                'related to the event'),
+    TIMEOUT_COUNT_STR: fields.Integer(required=True, example=3, min=0,
+                                      description='The number of timeouts observed for the request related '
+                                                  'to the event'),
+    AVG_TIMEOUT_SEC_STR: fields.Float(required=True, example=3.3, min=0.0,
+                                      description='Average timeout observed for this event'),
+    RETRY_COUNT_STR: fields.Integer(required=True, example=3, min=0,
+                                    description='The number retries observed for the request related '
+                                                  'to the event'),
+    DURATIONS_AND_CODES_STR: fields.List(fields.Nested(duration_and_code), required=True,
+                                         description='Data points used to compute the duration statistics')
+})
+
+base_delta = api.model('base_delta', {
+    DELTA_MEAN_STR: fields.Float(required=True, example=19.3,
+                                 description='The difference between canary mean and baseline mean '
+                                    'for this metric'),
+    DELTA_MEAN_PCT_STR: fields.Float(required=True, example=1.3,
+                                 description='(canary_mean - baseline_mean) / baseline_mean '
+                                 'for this metric'),
+    DELTA_STDDEV_STR: fields.Float(required=True, example=0.5,
+                                   description='The difference between canary standard deviation and '
+                                   'baseline standard deviation for this metric'),
+    DELTA_STDDEV_PCT_STR: fields.Float(required=True, example=0.8,
+                                 description='(canary_stddev - baseline_stddev) / baseline_mean '
+                                 'for this metric'),
+    BASELINE_DATA_POINTS_STR: fields.Integer(required=True, example=100,
+                                         description='Number of baseline data points considered for '
+                                         'this metric of this event'),
+    CANARY_DATA_POINTS_STR: fields.Integer(required=True, example=100,
+                                         description='Number of canary data points considered for '
+                                         'this metric of this event'),
+    DECISION_STR: fields.String(required=True, example=DECISION_NEEDS_MORE_DATA,
+                                  enum=[DECISION_BETTER_STR,
+                                        DECISION_WORSE_STR,
+                                        DECISION_NEEDS_MORE_DATA],
+                                  description='Indicates whether or not the canary is better than '
+                                  'the baseline with respect to this metric'),
+})
+
+delta = api.model('delta', {
+    OVERALL_DECISION_STR: fields.String(required=True, example=DECISION_NEEDS_MORE_DATA,
+                                  enum=[DECISION_BETTER_STR,
+                                        DECISION_WORSE_STR,
+                                        DECISION_NEEDS_MORE_DATA],
+                                  description='Indicates whether or not the canary is better than '
+                                  'the baseline overall'),
+    DECISION_REASON_STR: fields.String(required=True, example='Not enough data points',
+                                       description='Explanation for the decision made'),
+    
+    DURATION_STR: fields.Nested(base_delta, required=True,
+                                description='Delta between the baseline and canary clusters '
+                                'for the duration of an event'),
+    ERROR_COUNT_STR: fields.Nested(base_delta, required=True,
+                                description='Delta between the baseline and canary clusters '
+                                'for the error count associated with an event')
+})
+
+event_stat_diff_details = api.model('event_stat_diff_details', {
+    EVENT_TYPE_STR: fields.String(required=True, example='send_request',
+                                  enum=[EVENT_SEND_REQUEST,
+                                        EVENT_SEND_RESPONSE,
+                                        EVENT_PROCESS_REQUEST,
+                                        EVENT_PROCESS_RESPONSE],
+                                  description='The event type'),
+    INTERLOCUTOR_STR: fields.String(required=True, example='catalog',
+                                    description='The other microservice participating in this event'),
+    REQUEST_URL_STR: fields.String(required=True, example='GET /catalog',
+                                 description='The URL corresponding to the event'),
+    BASELINE_STATS_STR: fields.Nested(all_stats, required=True, 
+                                      description='Aggregation of all statistics computed on a cluster '
+                                      'of traces for the baseline period'),
+    CANARY_STATS_STR: fields.Nested(all_stats, required=True, 
+                                      description='Aggregation of all statistics computed on a cluster '
+                                      'of traces for the canary period'),
+    DELTA_STR: fields.Nested(delta, required=True,
+                             description='Delta between the canary and the baseline clusters')
+})
+
+cluster_stats_diff = api.model('cluster_stats_diff', {
+    SERVICE_STR: fields.String(required=True, example='orders',
+                               description='Microservice name'),
+    EVENTS_STR: fields.List(fields.Nested(event_stat_diff_details), required=True)
+})
 
 trace_cluster_diff = api.model('trace_cluster_diff', {
     ROOT_REQUEST_STR: fields.String(required=True, example='GET /orders',
@@ -296,9 +419,8 @@ trace_cluster_diff = api.model('trace_cluster_diff', {
                                'of this baseline cluster'),
     CANARY_TRACE_IDS_STR: fields.List(fields.String, required=True,
                                description='List of all trace ids (64-bit hex strings) that are part '
-                               'of this canary cluster')
-
-    # CLUSTER_STATS_STR: fields.List(fields.Nested(cluster_stats), required=True)
+                               'of this canary cluster'),
+    CLUSTER_STATS_DIFF_STR: fields.List(fields.Nested(cluster_stats_diff), required=True)
 })
 
 clusters_diff_response = api.model('clusters_diff_response', {
