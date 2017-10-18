@@ -29,30 +29,30 @@
         .config(function($routeProvider) {
             $routeProvider
             .when('/sequence/flow/:flow/trace/:traceid', {
-                templateUrl: '/static/sequence5.html',
+                templateUrl: '/static/sequence_c.html',
                 templateNamespace: 'svg',
                 controller: 'SequenceDiagramController',
                 reloadOnSearch: false,
             })
             .when('/categories', {
-                templateUrl: '/static/categories5.html',
+                templateUrl: '/static/categories_c.html',
                 controller: 'CategoriesController',
                 reloadOnSearch: false,
             })
             .when('/pie/flow/:flow', {
-                templateUrl: '/static/pie5.html',
+                templateUrl: '/static/pie_c.html',
                 controller: 'PieController',
                 reloadOnSearch: false,
             });
         });
 
     function TraceQueryController($scope, $timeout, $q, $log, $http, $location, $rootScope) {
-        console.log("Hello from TraceQueryController");
+        console.log("Hello from Canary TraceQueryController");
 
         $scope.location = $location;
         $scope.queryStatus = "";
         $scope.dataOrigin = "";
-        $scope.clusters_diffs = [];    // Array of {root_request:, trace_ids:, cluster_stats: }
+        $scope.clusters_diffs = [];    // Array of {root_request:, baseline_trace_ids:, canary_trace_ids:, cluster_stats_diff: }
         $scope.startTime = "";
         $scope.endTime = "";
         $scope.maxTraces = 500;
@@ -88,6 +88,15 @@
             // TODO 'query' disable button?
 
             $scope.queryStatus = "Posting cluster/diff query";
+
+            /* Replace the query with this code to test w/o server */
+            /*
+            $scope.queryStatus = "";
+            var response_data = dummy_testdata;
+            $scope.dataOrigin = response_data.zipkin_url;
+            $scope.clusters_diffs = response_data.clusters_diffs;
+            return;
+            */
 
             $location.search({
                 start: $scope.startTime,
@@ -175,7 +184,7 @@
     function SequenceDiagramController($scope, $log, $location, $rootScope) {
         $scope.location = $location;
 
-        $scope.clusters_diffs = [];    // Array of {root_request:, trace_ids:, cluster_stats: }
+        $scope.clusters_diffs = [];    // Array of {root_request:, baseline_trace_ids:, cluster_stats_diff: }
         $scope.nflow = 0;        // Cursor for cluster in clusters
         $scope.ntrace = 0;        // Cursor for trace in the selected cluster
         $scope.debugUI = false;
@@ -191,7 +200,7 @@
         $scope.start = 0;
         var scrollAmount = 5; // const
 
-        console.log("Hello from SequenceDiagramController");
+        console.log("Hello from Canary SequenceDiagramController");
 
         //$rootScope.$on('$locationChangeSuccess', function() {
         //    console.log("SequenceDiagramController $locationChangeSuccess triggered, $location.path()=" + $location.path());
@@ -263,7 +272,7 @@
 
         function refreshTrace() {
               if ($scope.nflow >= $scope.clusters_diffs.length) {
-                    showTrace({cluster_stats: []}, $scope.magnification,
+                    showTrace({cluster_stats_diff: []}, $scope.magnification,
                             { debugUI: $scope.debugUI });
                   return;
               }
@@ -323,13 +332,13 @@
 
         $scope.location = $location;
 
-        $scope.clusters_diffs = [];    // Array of {root_request:, trace_ids:, cluster_stats: }
+        $scope.clusters_diffs = [];    // Array of {root_request:, baseline_trace_ids:, cluster_stats_diff: }
         $scope.nflow = 0;        // Cursor for cluster in clusters
 
-        console.log("Hello from PieController");
+        console.log("Hello from Canary PieController");
 
-        $scope.$parent.$watch('clusters', function(newValue, oldValue) {
-            console.log("PieController clusters watcher fired, got newValue " + newValue + ", a " + typeof newValue);
+        $scope.$parent.$watch('clusters_diffs', function(newValue, oldValue) {
+            console.log("PieController clusters_diffs watcher fired, got newValue " + newValue + ", a " + typeof newValue);
               $scope.clusters_diffs = newValue;
 
               showPie();
@@ -360,7 +369,8 @@
             return $location.absUrl().replace(/pie\/flow\/([0-9]+)/, 'sequence/flow/$1/trace/0');
         }
 
-        preparePie();
+        preparePie("#pie");
+        preparePie("#canaryPie");
 
         function showPie() {
             if (!$scope.clusters_diffs || $scope.clusters_diffs.length <= $scope.nflow) {
@@ -373,21 +383,25 @@
             // var siblingTraces = matchingTraces(traces[ntrace], traces);
             var processes = deriveProcessesFromTrace(selectedTrace);
             processes.push({id:"communication", title:"Communication", color:"black"});
-            var sequenceData = { processes: processes, processToDuration: measureProcessAndNetworkDuration(selectedTrace) };
+            var pieData = { processes: processes, processToDuration: measureProcessAndNetworkDuration(selectedTrace, "baseline_stats") };
 
-            setupPieDiagram(sequenceData);
+            setupPieDiagram(pieData, "#pie");
+
+            var canaryPieData = { processes: processes, processToDuration: measureProcessAndNetworkDuration(selectedTrace, "canary_stats") };
+            setupPieDiagram(canaryPieData, "#canaryPie");
         }
 
-        function setupPieDiagram(data) {
-            var svg = d3.select("#pie");
+        function setupPieDiagram(data, pieID) {
+            var svg = d3.select(pieID);
             if (svg.size() == 0) {
+                console.log("Can't find pie " + pieID);
                 return;
             }
 
             var width = +svg.attr("width");
             var height = +svg.attr("height");
             var radius = Math.min(width, height) / 2;
-            var g = d3.select("#translatedPie");
+            var g = svg.select("#translatedPie");
 
             g.attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
 
@@ -429,8 +443,8 @@
                 .attr("visibility", function(d) { return (d.value > 0) ? "visible" : "hidden"; });
         }
 
-        function preparePie() {
-            var svg = d3.select("#pie")
+        function preparePie(pieID) {
+            var svg = d3.select(pieID)
             var g = svg.append("g")
                 .attr("id", "translatedPie")
             g.append("text")
@@ -438,11 +452,11 @@
             return svg; 
         }
 
-        function measureProcessAndNetworkDuration(trace) {
+        function measureProcessAndNetworkDuration(trace, statstype) {
             var retval = {};
 
             // Measure processing time
-            for (var timeline of trace.cluster_stats) {
+            for (var timeline of trace.cluster_stats_diff) {
                 retval[timeline.service] = timeline.events
                     .filter(function f(evt) { return evt.type == "process_request" || evt.type == "process_response"; })
                     .reduce(function (accum, evt) {
@@ -451,11 +465,11 @@
             }
 
             var communicationTime = 0;
-            for (var timeline of trace.cluster_stats) {
+            for (var timeline of trace.cluster_stats_diff) {
                 communicationTime += timeline.events
                 .filter(function f(evt) { return evt.type == "send_request" || evt.type == "send_response"; })
                     .reduce(function (accum, evt) {
-                        return accum + evt.duration.mean;
+                        return accum + evt[statstype].duration.mean;
                     }, 0);
             }
 
@@ -471,7 +485,7 @@
           console.log("Hello from CategoriesController");
 
         $scope.window = $window;    // Needed for categories.html to retrieve the URL query param
-        $scope.clusters_diffs = [];    // Array of {root_request:, trace_ids:, cluster_stats: }
+        $scope.clusters_diffs = [];    // Array of {root_request:, trace_ids:, cluster_stats_diff: }
 
         $scope.$parent.$watch('clusters_diffs', function(newValue, oldValue) {
             // console.log("CategoriesController clusters watcher fired, got newValue " + newValue + ", a " + typeof newValue);

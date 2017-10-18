@@ -82,7 +82,7 @@
             $http({
                   method: 'POST',
                   url: '/api/v1/distributed_tracing/traces',
-                  data: { start_time: $scope.startTime, end_time: $scope.endTime, max: $scope.max }
+                  data: { start_time: $scope.startTime, end_time: $scope.endTime, max: $scope.maxTraces }
             }).then(function successCallback(response) {
                 // this callback will be called asynchronously
                 // when the response is available
@@ -136,7 +136,7 @@
         }
 
         $scope.openCanary = function() {
-            window.location.href = '/uml5/sequence/flow/0/trace/0?start='
+            window.location.href = '/canary/sequence/flow/0/trace/0?start='
                     + $scope.baselineStart.toISOString() + '&end=' + $scope.baselineEnd.toISOString()
                     + "&canaryStart=" + $scope.canaryStart.toISOString()
                     + "&canaryEnd=" + $scope.canaryEnd.toISOString();

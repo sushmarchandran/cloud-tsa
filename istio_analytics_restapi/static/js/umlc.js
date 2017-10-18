@@ -110,9 +110,9 @@ function makeSVGTransform(data, x1, y1, x2, y2) {
         .replace(/y/g, (y1+y2)/2-5);
 }
 
-// showTrace() shows a traceSummary which is { cluster_stats: [...] }
+// showTrace() shows a traceSummary which is { cluster_stats_diff: [...] }
 function showTrace(traceSummary, magnification, context) {
-    if (traceSummary.cluster_stats.length == 0) {
+    if (traceSummary.cluster_stats_diff.length == 0) {
         clearSequenceDiagram();
         return;
     }
@@ -145,7 +145,7 @@ function scrollTrace(scrollAmt) {
 
 // Prepare a summary by denormalizing
 function annotateSummary(traceSummary) {
-    for (var timeline of traceSummary.cluster_stats) {
+    for (var timeline of traceSummary.cluster_stats_diff) {
         for (var event of timeline.events) {
             event.service = timeline.service;
         }
@@ -157,7 +157,7 @@ function annotateSummary(traceSummary) {
 // These are timestamps relative to 0 for the whole trace, based on median time of previous events.
 function orderEvents(trace) {
 
-    var events = trace.cluster_stats.reduce(function (accumulator, timeline) { return accumulator.concat(timeline.events); }, []);
+    var events = trace.cluster_stats_diff.reduce(function (accumulator, timeline) { return accumulator.concat(timeline.events); }, []);
 
     // sort by sequence number
     events.sort(function (a, b) { return a.global_event_sequence_number - b.global_event_sequence_number; });
@@ -197,11 +197,12 @@ function orderEvents(trace) {
         //}
 
         events[i].start = basetime;
-        events[i].complete = basetime + events[i].duration.median;
-        if (events[i].duration.median < 0) {
+        // TODO we are only using baseline_stats, we must show canary stats somehow
+        events[i].complete = basetime + events[i].baseline_stats.duration.median;
+        if (events[i].baseline_stats.duration.median < 0) {
             console.log("Warning: negative duration for event " + JSON.stringify(events[i]));
         }
-        basetime = basetime + events[i].duration.median;
+        basetime = basetime + events[i].baseline_stats.duration.median;
 
         //console.log("Set start to " + events[i].start + " for " + events[i].service + "/"
 
@@ -218,7 +219,7 @@ function deriveProcessesFromTrace(trace) {
     var defaultColors = ["purple", "red", "gold", "navy"];
     var processes = getServices(trace);
 
-    var internalServices = trace.cluster_stats.map(function (t) { return t.service; });
+    var internalServices = trace.cluster_stats_diff.map(function (t) { return t.service; });
 
     return processes.map(function(process, index) {
         return {id: process, title: prettyProcessName(process),
@@ -229,12 +230,12 @@ function deriveProcessesFromTrace(trace) {
 }
 
 function getServices(trace) {
-    if (!trace.cluster_stats) {
-        throw new Error("trace has no cluster_stats: " + JSON.stringify(trace));
+    if (!trace.cluster_stats_diff) {
+        throw new Error("trace has no cluster_stats_diff: " + JSON.stringify(trace));
     }
 
     // Get all of the services that have timelines
-    var retval = trace.cluster_stats.map(function (t) { return t.service; });
+    var retval = trace.cluster_stats_diff.map(function (t) { return t.service; });
 
     // Sort by earliest timestamp
     retval.sort(function (a, b) {
@@ -242,8 +243,8 @@ function getServices(trace) {
     });
 
     // Add in the interlocutors that lack timelines
-    // console.log("trace.cluster_stats = " + JSON.stringify(trace.cluster_stats));
-    for (var timeline of trace.cluster_stats) {
+    // console.log("trace.cluster_stats_diff = " + JSON.stringify(trace.cluster_stats_diff));
+    for (var timeline of trace.cluster_stats_diff) {
         // console.log("timeline.events = " + JSON.stringify(timeline.events));
         for (var event of timeline.events) {
             if (retval.indexOf(event.interlocutor) < 0) {
@@ -270,7 +271,7 @@ function prettyProcessName(host) {
 }
 
 function getServiceTimeline(trace, service) {
-    var retval = trace.cluster_stats.find(function (t) { return t.service == service; });
+    var retval = trace.cluster_stats_diff.find(function (t) { return t.service == service; });
     if (retval) {
         return retval;
     }
@@ -512,11 +513,27 @@ function addCommunication(data) {
                     .attr("alignment-baseline", "middle")
                     .attr("fill", "black")
                     .attr("filter", "url(#LabelBackground)")
-                    t.append("tspan").attr("x", 0).attr("dy", "1.2em").text(textFiveNumberSummary(d.duration))
-                    t.append("tspan").attr("x", 0).attr("dy", "1.2em").text("{count} request(s)".replace("{count}", d.event_count))
-                    t.append("tspan").attr("x", 0).attr("dy", "1.2em").text("{error_count} error(s)".replace("{error_count}", d.error_count))
-                    t.append("tspan").attr("x", 0).attr("dy", "1.2em").text("{timeout_count} timeout(s)".replace("{timeout_count}", d.timeout_count))
-                    t.append("tspan").attr("x", 0).attr("dy", "1.2em").text("{retry_count} retry(ies)".replace("{retry_count}", d.retry_count))
+                    t.append("tspan").attr("x", 0).attr("dy", "1.2em").text(
+                            "{5number} vs {canary_5number}"
+                            .replace("{5number}", textFiveNumberSummary(d.baseline_stats.duration))
+                            .replace("{canary_5number}", textFiveNumberSummary(d.canary_stats.duration))
+                            )
+                    t.append("tspan").attr("x", 0).attr("dy", "1.2em").text("{count} vs {canary_count} request(s)"
+                            .replace("{count}", d.baseline_stats.event_count)
+                            .replace("{canary_count}", d.canary_stats.event_count)
+                            )
+                    t.append("tspan").attr("x", 0).attr("dy", "1.2em").text("{error_count} vs {canary_error_count} error(s)"
+                            .replace("{error_count}", d.baseline_stats.error_count)
+                            .replace("{canary_error_count}", d.canary_stats.error_count)
+                            )
+                    t.append("tspan").attr("x", 0).attr("dy", "1.2em").text("{timeout_count} vs {canary_timeout_count} timeout(s)"
+                            .replace("{timeout_count}", d.baseline_stats.timeout_count)
+                            .replace("{canary_timeout_count}", d.canary_stats.timeout_count)
+                            )
+                    t.append("tspan").attr("x", 0).attr("dy", "1.2em").text("{retry_count} vs {canary_retry_count} retry(ies)"
+                            .replace("{retry_count}", d.baseline_stats.retry_count)
+                            .replace("{canary_retry_count}", d.canary_stats.retry_count)
+                            )
                     t.attr("transform", function(innerd) {
                         return makeSVGTransform(
                                 data,
