@@ -24,7 +24,7 @@ Flow: {{ nflow }} of {{ clusters.length }} {{ selectedFlowTitle() }}
 <button id="prevTrace" type="button" onclick="alert('TODO')" disabled>&lt;</button>
 <button id="nextTrace" type="button" onclick="alert('TODO')" disabled>&gt;</button>
 Trace: {{ ntrace }} Trace ID: {{ selectedTraceId() }}  -->
-Traces: {{ clusters[nflow].trace_ids.length }}
+Traces: {{ clusters && clusters[nflow] ? clusters[nflow].trace_ids.length : 0 }}
 
 <p>
 <svg id="chart">
@@ -34,13 +34,13 @@ Traces: {{ clusters[nflow].trace_ids.length }}
         markerWidth="5" markerHeight="5" orient="auto">
       <path d="M 0 0 L 10 5 L 0 10 z" />
     </marker>
-    
+
     <!-- This is used as an async message return arrowhead -->
     <marker id="OpenArrowhead" viewBox="0 0 10 10" refX="1" refY="5"
         markerWidth="5" markerHeight="5" orient="auto" fill="transparent" stroke="black">
       <path d="M 0 0 L 10 5 L 0 10" />
     </marker>
-    
+
     <marker id="SolidTimeoutArrowhead" viewBox="0 0 10 10" refX="1" refY="5"
         markerWidth="5" markerHeight="5" orient="auto" fill="lightblue">
       <path d="M 0 0 L 20 5 L 0 10 z" />

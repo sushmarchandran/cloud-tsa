@@ -8,5 +8,5 @@ if [ -z "${ISTIO_ANALYTICS_ZIPKIN_HOST}" ]; then
 fi
 
 export PYTHONPATH=$SCRIPTDIR/..
-export ISTIO_ANALYTICS_DEBUG=true
+# export ISTIO_ANALYTICS_DEBUG=true
 python3 $SCRIPTDIR/../istio_analytics_restapi/app.py

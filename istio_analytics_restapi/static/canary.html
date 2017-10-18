@@ -9,8 +9,8 @@
 <head>
 <meta charset="utf-8">
 <meta http-equiv="Content-Language" content="en">
-<base href="/uml5/">
-<title>Trace Analytics for Istio</title>
+<base href="/canary/">
+<title>Canary Analytics for Istio</title>
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular-route.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.1/angular-material.min.js"></script>
@@ -20,8 +20,8 @@
 <script src="http://ngmaterial.assets.s3.amazonaws.com/svg-assets-cache.js"></script>
 
 <!-- script src="/static/js/dummy_testdata.js"></script> -->
-<script src="/static/js/query5.js"></script>
-<script src="/static/js/uml5.js"></script>
+<script src="/static/js/canary.js"></script>
+<script src="/static/js/umlc.js"></script>
 
 <link rel="stylesheet" href="/static/css/uml.css">
 <link rel="stylesheet" href="https://cdn.gitcdn.link/cdn/angular/bower-material/v1.1.1/angular-material.css">
@@ -33,11 +33,11 @@
 <div ng-app="istio">
     <div ng-controller="TraceQueryController as query" layout="column" flex layout-fill>
         <md-toolbar md-scroll-shrink>
-          <div class="md-toolbar-tools">Trace Analytics for Istio</div>
+          <div class="md-toolbar-tools">Canary Analytics for Istio</div>
         </md-toolbar>
 
         <div layout="row">
-         <div layout="column" layout-align="center">
+         <div layout="column">
           <div layout="row">
           <md-content>
             <md-input-container>
@@ -58,6 +58,25 @@
         </md-content>
        </div>
 
+          <div layout="row">
+          <md-content>
+            <md-input-container>
+                <label>Canary Start time</label>
+                <input ng-model="canaryStartTime">
+          </md-input-container>
+
+            <md-input-container>
+                <label>Canary End time</label>
+                <input ng-model="canaryEndTime">
+          </md-input-container>
+
+            <md-input-container>
+                <label>Max</label>
+                <input ng-model="canaryMaxTraces" type="number">
+          </md-input-container>
+
+        </md-content>
+       </div>
        </div>
           <div layout="column" layout-align="center">
 

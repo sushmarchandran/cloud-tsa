@@ -42,6 +42,18 @@ def uml5categories():
 def uml5pie(flow):
     return app.send_static_file('uml5.html')
 
+@app.route("/canary/sequence/flow/<flow>/trace/<traceid>")
+def canarysequence(flow, traceid):
+    return app.send_static_file('canary.html')
+
+@app.route("/canary/categories")
+def canarycategories():
+    return app.send_static_file('canary.html')
+
+@app.route("/canary/pie/flow/<flow>")
+def canarypie(flow):
+    return app.send_static_file('canary.html')
+
 @app.route("/volume4")
 def volume4():
     return app.send_static_file('volume4.html')

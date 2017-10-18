@@ -52,10 +52,13 @@
         $scope.location = $location;
         $scope.queryStatus = "";
         $scope.dataOrigin = "";
-        $scope.clusters = [];    // Array of {root_request:, trace_ids:, cluster_stats: }
+        $scope.clusters_diffs = [];    // Array of {root_request:, trace_ids:, cluster_stats: }
         $scope.startTime = "";
         $scope.endTime = "";
         $scope.maxTraces = 500;
+        $scope.canaryStartTime = "";
+        $scope.canaryEndTime = "";
+        $scope.canaryMaxTraces = null;
 
         $scope.query = query;
 
@@ -68,29 +71,48 @@
             if ('max' in $location.search()) {
                 $scope.maxTraces = parseInt($location.search()['max']);
             }
+            if ('canaryStart' in $location.search()) {
+                $scope.canaryStartTime = parseTime($location.search()['canaryStart']);
+            }
+            if ('canaryEnd' in $location.search()) {
+                $scope.canaryEndTime = parseTime($location.search()['canaryEnd']);
+            }
+            if ('canaryMax' in $location.search()) {
+                $scope.canaryMaxTraces = parseTime($location.search()['canaryMax']);
+            }
         });
 
         function query() {
+
             $scope.dataOrigin = "";
             // TODO 'query' disable button?
-            $scope.queryStatus = "Posting cluster query";
 
-            // See https://stackoverflow.com/questions/20884551/set-url-query-parameters-without-state-change-using-angular-ui-router
-            //$state.transitionTo('search', {q: 'updated search term'}, { notify: false });
+            $scope.queryStatus = "Posting cluster/diff query";
+
             $location.search({
                 start: $scope.startTime,
                 end: $scope.endTime,
                 max: $scope.maxTraces,
+                canaryStart: $scope.canaryStartTime,
+                canaryEnd: $scope.canaryEndTime,
+                canaryTraces: $scope.canaryMaxTraces || 500,
             });
 
             var requestTime = new Date();
             $http({
                   method: 'POST',
-                  url: '/api/v1/distributed_tracing/traces/timelines/clusters',
+                  url: '/api/v1/distributed_tracing/traces/timelines/clusters/diff',
                   data: {
-                      start_time: $scope.startTime,
-                      end_time: $scope.endTime,
-                      max: $scope.maxTraces
+                      baseline: {
+                          start_time: $scope.startTime,
+                          end_time: $scope.endTime,
+                          max: $scope.maxTraces
+                      },
+                      canary: {
+                          start_time: $scope.canaryStartTime,
+                          end_time: $scope.canaryEndTime,
+                          max: $scope.canaryMaxTraces || 500
+                      }
                   }
             }).then(function successCallback(response) {
                 // this callback will be called asynchronously
@@ -98,24 +120,26 @@
                 $scope.queryStatus = "";
                 $scope.dataOrigin = response.data.zipkin_url;
                 // We sort the data so that if we query again the flow # in the UI is stable
-                response.data.clusters.sort(function (a, b) { 
-                    return a.root_request < b.root_request ? -1 :
-                        (a.root_request > b.root_request ? 1 : 0);
-                });
-                $scope.clusters = response.data.clusters;
+                if (response.data.clusters_diffs) {
+                    response.data.clusters_diffs.sort(function (a, b) {
+                        return a.root_request < b.root_request ? -1 :
+                            (a.root_request > b.root_request ? 1 : 0);
+                    });
+                }
+                $scope.clusters_diffs = response.data.clusters_diffs || [];
 
                 // TODO remove
                 $scope.queryStatus = "Request took " + (new Date() - requestTime) + "ms";
 
                 $scope.dataOrigin = response.data.zipkin_url;
 
-                annotateFlows(response.data.clusters);
+                annotateFlows(response.data.clusters_diffs);
 
                 // The visualizations watch for these changes, rather than being called here.
 
             }, function errorCallback(response) {
                     $scope.queryStatus = "Failed " + JSON.stringify(response);
-                    $scope.clusters = [];
+                    $scope.clusters_diffs = [];
             });
         }
 
@@ -151,7 +175,7 @@
     function SequenceDiagramController($scope, $log, $location, $rootScope) {
         $scope.location = $location;
 
-        $scope.clusters = [];    // Array of {root_request:, trace_ids:, cluster_stats: }
+        $scope.clusters_diffs = [];    // Array of {root_request:, trace_ids:, cluster_stats: }
         $scope.nflow = 0;        // Cursor for cluster in clusters
         $scope.ntrace = 0;        // Cursor for trace in the selected cluster
         $scope.debugUI = false;
@@ -174,9 +198,9 @@
         //    parseForFlowAndTraceno();
         //});
 
-        $scope.$parent.$watch('clusters', function(newValue, oldValue) {
+        $scope.$parent.$watch('clusters_diffs', function(newValue, oldValue) {
             console.log("SequenceDiagramController clusters watcher fired");
-              $scope.clusters = newValue;
+              $scope.clusters_diffs = newValue;
               $scope.start = 0;
               refreshTrace();
           });
@@ -207,22 +231,22 @@
             return $location.absUrl().replace(/sequence\/flow\/([0-9]+)\/trace\/[0-9]+/, 'pie/flow/$1');
         };
 
-        $scope.dumpFlow = function () { alert(JSON.stringify($scope.clusters[$scope.nflow])); };
+        $scope.dumpFlow = function () { alert(JSON.stringify($scope.clusters_diffs[$scope.nflow])); };
 
         $scope.selectedFlowTitle = function() {
-            if (!$scope.clusters[$scope.nflow]) {
+            if (!$scope.clusters_diffs[$scope.nflow]) {
                 return "";
             }
 
-            return $scope.clusters[$scope.nflow].root_request;
+            return $scope.clusters_diffs[$scope.nflow].root_request;
         };
 
         $scope.selectedTraceId = function() {
-            if (!$scope.clusters[$scope.nflow]) {
+            if (!$scope.clusters_diffs[$scope.nflow]) {
                 return "";
             }
 
-            return $scope.clusters[$scope.nflow].trace_ids[$scope.ntrace];
+            return $scope.clusters_diffs[$scope.nflow].trace_ids[$scope.ntrace];
         }
 
         $scope.prevFlow = function() {
@@ -232,13 +256,13 @@
         }
 
         $scope.nextFlow = function() {
-            if ($scope.nflow < $scope.clusters.length-1) {
+            if ($scope.nflow < $scope.clusters_diffs.length-1) {
                 $scope.nflow++;
             }
         }
 
         function refreshTrace() {
-              if ($scope.nflow >= $scope.clusters.length) {
+              if ($scope.nflow >= $scope.clusters_diffs.length) {
                     showTrace({cluster_stats: []}, $scope.magnification,
                             { debugUI: $scope.debugUI });
                   return;
@@ -249,7 +273,7 @@
                   return;
               }
 
-              showTrace($scope.clusters[$scope.nflow], $scope.magnification,
+              showTrace($scope.clusters_diffs[$scope.nflow], $scope.magnification,
                   {
                       zipkinUrl: $scope.$parent.dataOrigin,
                       debugUI: $scope.debugUI,
@@ -272,7 +296,7 @@
             }
 
             console.log("Parsing flow and traceno yielded " + $scope.nflow + ":" + $scope.ntrace);
-            // $scope.clusters may not be ready yet.
+            // $scope.clusters_diffs may not be ready yet.
         };
 
         function bigger() {
@@ -299,14 +323,14 @@
 
         $scope.location = $location;
 
-        $scope.clusters = [];    // Array of {root_request:, trace_ids:, cluster_stats: }
+        $scope.clusters_diffs = [];    // Array of {root_request:, trace_ids:, cluster_stats: }
         $scope.nflow = 0;        // Cursor for cluster in clusters
 
         console.log("Hello from PieController");
 
         $scope.$parent.$watch('clusters', function(newValue, oldValue) {
             console.log("PieController clusters watcher fired, got newValue " + newValue + ", a " + typeof newValue);
-              $scope.clusters = newValue;
+              $scope.clusters_diffs = newValue;
 
               showPie();
           });
@@ -324,7 +348,7 @@
         }
 
         $scope.nextFlow = function() {
-            if ($scope.nflow < $scope.clusters.length-1) {
+            if ($scope.nflow < $scope.clusters_diffs.length-1) {
                 $scope.nflow++;
             }
         }
@@ -339,11 +363,11 @@
         preparePie();
 
         function showPie() {
-            if ($scope.clusters.length <= $scope.nflow) {
+            if (!$scope.clusters_diffs || $scope.clusters_diffs.length <= $scope.nflow) {
                 return;
             }
 
-            var selectedTrace = $scope.clusters[$scope.nflow];
+            var selectedTrace = $scope.clusters_diffs[$scope.nflow];
             // console.log("selectedTrace is " + JSON.stringify(selectedTrace));
 
             // var siblingTraces = matchingTraces(traces[ntrace], traces);
@@ -447,11 +471,11 @@
           console.log("Hello from CategoriesController");
 
         $scope.window = $window;    // Needed for categories.html to retrieve the URL query param
-        $scope.clusters = [];    // Array of {root_request:, trace_ids:, cluster_stats: }
+        $scope.clusters_diffs = [];    // Array of {root_request:, trace_ids:, cluster_stats: }
 
-        $scope.$parent.$watch('clusters', function(newValue, oldValue) {
+        $scope.$parent.$watch('clusters_diffs', function(newValue, oldValue) {
             // console.log("CategoriesController clusters watcher fired, got newValue " + newValue + ", a " + typeof newValue);
-              $scope.clusters = newValue;
+              $scope.clusters_diffs = newValue;
           });
     } // CategoriesController
 
