@@ -378,7 +378,7 @@ delta = api.model('delta', {
     
     DURATION_STR: fields.Nested(base_delta, required=True,
                                 description='Delta between the baseline and canary clusters '
-                                'for the duration of an event'),
+                                'for the duration (in microseconds) of an event'),
     ERROR_COUNT_STR: fields.Nested(base_delta, required=True,
                                 description='Delta between the baseline and canary clusters '
                                 'for the error count associated with an event')
