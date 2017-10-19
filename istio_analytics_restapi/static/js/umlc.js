@@ -660,10 +660,9 @@ function addCanaryIndicators(data) {
                 .attr("fill", "black")
                 .attr("x", lifelineX(data, source(d)))
                 .attr("y", (d.complete + d.start)/2 * timeScale)
-                .text("{decision} {percentage}"
-                        .replace("{decision}", d.delta.duration.decision)
-                        .replace("{percentage}", (d.delta.duration.delta_mean_percentage || 0).toFixed() + "%")
-                );
+                .text(function (d2) {
+                    return getNeedleCaption(d.delta.duration, "μs");
+                });
         })
         .on("mouseleave", function(d, i) {
             // Remove class to restore original appearance
@@ -676,12 +675,9 @@ function addCanaryIndicators(data) {
     canaryIndicators.transition().duration(0)
         .attr("points", "0,-20 -2,20, 2,20")
         .attr("visibility", function(d) { return showCanaries ? "visible" : "hidden"; })
-        // TODO add fill color
+        .attr("fill", function (d) { return colorFromDecision(d.delta.duration); })
         .attr("transform", function(d) {
-            var theta_deg = Math.max(Math.min(d.delta.duration.delta_mean_percentage || 0, 80), -80);
-            if (isNaN(theta_deg)) {
-                console.warn("NaN theta_deg; d.delta=" + d.delta.duration.delta_mean_percentage);
-            }
+            var theta_deg = getNeedleAngle(d.delta.duration);
             return "rotate(angle x y) translate(x y)"
                 .replace("angle", theta_deg)
                 .replace(/x/g, lifelineX(data, source(d)))
@@ -709,10 +705,7 @@ function addCanaryIndicators(data) {
                 .attr("fill", "black")
                 .attr("x", (lifelineX(data, source(d)) + lifelineX(data, target(d))) / 2)
                 .attr("y", (d.complete + d.start)/2 * timeScale)
-                .text("{decision} {percentage}"
-                        .replace("{decision}", d.delta.error_count.decision)
-                        .replace("{percentage}", (d.delta.error_count.delta_mean_percentage || 0).toFixed() + "%")
-                );
+                .text(function (d2) { return getNeedleCaption(d.delta.error_count, " errors"); });
         })
         .on("mouseleave", function(d, i) {
             // Remove class to restore original appearance
@@ -725,8 +718,9 @@ function addCanaryIndicators(data) {
     canaryIndicators.transition().duration(0)
         .attr("points", "0,-20 -2,20, 2,20")
         .attr("visibility", function(d) { return showCanaries ? "visible" : "hidden"; })
+        .attr("fill", function (d) { return colorFromDecision(d.delta.error_count); })
         .attr("transform", function(d) {
-            var theta_deg = Math.max(Math.min(d.delta.error_count.delta_mean_percentage, 80), -80);
+            var theta_deg = getNeedleAngle(d.delta.error_count);
             return "rotate(angle x y) translate(x y)"
                 .replace("angle", theta_deg)
                 .replace(/x/g, (lifelineX(data, source(d)) + lifelineX(data, target(d))) / 2)
@@ -764,6 +758,39 @@ function addDebugging(data) {
         .attr("y", function(d) { return timeScale * (d.start + d.complete) / 2.0; })
         .text(function (d, i) { return d.canary_stats.global_event_sequence_number; })
 }
+
+function colorFromDecision(canaryScore) {
+    // TODO currently we aren't getting a decision or # of points, so we can't
+    // show the case of insufficient data.
+    // return "black";
+    // Note that delta_mean_percentage isn't a percentage.  1.00 is 100%
+    if (canaryScore.delta_mean_percentage < -0.33) {
+        return "red";
+    }
+    return "green";
+}
+
+function getNeedleAngle(canaryScore) {
+    var theta_deg = Math.max(Math.min(canaryScore.delta_mean_percentage * 100 || 0, 80), -80);
+    if (isNaN(theta_deg)) {
+        console.warn("NaN theta_deg; canaryScore.delta_mean_percentage=" + canaryScore.delta_mean_percentage);
+        theta_deg = 0;
+    }
+    return theta_deg;
+}
+
+function getNeedleCaption(canaryScore, units) {
+    return "{decision} {percentage}% {rawdelta}{units} (std dev {sdpct}% {rawsd}) based on {basecnt},{canarycnt} points"
+        .replace("{decision}", canaryScore.decision || "") // TODO remove the || ""
+        .replace("{percentage}", (canaryScore.delta_mean_percentage*100 || 0).toFixed())
+        .replace("{rawdelta}", (canaryScore.delta_mean || 0).toFixed())
+        .replace("{units}", units)
+        .replace("{sdpct}", (canaryScore.delta_stddev_percentage*100 || 0).toFixed())
+        .replace("{rawsd}", (canaryScore.delta_stddev || 0).toFixed())
+        .replace("{basecnt}", canaryScore.baseline_data_points)
+        .replace("{canarycnt}", canaryScore.canary_data_points);
+}
+
 
 //nicenum() finds a "nice" number approximately equal to x.  If `round` is `true` rounds, otherwise takes ceiling.
 function nicenum(x, round) {

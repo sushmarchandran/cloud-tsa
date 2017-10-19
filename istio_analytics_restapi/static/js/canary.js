@@ -104,7 +104,7 @@
                 max: $scope.maxTraces,
                 canaryStart: $scope.canaryStartTime,
                 canaryEnd: $scope.canaryEndTime,
-                canaryTraces: $scope.canaryMaxTraces || 500,
+                canaryMax: $scope.canaryMaxTraces || 500,
             });
 
             var requestTime = new Date();
@@ -240,7 +240,10 @@
             return $location.absUrl().replace(/sequence\/flow\/([0-9]+)\/trace\/[0-9]+/, 'pie/flow/$1');
         };
 
-        $scope.dumpFlow = function () { alert(JSON.stringify($scope.clusters_diffs[$scope.nflow])); };
+        $scope.dumpFlow = function () {
+            console.log(JSON.stringify($scope.clusters_diffs[$scope.nflow]));
+            alert(JSON.stringify($scope.clusters_diffs[$scope.nflow]));
+        };
 
         $scope.selectedFlowTitle = function() {
             if (!$scope.clusters_diffs[$scope.nflow]) {
