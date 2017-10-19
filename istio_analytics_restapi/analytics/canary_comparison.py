@@ -16,7 +16,9 @@ def canary_simple_comparison(baseline_agg_event, canary_agg_event):
         responses.DELTA_MEAN_STR: duration_delta_mean,
         responses.DELTA_MEAN_PCT_STR: duration_delta_mean_pct,
         responses.DELTA_STDDEV_STR: duration_delta_stddev,
-        responses.DELTA_STDDEV_PCT_STR: duration_delta_stddev_pct
+        responses.DELTA_STDDEV_PCT_STR: duration_delta_stddev_pct,
+        responses.BASELINE_DATA_POINTS_STR: baseline_agg_event[responses.EVENT_COUNT_STR],
+        responses.CANARY_DATA_POINTS_STR: canary_agg_event[responses.EVENT_COUNT_STR]
     }
 
     if baseline_agg_event[responses.EVENT_TYPE_STR] == responses.EVENT_SEND_REQUEST:
@@ -37,7 +39,9 @@ def canary_simple_comparison(baseline_agg_event, canary_agg_event):
 #                                                         [responses.MEAN_STR])
         delta[responses.ERROR_COUNT_STR] = {
             responses.DELTA_MEAN_STR: error_count_delta_mean,
-            responses.DELTA_MEAN_PCT_STR: error_count_delta_mean_pct
+            responses.DELTA_MEAN_PCT_STR: error_count_delta_mean_pct,
+            responses.BASELINE_DATA_POINTS_STR: baseline_agg_event[responses.EVENT_COUNT_STR],
+            responses.CANARY_DATA_POINTS_STR: canary_agg_event[responses.EVENT_COUNT_STR]
 #             responses.DELTA_STDDEV_STR: error_count_delta_stddev,
 #             responses.DELTA_STDDEV_PCT_STR: error_count_delta_stddev_pct
         }
