@@ -14,6 +14,7 @@ var margin = {top: 0, right: 0, bottom: 0, left: 0},    // const
     height = 1000 - margin.top - margin.bottom;    // const
 var processWidth = 100;        // Width of process boxes at the top of the UML diagram.
 var processMargin = 10;        // Horizontal distance between process boxes.  (They are spaced (processWidth+processMargin) * N)
+var showCanaries = true;
 
 var processHeight = 20;    // const
 var activationBoxWidth = 20;    // const
@@ -160,13 +161,16 @@ function orderEvents(trace) {
     var events = trace.cluster_stats_diff.reduce(function (accumulator, timeline) { return accumulator.concat(timeline.events); }, []);
 
     // sort by sequence number
-    events.sort(function (a, b) { return a.global_event_sequence_number - b.global_event_sequence_number; });
+    events.sort(function (a, b) { return a.canary_stats.global_event_sequence_number - b.canary_stats.global_event_sequence_number; });
 
     // Remember the previous send_request for each service
     var requests = {};
 
     // Remember the send_request for each span
     //var spans = {}
+
+    // Using the median data from canary stats
+    var ver = "canary_stats";
 
     var basetime = 0;
     for (var i in events) {
@@ -197,12 +201,12 @@ function orderEvents(trace) {
         //}
 
         events[i].start = basetime;
-        // TODO we are only using baseline_stats, we must show canary stats somehow
-        events[i].complete = basetime + events[i].baseline_stats.duration.median;
-        if (events[i].baseline_stats.duration.median < 0) {
+        events[i].complete = basetime + events[i].canary_stats.duration.median;
+        if (events[i][ver].duration.median < 0) {
             console.log("Warning: negative duration for event " + JSON.stringify(events[i]));
         }
-        basetime = basetime + events[i].baseline_stats.duration.median;
+
+        basetime = basetime + events[i][ver].duration.median;
 
         //console.log("Set start to " + events[i].start + " for " + events[i].service + "/"
 
@@ -299,7 +303,7 @@ function setupSequenceDiagram(data, magnification) {
 
     addCommunication(data);
 
-    // TODO RESTORE    addRetries(data);
+    addCanaryIndicators(data);
 
     if (data.debugUI) {
         addDebugging(data);
@@ -454,7 +458,7 @@ function addCommunication(data) {
     .data(requests);
     messageArrows.enter().append("line")
         .on("click", function(d) {
-            alert("Debug: This is global event " + d.global_event_sequence_number); // TODO remove
+            alert("Debug: This is global event " + d.canary_stats.global_event_sequence_number); // TODO remove
         })
         .attr("class", "message");
     messageArrows.exit().remove();
@@ -478,7 +482,7 @@ function addCommunication(data) {
         .data(selfRequests);
     messageArrows.enter().append("polyline")
         .on("click", function(d) {
-            alert("Debug: This is global event " + d.global_event_sequence_number); // TODO remove
+            alert("Debug: This is global event " + d.canary_stats.global_event_sequence_number); // TODO remove
         })
         .attr("class", "selfMessage");
     messageArrows.exit().remove();
@@ -565,7 +569,7 @@ function addCommunication(data) {
         .attr("stroke", "black")
         .attr("stroke-dasharray", "2,2")
         .on("click", function(d) {
-            alert("Debug: This is global event " + d.global_event_sequence_number); // TODO remove
+            alert("Debug: This is global event " + d.canary_stats.global_event_sequence_number); // TODO remove
         })
         .attr("marker-end", "url(#OpenArrowhead)");
     returnMessages.exit().remove();
@@ -602,8 +606,16 @@ function addCommunication(data) {
                     .attr("alignment-baseline", "middle")
                     .attr("filter", "url(#LabelBackground)")
                     .attr("fill", "black")
-                    t.append("tspan").attr("x", 0).attr("dy", "1.2em").text(textFiveNumberSummary(d.duration))
-                    t.append("tspan").attr("x", 0).attr("dy", "1.2em").text("{count} request(s)".replace("{count}", d.event_count))
+                    t.append("tspan").attr("x", 0).attr("dy", "1.2em").text(
+                            "{dur} vs {canaryDur}"
+                            .replace("{dur}", textFiveNumberSummary(d.baseline_stats.duration))
+                            .replace("{canaryDur}", textFiveNumberSummary(d.canary_stats.duration))
+                    )
+                    t.append("tspan").attr("x", 0).attr("dy", "1.2em").text(
+                            "{count} vs {canaryCount} request(s)"
+                            .replace("{count}", d.baseline_stats.event_count)
+                            .replace("{canaryCount}", d.canary_stats.event_count)
+                    )
                     t.attr("transform", function(innerd) {
                         return makeSVGTransform(
                                 data,
@@ -626,6 +638,102 @@ function addCommunication(data) {
         });
 }
 
+/** Show if processing time improved/same or got worse */
+function addCanaryIndicators(data) {
+
+    var activations = data.events.filter(function f(evt) { return evt.type == "process_request" || evt.type == "process_response"; });
+
+    var canaryIndicators = d3.select("#activationSelecteds")
+        .selectAll(".canaryIndicatorNeedle")
+        .data(activations);
+    canaryIndicators.enter().append("polygon")
+        .attr("class", "canaryIndicatorNeedle")
+        .on("mouseenter", function(d) {
+            // Add class so that the apperance changes when we mouseover
+            var activation = d3.select(this);
+            activation.classed("canarySelectedMouseover", true);
+
+            // Add a label
+            var t = d3.select("#popups").append("text")
+                .attr("class", "canaryNeedleDetails")
+                .attr("alignment-baseline", "middle")
+                .attr("fill", "black")
+                .attr("x", lifelineX(data, source(d)))
+                .attr("y", (d.complete + d.start)/2 * timeScale)
+                .text("{decision} {percentage}"
+                        .replace("{decision}", d.delta.duration.decision)
+                        .replace("{percentage}", (d.delta.duration.delta_mean_percentage || 0).toFixed() + "%")
+                );
+        })
+        .on("mouseleave", function(d, i) {
+            // Remove class to restore original appearance
+            d3.select(this).classed("canarySelectedMouseover", false);
+
+            // Remove the label
+            d3.select("#popups").selectAll(".canaryNeedleDetails").remove();
+        });
+    canaryIndicators.exit().remove();
+    canaryIndicators.transition().duration(0)
+        .attr("points", "0,-20 -2,20, 2,20")
+        .attr("visibility", function(d) { return showCanaries ? "visible" : "hidden"; })
+        // TODO add fill color
+        .attr("transform", function(d) {
+            var theta_deg = Math.max(Math.min(d.delta.duration.delta_mean_percentage || 0, 80), -80);
+            if (isNaN(theta_deg)) {
+                console.warn("NaN theta_deg; d.delta=" + d.delta.duration.delta_mean_percentage);
+            }
+            return "rotate(angle x y) translate(x y)"
+                .replace("angle", theta_deg)
+                .replace(/x/g, lifelineX(data, source(d)))
+                .replace(/y/g, (d.complete + d.start)/2 * timeScale); 
+        });
+
+    var responses = data.events.filter(function f(evt) { return evt.type == "send_response"; });
+
+    // TODO add labels for these
+
+    var canaryIndicators = d3.select("#activationSelecteds")
+        .selectAll(".canaryResponseNeedle")
+        .data(responses);
+    canaryIndicators.enter().append("polygon")
+        .attr("class", "canaryResponseNeedle")
+        .on("mouseenter", function(d) {
+            // Add class so that the apperance changes when we mouseover
+            var activation = d3.select(this);
+            activation.classed("canarySelectedMouseover", true);
+
+            // Add a label
+            var t = d3.select("#popups").append("text")
+                .attr("class", "canaryNeedleDetails")
+                .attr("alignment-baseline", "middle")
+                .attr("fill", "black")
+                .attr("x", (lifelineX(data, source(d)) + lifelineX(data, target(d))) / 2)
+                .attr("y", (d.complete + d.start)/2 * timeScale)
+                .text("{decision} {percentage}"
+                        .replace("{decision}", d.delta.error_count.decision)
+                        .replace("{percentage}", (d.delta.error_count.delta_mean_percentage || 0).toFixed() + "%")
+                );
+        })
+        .on("mouseleave", function(d, i) {
+            // Remove class to restore original appearance
+            d3.select(this).classed("canarySelectedMouseover", false);
+
+            // Remove the label
+            d3.select("#popups").selectAll(".canaryNeedleDetails").remove();
+        });
+    canaryIndicators.exit().remove();
+    canaryIndicators.transition().duration(0)
+        .attr("points", "0,-20 -2,20, 2,20")
+        .attr("visibility", function(d) { return showCanaries ? "visible" : "hidden"; })
+        .attr("transform", function(d) {
+            var theta_deg = Math.max(Math.min(d.delta.error_count.delta_mean_percentage, 80), -80);
+            return "rotate(angle x y) translate(x y)"
+                .replace("angle", theta_deg)
+                .replace(/x/g, (lifelineX(data, source(d)) + lifelineX(data, target(d))) / 2)
+                .replace(/y/g, (d.complete + d.start)/2 * timeScale); 
+        });
+}
+
 function addDebugging(data) {
     var activations = data.events.filter(function f(evt) { return evt.type == "process_request" || evt.type == "process_response"; });
     var communication = data.events.filter(function f(evt) { return evt.type == "send_request" || evt.type == "send_response"; });
@@ -641,7 +749,7 @@ function addDebugging(data) {
     activationSequence.transition().duration(0)
         .attr("x", function(d) { return d.lifelineX; })
         .attr("y", function(d) { return timeScale * (d.start + d.complete) / 2.0; })
-        .text(function (d, i) { return d.global_event_sequence_number; })
+        .text(function (d, i) { return d.canary_stats.global_event_sequence_number; })
 
     var communicationSequence = d3.select("#debugging")
         .selectAll(".sequenceCommunication")
@@ -654,7 +762,7 @@ function addDebugging(data) {
     communicationSequence.transition().duration(0)
         .attr("x", function(d) { return (lifelineX(data, source(d)) + lifelineX(data, target(d))) / 2.0; })
         .attr("y", function(d) { return timeScale * (d.start + d.complete) / 2.0; })
-        .text(function (d, i) { return d.global_event_sequence_number; })
+        .text(function (d, i) { return d.canary_stats.global_event_sequence_number; })
 }
 
 //nicenum() finds a "nice" number approximately equal to x.  If `round` is `true` rounds, otherwise takes ceiling.
@@ -713,7 +821,7 @@ function addActivations(data) {
         .attr("class", "activationBox")
         .attr("width", activationBoxWidth)
         .on("click", function(d) {
-            alert("Debug: This is global event " + d.global_event_sequence_number); // TODO remove
+            alert("Debug: This is global event " + d.canary_stats.global_event_sequence_number); // TODO remove
         })
         .on("mouseenter", showActivation)
         .on("mouseleave", hideActivation);
@@ -769,20 +877,22 @@ function addDurations(data) {
     // Durations have {lifelineX:, y:}
     var durations = [];
     for (var activation of activations) {
-        if (!activation.durations_and_codes) {
+
+        if (!activation.canary_stats.durations_and_codes) {
             continue;
         }
 
-        for (var nTraceId in activation.trace_ids) {
-            var durAndCode = activation.durations_and_codes[nTraceId] || { duration: 0};
+        var ver = "canary_stats";
+        for (var i in activation[ver].durations_and_codes) {
+            var durAndCode = activation[ver].durations_and_codes[i];
             durations.push({
                 lifelineX: activation.lifelineX,
 
                 y: toScaledBox(activation, durAndCode.duration),
                 responseCode: durAndCode.response_code,
-                traceId: activation.trace_ids[nTraceId],
-                url: data.zipkinUrl + "/zipkin/traces/" + activation.trace_ids[nTraceId],
-                sequenceNumber: activation.global_event_sequence_number
+                traceId: activation[ver].trace_ids[i],
+                url: data.zipkinUrl + "/zipkin/traces/" + activation[ver].trace_ids[i],
+                sequenceNumber: activation[ver].global_event_sequence_number
             });
         }
     }
@@ -810,40 +920,43 @@ function toScaledBox(d, x) {
         throw new Error("toScaledBox() got undefined x");
     }
 
+    var ver = "canary_stats";
+
     var retval;
-    if (d.duration.third_quartile == d.duration.first_quartile) {
-        if (x < d.duration.first_quartile) {
-            factor = (x - d.duration.first_quartile) / d.duration.median;
-            retval = (d.start + factor * d.duration.median) * timeScale;
-        } else if (x > d.duration.third_quartile) {
-            factor = (x - d.duration.third_quartile) / d.duration.median;
-            retval = (d.complete + factor * d.duration.median) * timeScale;
+    if (d[ver].duration.third_quartile == d[ver].duration.first_quartile) {
+        if (x < d[ver].duration.first_quartile) {
+            factor = (x - d[ver].duration.first_quartile) / d[ver].duration.median;
+            retval = (d.start + factor * d[ver].duration.median) * timeScale;
+        } else if (x > d[ver].duration.third_quartile) {
+            factor = (x - d[ver].duration.third_quartile) / d[ver].duration.median;
+            retval = (d.complete + factor * d[ver].duration.median) * timeScale;
         } else { // x == first_quartile == median == third_quartile
             retval = (d.start+d.complete)/2 * timeScale;
         }
     } else {
-        var factor = (x - d.duration.first_quartile)/(d.duration.third_quartile - d.duration.first_quartile);
+        var factor = (x - d[ver].duration.first_quartile)/(d[ver].duration.third_quartile - d[ver].duration.first_quartile);
 
         if (isNaN(factor)) {
-            console.log("toScaledBox() failed to calculate factor; x=" + x + ", d.duration=" + JSON.stringify(d.duration));
+            console.log("toScaledBox() failed to calculate factor; x=" + x + ", d[ver].duration=" + JSON.stringify(d[ver].duration));
         }
 
-        retval = (d.start + factor * d.duration.median) * timeScale;
+        retval = (d.start + factor * d[ver].duration.median) * timeScale;
     }
 
     if (isNaN(retval)) {
-        console.log("toScaledBox() failed; d.start=" + d.start + ", factor=" + factor + ", d.duration.median=" + d.duration.median);
+        console.log("toScaledBox() failed; d.start=" + d.start + ", factor=" + factor + ", d[ver].duration.median=" + d[ver].duration.median);
     }
 
     return retval;
 }
 
-function scaledBoxMedian(d) { return toScaledBox(d, d.duration.median);  }
+// TODO support baseline and canary
+function scaledBoxMedian(d) { return toScaledBox(d, d.canary_stats.duration.median);  }
 
 function showActivation(d, i) {
     var durationsCircles = d3.select("#activation_durations")
         .selectAll(".duration")
-        .filter(function(dur) { return dur.sequenceNumber == d.global_event_sequence_number; })
+        .filter(function(dur) { return dur.sequenceNumber == d.canary_stats.global_event_sequence_number; })
         .classed("durationHighlighted", true);
 }
 
@@ -851,78 +964,6 @@ function hideActivation(d, i) {
     var durationsCircles = d3.select("#activation_durations")
         .selectAll(".duration")
         .classed("durationHighlighted", false);
-}
-
-function popupWhiskers(d, i) {
-    var label = d3.select("#executionDurationLabel" + i);
-    // Don't recalculate oldTrans if we have used it before (because animations might mean transform isn't completed)
-    var oldTrans = label.attr("oldTrans");
-    if (!oldTrans) {
-        oldTrans = label.attr("transform");
-    }
-    label.transition().duration(500)
-        .text(textFiveNumberSummary(d.duration) /* + " selected " + prettyMicroseconds(d.duration.selected)*/)
-        .attr("text-anchor", "start")
-        .attr("transform", "")
-        .attr("oldTrans", oldTrans);
-
-    // Don't draw whiskers if we have only one data point and no real min/first_quartile third_quartile/max separation
-    if (d.duration.min == d.duration.first_quartile || d.duration.max == d.duration.third_quartile) {
-        return;
-    }
-
-    var whiskerTopTrue = toScaledBox(d, d.duration.min);
-    var whiskerBottomTrue = toScaledBox(d, d.duration.max);
-    var whiskerTop = Math.max(whiskerTopTrue, 0, timeScale * d.start - straightWhiskerMax);
-    var whiskerBottom = Math.min(whiskerBottomTrue, height, timeScale * d.complete + straightWhiskerMax);
-    var whiskerX = d.lifelineX;
-    var compressTop = whiskerTopTrue < whiskerTop;
-    var compressBottom = whiskerBottomTrue > whiskerBottom;
-
-    d3.select("#popups").append("line")            // Whisker top bar
-        .attr("class", "activationWhisker")
-        .attr("x1", whiskerX - activationBoxWidth/2)
-        .attr("x2", whiskerX + activationBoxWidth/2)
-        .attr("y1", whiskerTop)
-        .attr("y2", whiskerTop);
-    d3.select("#popups").append("polyline")            // Whisker top "vertical"
-        .attr("class", "activationWhisker")
-        .attr("points", boxplotPolylinePoints(compressTop, whiskerX, whiskerTop, d.start * timeScale))
-    d3.select("#popups").append("line")                // Whisker bottom bar
-        .attr("class", "activationWhisker")
-        .attr("x1", whiskerX - activationBoxWidth/2)
-        .attr("x2", whiskerX + activationBoxWidth/2)
-        .attr("y1", whiskerBottom)
-        .attr("y2", whiskerBottom);
-    d3.select("#popups").append("polyline")                // Whisker bottom vertical
-        .attr("class", "activationWhisker")
-        .attr("points", boxplotPolylinePoints(compressBottom, whiskerX, d.complete * timeScale, whiskerBottom))
-    d3.select("#popups").append("text")
-        .attr("class", "activationWhiskerLabel")
-        .attr("x", whiskerX + activationBoxWidth/2 + 5)
-        .attr("y", whiskerTop)
-        .attr("alignment-baseline", "middle")
-        .text(prettyMicroseconds(d.duration.min));
-    d3.select("#popups").append("text")
-        .attr("class", "activationWhiskerLabel")
-        .attr("x", whiskerX + activationBoxWidth/2 + 5)
-        .attr("y", whiskerBottom)
-        .attr("alignment-baseline", "middle")
-        .text(prettyMicroseconds(d.duration.max));
-
-    // TODO: move activation if it is outside the clamping region straightWhiskerMax?
-};
-
-function removeWhiskers(d, i) {
-    var label = d3.select("#executionDurationLabel" + i);
-    label.transition().duration(500)
-        .text(function(d) { return prettyMicroseconds(d.complete - d.start); })
-        .attr("text-anchor", "middle")
-        .attr("transform", label.attr("oldTrans"));
-
-    // Remove the whiskers
-    d3.select("#popups").selectAll(".activationWhisker").remove();
-    d3.select("#popups").selectAll(".activationWhiskerLabel").remove();
 }
 
 //Give a process name, return the X coordinate of its lifeline

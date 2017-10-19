@@ -78,7 +78,7 @@
                 $scope.canaryEndTime = parseTime($location.search()['canaryEnd']);
             }
             if ('canaryMax' in $location.search()) {
-                $scope.canaryMaxTraces = parseTime($location.search()['canaryMax']);
+                $scope.canaryMaxTraces = parseInt($location.search()['canaryMax']);
             }
         });
 
@@ -460,7 +460,7 @@
                 retval[timeline.service] = timeline.events
                     .filter(function f(evt) { return evt.type == "process_request" || evt.type == "process_response"; })
                     .reduce(function (accum, evt) {
-                        return accum + evt.duration.mean;
+                        return accum + evt[statstype].duration.mean;
                     }, 0);
             }
 
