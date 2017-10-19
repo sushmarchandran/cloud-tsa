@@ -909,27 +909,27 @@ function addDurations(data) {
             continue;
         }
 
-        var ver = "canary_stats";
-        for (var i in activation[ver].durations_and_codes) {
-            var durAndCode = activation[ver].durations_and_codes[i];
-            durations.push({
-                lifelineX: activation.lifelineX,
-
-                y: toScaledBox(activation, durAndCode.duration),
-                responseCode: durAndCode.response_code,
-                traceId: activation[ver].trace_ids[i],
-                url: data.zipkinUrl + "/zipkin/traces/" + activation[ver].trace_ids[i],
-                sequenceNumber: activation[ver].global_event_sequence_number
-            });
+        for (var ver of ["baseline_stats", "canary_stats"]) {
+            for (var i in activation[ver].durations_and_codes) {
+                var durAndCode = activation[ver].durations_and_codes[i];
+                durations.push({
+                    lifelineX: activation.lifelineX,
+                    y: toScaledBox(activation, durAndCode.duration),
+                    responseCode: durAndCode.response_code,
+                    traceId: activation[ver].trace_ids[i],
+                    url: data.zipkinUrl + "/zipkin/traces/" + activation[ver].trace_ids[i],
+                    sequenceNumber: activation[ver].global_event_sequence_number,
+                    ver: ver
+                });
+            }
         }
     }
 
     var durationsCircles = d3.select("#activation_durations")
         .selectAll(".duration")
         .data(durations);
-    durationsCircles.enter().append("circle")
+    durationsCircles.enter().append("path")
         .attr("class", "duration")
-        .attr("r", individualActivationRadius)
         .style("opacity", 0.5)
         .on("click", function(d) {
             var win = window.open(d.url, '_blank');
@@ -938,8 +938,23 @@ function addDurations(data) {
     durationsCircles.exit().remove();
     durationsCircles.transition().duration(0)
             .attr("fill", function(d) { return responseCodeToColor(d.responseCode); })
-            .attr("cx", function(d) { return d.lifelineX; })
-            .attr("cy", function(d) { return d.y; });
+            .attr("d", function(d) {
+                return getDurationIndicatorPath(d.lifelineX, d.y, d.ver)
+            });
+}
+
+function getDurationIndicatorPath(x, y, ver) {
+    if (ver == "canary_stats") {
+        return "M{x},{y} a1,1 0 0,1 0,{r}"
+            .replace("{x}", x)
+            .replace("{y}", y)
+            .replace("{r}", individualActivationRadius*2);
+    } else {
+        return "M{x},{y} a1,1 0 0,0 0,{r}"
+        .replace("{x}", x)
+        .replace("{y}", y)
+        .replace("{r}", individualActivationRadius*2);
+    }
 }
 
 function toScaledBox(d, x) {
