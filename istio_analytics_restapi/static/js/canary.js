@@ -161,13 +161,13 @@
 
         $scope.advance = function(seconds) {
             var d = new Date(0);
-            d.setUTCMilliseconds(Date.parse($scope.endTime)+seconds*1000);
-            $scope.endTime = d.toISOString();
+            d.setUTCMilliseconds(Date.parse($scope.canaryEndTime)+seconds*1000);
+            $scope.canaryEndTime = d.toISOString();
         }
 
         $scope.advanceToNow = function() {
             var d = new Date();
-            $scope.endTime = d.toISOString();
+            $scope.canaryEndTime = d.toISOString();
         }
 
         // Currently the only special time format we support is "NOW";
