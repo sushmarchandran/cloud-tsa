@@ -780,11 +780,11 @@ function getNeedleAngle(canaryScore) {
 }
 
 function getNeedleCaption(canaryScore, units) {
-    return "{decision} {percentage}% {rawdelta}{units} (std dev {sdpct}% {rawsd}) based on {basecnt},{canarycnt} points"
+    return "{decision} {percentage}% {rawdelta}{units} (std dev {sdpct}% {rawsd}{units}) based on {basecnt} vs {canarycnt} points"
         .replace("{decision}", canaryScore.decision || "") // TODO remove the || ""
         .replace("{percentage}", (canaryScore.delta_mean_percentage*100 || 0).toFixed())
         .replace("{rawdelta}", (canaryScore.delta_mean || 0).toFixed())
-        .replace("{units}", units)
+        .replace(/{units}/g, units)
         .replace("{sdpct}", (canaryScore.delta_stddev_percentage*100 || 0).toFixed())
         .replace("{rawsd}", (canaryScore.delta_stddev || 0).toFixed())
         .replace("{basecnt}", canaryScore.baseline_data_points)
@@ -833,6 +833,7 @@ function prettyMicroseconds(ms, msOfLargest) {
     return (ms/1000000).toFixed(1) + "s";
 }
 
+// Place sequence diagram "activation boxes" in the activationBoxes <g>.
 function addActivations(data) {
     var activations = data.events.filter(function f(evt) { return evt.type == "process_request" || evt.type == "process_response"; });
 
@@ -898,6 +899,7 @@ function addActivations(data) {
 
 }
 
+// Add a semicircle for each individual trace into the activation_durations <g> group
 function addDurations(data) {
     var activations = data.events.filter(function f(evt) { return evt.type == "process_request" || evt.type == "process_response"; });
 
@@ -931,6 +933,8 @@ function addDurations(data) {
     durationsCircles.enter().append("path")
         .attr("class", "duration")
         .style("opacity", 0.5)
+        .on("mouseenter", showSiblingActivations)
+        .on("mouseleave", hideActivation)
         .on("click", function(d) {
             var win = window.open(d.url, '_blank');
             win.focus();
@@ -995,6 +999,7 @@ function toScaledBox(d, x) {
 // TODO support baseline and canary
 function scaledBoxMedian(d) { return toScaledBox(d, d.canary_stats.duration.median);  }
 
+// The 'mouseEnter' function for activation boxes.  'd' is the data that made the box.
 function showActivation(d, i) {
     var durationsCircles = d3.select("#activation_durations")
         .selectAll(".duration")
@@ -1002,10 +1007,19 @@ function showActivation(d, i) {
         .classed("durationHighlighted", true);
 }
 
+// Unhighlight all activation markers
 function hideActivation(d, i) {
     var durationsCircles = d3.select("#activation_durations")
         .selectAll(".duration")
         .classed("durationHighlighted", false);
+}
+
+//The 'mouseEnter' function for individual trace activation markers.  'd' is the data that made the marker.
+function showSiblingActivations(d, i) {
+    var durationsCircles = d3.select("#activation_durations")
+        .selectAll(".duration")
+        .filter(function(dur) { return dur.sequenceNumber == d.sequenceNumber; })
+        .classed("durationHighlighted", true);
 }
 
 //Give a process name, return the X coordinate of its lifeline
