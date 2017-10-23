@@ -463,7 +463,13 @@ function addCommunication(data) {
         .attr("x2", incomingProcessBoxEdge)
         .attr("y1", function(d) { return d.start * timeScale; })
         .attr("stroke", function (d) { return d.timeout ? "lightblue" : "black"; })
-        .attr("marker-end", function (d) { return d.timeout ? "url(#SolidTimeoutArrowhead)" : "url(#SolidArrowhead)"; })
+        // Note that location.href is needed for Safari but not Chrome or Firefox.
+        // See https://github.ibm.com/istio-analytics/restapi_server/issues/23
+        .attr("marker-end", function (d) {
+            return d.timeout ?
+                    "url(" + location.href + "#SolidTimeoutArrowhead)"
+                    : "url(" + location.href + "#SolidArrowhead)";
+        })
         .attr("y2", function(d) { return d.complete * timeScale; })
         .attr("visibility", function(d) { return (source(d) != target(d)) ? "visible" : "hidden"; });
 
@@ -484,7 +490,13 @@ function addCommunication(data) {
     messageArrows.transition().duration(0)
         .attr("points", selfRequestPoints)
         .attr("stroke", function (d) { return d.timeout ? "lightblue" : "black"; })
-        .attr("marker-end", function (d) { return d.timeout ? "url(#SolidTimeoutArrowhead)" : "url(#SolidArrowhead)"; })
+        // Note that location.href is needed for Safari but not Chrome or Firefox.
+        // See https://github.ibm.com/istio-analytics/restapi_server/issues/23
+        .attr("marker-end", function (d) {
+            return d.timeout ?
+                    "url(" + location.href + "#SolidTimeoutArrowhead)"
+                    : "url(" + location.href + "#SolidArrowhead)";
+        });
 
     var messageLabels = d3.select("#messageLabels")
     .selectAll(".messageLabel")
@@ -550,7 +562,11 @@ function addCommunication(data) {
         .on("click", function(d) {
             alert("Debug: This is global event " + d.global_event_sequence_number); // TODO remove
         })
-        .attr("marker-end", "url(#OpenArrowhead)");
+        // Note that location.href is needed for Safari but not Chrome or Firefox.
+        // See https://github.ibm.com/istio-analytics/restapi_server/issues/23
+        .attr("marker-end", function (d) {
+            return "url(" + location.href + "#OpenArrowhead)";
+        });
     returnMessages.exit().remove();
     returnMessages.transition().duration(0)
         .attr("x1", outgoingProcessBoxEdge)
