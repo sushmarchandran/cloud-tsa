@@ -505,7 +505,7 @@ function addCommunication(data) {
         .attr("marker-end", function (d) { return d.timeout ? "url(#SolidTimeoutArrowhead)" : "url(#SolidArrowhead)"; })
         .attr("y2", function(d) { return d.complete * timeScale; })
         .attr("visibility", function(d) { return (source(d) != target(d)) ? "visible" : "hidden"; });
-        
+
     var messageLabels = d3.select("#messageLabels")
     .selectAll(".messageLabel")
     .data(requests);

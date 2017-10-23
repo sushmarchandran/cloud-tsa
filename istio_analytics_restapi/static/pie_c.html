@@ -13,6 +13,8 @@
 <button id="prevFlow" type="button" ng-click="prevFlow()" ng-disabled="nflow < 1">&lt;</button>
 <button id="nextFlow" type="button" ng-click="nextFlow()" ng-disabled="nflow >= clusters_diff.length-1">&gt;</button>
 Flow: {{ clusters_diffs[nflow].root_request }}
+Baseline Traces: {{ (clusters_diffs && clusters_diffs[nflow]) ? clusters_diffs[nflow].baseline_trace_ids.length : 0 }}
+Canary Traces: {{ (clusters_diffs && clusters_diffs[nflow]) ? clusters_diffs[nflow].canary_trace_ids.length : 0 }}
 
 <p>
 <svg id="pie" width="300" height="250">
