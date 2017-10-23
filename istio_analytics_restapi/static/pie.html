@@ -1,0 +1,24 @@
+<!--
+// Licensed Materials - Property of IBM
+// (C) Copyright IBM Corp. 2017. All Rights Reserved.
+// US Government Users Restricted Rights - Use, duplication or
+// disclosure restricted by GSA ADP Schedule Contract with IBM Corp.
+-->
+
+<a href="{{ location.absUrl().replace('/pie', '/categories') }}">Types</a> |
+<a href="{{ location.absUrl().replace('/pie', '/sequence') }}">Sequence</a> |
+<b>Time</b>
+
+<p>
+Trace: <span id="traceno"></span> /
+<!-- Sibling traces: <span id="sibling_cnt"></span> / -->
+Initiated at: <span id="initiated"></span>;
+<!-- Duration: <span id="tracelength"></span> / -->
+
+<br>
+<button id="prevTrace" type="button" ng-click="prevTrace()">&lt;</button>
+<button id="nextTrace" type="button" ng-click="nextTrace()">&gt;</button>
+
+<p>
+<svg id="pie" width="600" height="500">
+</svg>

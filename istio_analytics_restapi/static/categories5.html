@@ -1,0 +1,32 @@
+<b>Types</b> |
+<a href="{{ location.absUrl().replace('/categories', '/sequence/flow/0/trace/0') }}">Sequence</a> |
+<a href="{{ location.absUrl().replace('/categories', '/pie/flow/0') }}">Time</a><br>
+
+<p>
+Number of clusters: {{ clusters.length }}
+<table class="traceTable">
+  <tr ng-repeat="category in clusters | orderBy:'-trace_ids.length'">
+    <td>{{ category.trace_ids.length }}</td>
+    <td>{{ category.root_request }}</td>
+    <td>
+    <span ng-repeat="trace_id in category.trace_ids">
+    <a href="/uml5/sequence/flow/{{ category.index }}/trace/{{ $index }}{{ window.location.search }}">{{trace_id}}</a>
+    </span>
+    </td>
+  </tr>
+</table>
+
+<!-- 
+<p>
+<table class="traceTable">
+  <tr ng-repeat="category in categories | orderBy:'-Traces.length'">
+    <td>{{ category.Traces.length }}</td>
+    <td>{{ category.StructureTitle }}</td>
+    <td>
+    <span ng-repeat="trace in category.Traces">
+    <a href="/uml/trace/{{trace}}/sequence{{ window.location.search }}">{{trace}}</a>{{traceAnnotations(category, trace)}}
+    </span>
+    </td>
+  </tr>
+</table>
+ -->

@@ -7,5 +7,6 @@ if [ -z "${ISTIO_ANALYTICS_ZIPKIN_HOST}" ]; then
   echo Setting ISTIO_ANALYTICS_ZIPKIN_HOST to $ISTIO_ANALYTICS_ZIPKIN_HOST
 fi
 
-export ISTIO_ANALYTICS_DEBUG=true
-python $SCRIPTDIR/../istio_analytics_restapi/app.py
+export PYTHONPATH=$SCRIPTDIR/..
+# export ISTIO_ANALYTICS_DEBUG=true
+python3 $SCRIPTDIR/../istio_analytics_restapi/app.py

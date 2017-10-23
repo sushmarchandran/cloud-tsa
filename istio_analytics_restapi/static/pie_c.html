@@ -1,0 +1,23 @@
+<!--
+// Licensed Materials - Property of IBM
+// (C) Copyright IBM Corp. 2017. All Rights Reserved.
+// US Government Users Restricted Rights - Use, duplication or
+// disclosure restricted by GSA ADP Schedule Contract with IBM Corp.
+-->
+
+<a href="{{ categoriesUrl() }}">Types</a> |
+<a href="{{ sequenceUrl() }}">Sequence</a> |
+<b>Time</b>
+
+<p>
+<button id="prevFlow" type="button" ng-click="prevFlow()" ng-disabled="nflow < 1">&lt;</button>
+<button id="nextFlow" type="button" ng-click="nextFlow()" ng-disabled="nflow >= clusters_diff.length-1">&gt;</button>
+Flow: {{ clusters_diffs[nflow].root_request }}
+
+<p>
+<svg id="pie" width="300" height="250">
+</svg>
+
+<svg id="canaryPie" width="300" height="250">
+</svg>
+

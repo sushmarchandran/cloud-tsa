@@ -9,7 +9,7 @@
 <head>
 <meta charset="utf-8">
 <meta http-equiv="Content-Language" content="en">
-<base href="/uml/">
+<base href="/uml5/">
 <title>Trace Analytics for Istio</title>
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular-route.js"></script>
@@ -19,8 +19,9 @@
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-messages.min.js"></script>
 <script src="http://ngmaterial.assets.s3.amazonaws.com/svg-assets-cache.js"></script>
 
-<script src="/static/js/query.js"></script>
-<script src="/static/js/uml3.js"></script>
+<!-- script src="/static/js/dummy_testdata.js"></script> -->
+<script src="/static/js/query5.js"></script>
+<script src="/static/js/uml5.js"></script>
 
 <link rel="stylesheet" href="/static/css/uml.css">
 <link rel="stylesheet" href="https://cdn.gitcdn.link/cdn/angular/bower-material/v1.1.1/angular-material.css">
@@ -35,26 +36,36 @@
           <div class="md-toolbar-tools">Trace Analytics for Istio</div>
         </md-toolbar>
 
-        <md-content>
+        <div layout="row">
+         <div layout="column" layout-align="center">
+          <div layout="row">
+          <md-content>
             <md-input-container>
-                <label>Start time</label>
+                <label>Baseline Start time</label>
                 <input ng-model="startTime">
           </md-input-container>
 
             <md-input-container>
-                <label>End time</label>
+                <label>Baseline End time</label>
                 <input ng-model="endTime">
           </md-input-container>
 
             <md-input-container>
                 <label>Max</label>
-                <input ng-model="max" type="number">
+                <input ng-model="maxTraces" type="number">
           </md-input-container>
 
-          <md-button class="md-raised md-primary" ng-click="query()"  data-ng-disabled="startTime==''">Query</md-button>
-          <md-button class="md-raised md-accent" ng-click="advance(30);query()"  data-ng-disabled="startTime=='' || endTime==''">Adv 30s</md-button>
-          <md-button class="md-raised md-accent" ng-click="advanceToNow(); query()"  data-ng-disabled="startTime==''">Now</md-button>
         </md-content>
+       </div>
+
+       </div>
+          <div layout="column" layout-align="center">
+
+           <md-button class="md-raised md-primary" ng-click="query()"  data-ng-disabled="startTime==''">Query</md-button>
+           <md-button class="md-raised md-accent" ng-click="advance(30);query()"  data-ng-disabled="startTime=='' || endTime==''">Adv 30s</md-button>
+           <md-button class="md-raised md-accent" ng-click="advanceToNow(); query()"  data-ng-disabled="startTime==''">Now</md-button>
+          </div>
+        </div>
 
         <md-content>
             <span ng-if="queryStatus">{{ queryStatus }}</span>
@@ -64,9 +75,6 @@
 
          <div ng-view>
          </div>
-
-         <md-content > <!-- ng-if="rawTraces" -->
-        </md-content>
 
          <md-content>
             <p>
@@ -81,35 +89,7 @@
 <script src="http://d3js.org/d3.v3.js"></script>
 
 <script>
-console.log("Hello Javascript from uml.html");
-
-var traces;
-var ntrace;
-
-function prevTrace() {
-    if (ntrace > 0) {
-        ntrace--;
-        showTrace(traces, ntrace);
-    }
-}
-
-function nextTrace() {
-    if (ntrace < traces.length-1) {
-        ntrace++;
-        showTrace(traces, ntrace);
-    }
-}
-
-function bigger() {
-    magnification = magnification * 2; 
-    showTrace(traces, ntrace);
-}
-
-function smaller() {
-    magnification = Math.max(1, magnification / 2);
-    showTrace(traces, ntrace);
-}
-
+console.log("Hello Javascript from uml5.html");
 </script>
 
 </body>
