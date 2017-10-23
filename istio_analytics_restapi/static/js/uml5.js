@@ -692,9 +692,9 @@ function prettyMicroseconds(ms, msOfLargest) {
         return ms.toFixed() + "μs";    // We use toFixed(), which isn't needed for Zipkin data, to be general
     }
     if (msOfLargest < 1000000) {
-        return (ms/1000).toFixed() + "ms";
+        return parseFloat((ms/1000).toFixed(3)) + "ms";
     }
-    return (ms/1000000).toFixed(1) + "s";
+    return parseFloat((ms/1000000).toFixed(6)) + "s";
 }
 
 function addActivations(data) {
