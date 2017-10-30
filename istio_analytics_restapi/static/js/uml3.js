@@ -10,7 +10,7 @@ var margin = {top: 10, right: 10, bottom: 10, left: 10},    // const
     width = 1200 - margin.left - margin.right,    // const
     height = 1000 - margin.top - margin.bottom;    // const
 var processWidth = 100;        // Width of process boxes at the top of the UML diagram.
-var processMargin = 10;        // Horizontal distance between process boxes.  (They are spaced (processWidth+processMargin) * N) 
+var processMargin = 10;        // Horizontal distance between process boxes.  (They are spaced (processWidth+processMargin) * N)
 var processHeight = 20;    // const
 var activationBoxWidth = 20;    // const
 var arrowheadWidth = 5;    // const
@@ -82,19 +82,19 @@ function setupSequenceDiagram(data) {
 }
 
 function addScale(data) {
-    // inspired by Paul Heckbert, "Nice Numbers for Graph Labels" from _Graphics Gems_, Academic Press, 1990 
+    // inspired by Paul Heckbert, "Nice Numbers for Graph Labels" from _Graphics Gems_, Academic Press, 1990
 
     // We want to show about 10 ticks
     var ntick = 10;  // desired tickmarks
-    
+
     var min = 0;
     var max = greatestTime(data.events);
-    
+
     if (max <= 0) {
         console.log("Max problem; max=" + max);
         max = 500;
-    } 
-    
+    }
+
     /* we expect min!=max */
     var range = nicenum(max-min, false);
     var delta = nicenum(range/(ntick-1), true);        // increment
@@ -106,7 +106,7 @@ function addScale(data) {
     }
 
     var dummy = new Array(Math.ceil((max + 0.5 * delta - min) / delta));    // dummy array entry for each tick we want to see
-    
+
     // Ticks
     var scaleTicks = d3.select("#scale")
         .selectAll(".scaleTick")
@@ -118,7 +118,7 @@ function addScale(data) {
     scaleTicks.transition().duration(0)
         .attr("y1", tickPosition)
         .attr("y2", tickPosition);
-    
+
     // Labels for ticks
     var tickLables = d3.select("#scale")
         .selectAll(".tickLabel")
@@ -136,12 +136,12 @@ function addScale(data) {
 
 function addActivations(data) {
     var activations = data.events.filter(function f(evt) { return evt.type == "process_request" || evt.type == "process_response"; });
-    
+
     // Add a lifeline for each activation, so that Javascript doesn't need to keep data in a closure
     for (activation of activations) {
         activation.lifelineX = lifelineX(data, activation.service);;
     }
-    
+
     var activationBoxes = d3.select("#activationBoxes")
         .selectAll(".activationBox")
         .data(activations);
@@ -189,7 +189,7 @@ function addActivations(data) {
         .attr("transform", function(d) {
             return "rotate(90 x y)"
                 .replace("x", lifelineX(data, source(d)) + activationBoxWidth/2+5)
-                .replace("y", (d.complete + d.start)/2 * timeScale); 
+                .replace("y", (d.complete + d.start)/2 * timeScale);
         })
         .attr("visibility", function(d) { return ((d.complete - d.start) > 1000) ? "visible" : "hidden"; });
 
@@ -338,7 +338,7 @@ function addRetries(data) {
         .attr("transform", function(d) {
             return "rotate(90 x y)"
                 .replace("x", timeoutX(d))
-                .replace("y", (d.complete + d.start)/2 * timeScale); 
+                .replace("y", (d.complete + d.start)/2 * timeScale);
         });
 }
 
@@ -383,7 +383,7 @@ function addCanaryIndicators(data) {
             return "rotate(angle x y) translate(x y)"
                 .replace("angle", theta_deg)
                 .replace(/x/g, lifelineX(data, source(d)))
-                .replace(/y/g, (d.complete + d.start)/2 * timeScale); 
+                .replace(/y/g, (d.complete + d.start)/2 * timeScale);
         });
 
     var responses = data.events.filter(function f(evt) { return evt.type == "send_response"; });
@@ -402,7 +402,7 @@ function addCanaryIndicators(data) {
             return "rotate(angle x y) translate(x y)"
                 .replace("angle", theta_deg)
                 .replace(/x/g, (lifelineX(data, source(d)) + lifelineX(data, target(d))) / 2)
-                .replace(/y/g, (d.complete + d.start)/2 * timeScale); 
+                .replace(/y/g, (d.complete + d.start)/2 * timeScale);
         });
 }
 
@@ -426,7 +426,7 @@ function addDebugging(data) {
 }
 
 function addProcesses(data) {
-    
+
     // UML process diagram process box for each process/microservice
     var processes = d3.select("#processRectangles")
         .selectAll(".processRect")
@@ -505,14 +505,8 @@ function addCommunication(data) {
         .attr("x1", outgoingProcessBoxEdge)
         .attr("x2", incomingProcessBoxEdge)
         .attr("y1", function(d) { return d.start * timeScale; })
-        .attr("stroke", function (d) { return d.timeout ? "lightblue" : "black"; })
-        // Note that location.href is needed for Safari but not Chrome or Firefox.
-        // See https://github.ibm.com/istio-analytics/restapi_server/issues/23
-        .attr("marker-end", function (d) {
-            return d.timeout ?
-                    "url(" + location.href + "#SolidTimeoutArrowhead)"
-                    : "url(" + location.href + "#SolidArrowhead)";
-        })
+        .attr("stroke", function (d) {return d.timeout ? "lightblue" : ((bucketHttpStatusCode(d.response_code) == "50x" || bucketHttpStatusCode(d.response_code) == "40x") ? "red" : "black"); })
+        .attr("marker-end", function (d) { return d.timeout ? "url(#SolidTimeoutArrowhead)" : ((bucketHttpStatusCode(d.response_code) == "50x" || bucketHttpStatusCode(d.response_code) == "40x") ? "url(#SolidErrorArrowhead)" : "url(#SolidArrowhead)"); })
         .attr("y2", function(d) { return d.complete * timeScale; })
         .attr("visibility", function(d) { return (source(d) != target(d)) ? "visible" : "hidden"; });
 
@@ -523,7 +517,6 @@ function addCommunication(data) {
         .attr("class", "messageLabel")
         .attr("text-anchor", "middle")
         .attr("alignment-baseline", "middle")
-        .attr("fill", "black")
         .on("mouseenter", function(d, i) {
             var t = d3.select("#popups").append("text")
                 .attr("class", "messageLabelDetails")
@@ -531,8 +524,16 @@ function addCommunication(data) {
                 .attr("alignment-baseline", "middle")
                 .attr("fill", "black")
                 .attr("filter", "url(#LabelBackground)")
-                //.text(textFiveNumberSummary(d.duration))
-                t.append("tspan").attr("x", 0).attr("dy", "1.2em").text(textFiveNumberSummary(d.duration))
+                t.append("tspan").style("font-weight", "bold").attr("x", 0).attr("dy", "1.2em").text("Min")
+                t.append("tspan").style("font-weight", "bold").attr("x", 50).text("Q1")
+                t.append("tspan").style("font-weight", "bold").attr("x", 100).text("Median")
+                t.append("tspan").style("font-weight", "bold").attr("x", 150).text("Q3")
+                t.append("tspan").style("font-weight", "bold").attr("x", 200).text("Max")
+                t.append("tspan").attr("x", 0).attr("dy", "1.2em").text(prettyMicroseconds(d.duration.min))
+                t.append("tspan").attr("x", 50).text(prettyMicroseconds(d.duration.q1))
+                t.append("tspan").attr("x", 100).text(prettyMicroseconds(d.duration.median))
+                t.append("tspan").attr("x", 150).text(prettyMicroseconds(d.duration.q3))
+                t.append("tspan").attr("x", 200).text(prettyMicroseconds(d.duration.max))
                 t.append("tspan").attr("x", 0).attr("dy", "1.2em").text("{count} request(s)".replace("{count}", d.duration.count))
                 t.attr("transform", function(innerd) {
                     return makeSVGTransform(
@@ -550,6 +551,7 @@ function addCommunication(data) {
     messageLabels.exit().remove();
     messageLabels.transition().duration(0)
         .text(function(d) { return d.request; })
+        .attr("fill", function(d) {return d.timeout ? "lightblue" : ((bucketHttpStatusCode(d.response_code) == "50x" || bucketHttpStatusCode(d.response_code) == "40x") ? "red" : "black"); })
         .attr("transform", function(d) {
             return makeSVGTransform(
                     data,
@@ -567,19 +569,15 @@ function addCommunication(data) {
     .data(responses);
     returnMessages.enter().append("line")
         .attr("class", "returnMessage")
-        .attr("stroke", "black")
         .attr("stroke-dasharray", "2,2")
-        // Note that location.href is needed for Safari but not Chrome or Firefox.
-        // See https://github.ibm.com/istio-analytics/restapi_server/issues/23
-        .attr("marker-end", function (d) {
-            return "url(" + location.href + "#OpenArrowhead)";
-        });
+        .attr("marker-end", function(d) {return ((bucketHttpStatusCode(d.response_code) == "50x" || bucketHttpStatusCode(d.response_code) == "40x") ? "url(#OpenErrorArrowhead)" : "url(#OpenArrowhead)");})
     returnMessages.exit().remove();
     returnMessages.transition().duration(0)
         .attr("x1", outgoingProcessBoxEdge)
         .attr("x2", incomingProcessBoxEdge)
         .attr("y1", function(d) { return d.start * timeScale; })
         .attr("y2", function(d) { return d.complete * timeScale; })
+        .attr("stroke", function(d) {return d.timeout ? "lightblue" : ((bucketHttpStatusCode(d.response_code) == "50x" || bucketHttpStatusCode(d.response_code) == "40x") ? "red" : "black"); })
         .attr("visibility", function(d) { return d.response_code != "0" ? "visible" : "hidden"; });
 
     // TODO use a transform so that we can draw at cs and it gets moved below processHeight and scaled
@@ -589,7 +587,6 @@ function addCommunication(data) {
     messageLabels.enter().append("text")
         .attr("class", "messageLabel")
         .attr("text-anchor", "middle")
-        .attr("fill", "black")
         .on("mouseenter", function(d, i) {
             var t = d3.select("#popups").append("text")
                 .attr("class", "messageLabelDetails")
@@ -597,7 +594,16 @@ function addCommunication(data) {
                 .attr("alignment-baseline", "middle")
                 .attr("filter", "url(#LabelBackground)")
                 .attr("fill", "black")
-                t.append("tspan").attr("x", 0).attr("dy", "1.2em").text(textFiveNumberSummary(d.duration))
+                t.append("tspan").style("font-weight", "bold").attr("x", 0).attr("dy", "1.2em").text("Min")
+                t.append("tspan").style("font-weight", "bold").attr("x", 50).text("Q1")
+                t.append("tspan").style("font-weight", "bold").attr("x", 100).text("Median")
+                t.append("tspan").style("font-weight", "bold").attr("x", 150).text("Q3")
+                t.append("tspan").style("font-weight", "bold").attr("x", 200).text("Max")
+                t.append("tspan").attr("x", 0).attr("dy", "1.2em").text(prettyMicroseconds(d.duration.min))
+                t.append("tspan").attr("x", 50).text(prettyMicroseconds(d.duration.q1))
+                t.append("tspan").attr("x", 100).text(prettyMicroseconds(d.duration.median))
+                t.append("tspan").attr("x", 150).text(prettyMicroseconds(d.duration.q3))
+                t.append("tspan").attr("x", 200).text(prettyMicroseconds(d.duration.max))
                 t.append("tspan").attr("x", 0).attr("dy", "1.2em").text("{count} request(s)".replace("{count}", d.duration.count))
                 t.attr("transform", function(innerd) {
                     return makeSVGTransform(
@@ -615,6 +621,7 @@ function addCommunication(data) {
     messageLabels.exit().remove();
     messageLabels.transition().duration(0)
         // .text(function(d) { return d.response_code; })
+        .attr("fill", function(d) {return d.timeout ? "lightblue" : ((bucketHttpStatusCode(d.response_code) == "50x" || bucketHttpStatusCode(d.response_code) == "40x") ? "red" : "black"); })
         .text(function(d) { return d.responseCodes; })
         .attr("transform", function(d) {
             return makeSVGTransform(
@@ -650,14 +657,14 @@ function toScaledBox(d, x) {
         if (isNaN(factor)) {
             console.log("toScaledBox() failed to calculate factor; x=" + x + ", d.duration=" + JSON.stringify(d.duration));
         }
-        
+
         retval = (d.start + factor * d.duration.median) * timeScale;
     }
-    
+
     if (isNaN(retval)) {
         console.log("toScaledBox() failed; d.start=" + d.start + ", factor=" + factor + ", d.duration.median=" + d.duration.median);
     }
-    
+
     return retval;
 }
 
@@ -671,7 +678,18 @@ function popupWhiskers(d, i) {
         oldTrans = label.attr("transform");
     }
     label.transition().duration(500)
-        .text(textFiveNumberSummary(d.duration) + " selected " + prettyMicroseconds(d.duration.selected))
+        t.append("tspan").style("font-weight", "bold").attr("x", 0).attr("dy", "1.2em").text("Min")
+        t.append("tspan").style("font-weight", "bold").attr("x", 50).text("Q1")
+        t.append("tspan").style("font-weight", "bold").attr("x", 100).text("Median")
+        t.append("tspan").style("font-weight", "bold").attr("x", 150).text("Q3")
+        t.append("tspan").style("font-weight", "bold").attr("x", 200).text("Max")
+        t.append("tspan").attr("x", 0).attr("dy", "1.2em").text(prettyMicroseconds(d.duration.min))
+        t.append("tspan").attr("x", 50).text(prettyMicroseconds(d.duration.q1))
+        t.append("tspan").attr("x", 100).text(prettyMicroseconds(d.duration.median))
+        t.append("tspan").attr("x", 150).text(prettyMicroseconds(d.duration.q3))
+        t.append("tspan").attr("x", 200).text(prettyMicroseconds(d.duration.max))
+        t.append("tspan").attr("x", 0).attr("dy", "1.2em").text("{count} request(s)".replace("{count}", d.duration.count))
+        .text(" selected " + prettyMicroseconds(d.duration.selected))
         .attr("text-anchor", "start")
         .attr("transform", "")
         .attr("oldTrans", oldTrans);
@@ -680,7 +698,7 @@ function popupWhiskers(d, i) {
     if (d.duration.min == d.duration.q1 || d.duration.max == d.duration.q3) {
         return;
     }
-    
+
     var whiskerTopTrue = toScaledBox(d, d.duration.min);
     var whiskerBottomTrue = toScaledBox(d, d.duration.max);
     var whiskerTop = Math.max(whiskerTopTrue, 0, timeScale * d.start - straightWhiskerMax);
@@ -688,7 +706,7 @@ function popupWhiskers(d, i) {
     var whiskerX = d.lifelineX;
     var compressTop = whiskerTopTrue < whiskerTop;
     var compressBottom = whiskerBottomTrue > whiskerBottom;
-    
+
     d3.select("#popups").append("line")            // Whisker top bar
         .attr("class", "activationWhisker")
         .attr("x1", whiskerX - activationBoxWidth/2)
@@ -719,7 +737,7 @@ function popupWhiskers(d, i) {
         .attr("y", whiskerBottom)
         .attr("alignment-baseline", "middle")
         .text(prettyMicroseconds(d.duration.max));
-    
+
     // TODO: move activation if it is outside the clamping region straightWhiskerMax?
 };
 
@@ -729,7 +747,7 @@ function removeWhiskers(d, i) {
         .text(function(d) { return formatMicroseconds(d.complete - d.start); })
         .attr("text-anchor", "middle")
         .attr("transform", label.attr("oldTrans"));
-    
+
     // Remove the whiskers
     d3.select("#popups").selectAll(".activationWhisker").remove();
     d3.select("#popups").selectAll(".activationWhiskerLabel").remove();
@@ -741,7 +759,7 @@ function makeSVGTransform(data, x1, y1, x2, y2) {
     if (isNaN(y1)) {
         throw new Error("makeSVGTransform called with y1 as NaN");
     }
-    
+
     var adjacent = x2-x1;
     var opposite = y2-y1;
     var theta_rad = Math.atan2(opposite, adjacent);
@@ -762,18 +780,18 @@ function makeSVGTransform(data, x1, y1, x2, y2) {
 }
 
 function makeTranslation(timeMargin, processHeight) {
- 
+
     return "translate(0 " + (timeMargin+processHeight) + ")"
 }
 
 // nicenum() finds a "nice" number approximately equal to x.  If `round` is `true` rounds, otherwise takes ceiling.
 function nicenum(x, round) {
     // inspired by Paul Heckbert, "Nice Numbers for Graph Labels" from _Graphics Gems_, Academic Press, 1990
-    
+
     var expv = Math.floor(Math.log10(x));    // exponent of x
     var f = x/Math.pow(10., expv);            // fractional part of x; between 1 and 10
     var nf;                                    // nice, rounded fraction
-    
+
     if (round)
         if (f<1.5) nf = 1;
         else if (f<3) nf = 2;
@@ -794,28 +812,22 @@ function formatMicroseconds(ms) {
 
 // Like formatMicroseconds (TODO replace formatMicroseconds)
 function prettyMicroseconds(ms, msOfLargest) {
+    if (ms==null) {
+        return "null";
+    }
+
     // If we get a second parameter, format the first using the units of the second
     if (typeof msOfLargest == "undefined") {
         msOfLargest = ms;
     }
-    
+
     if (msOfLargest < 1000) {
         return ms.toFixed() + "μs";    // We use toFixed(), which isn't needed for Zipkin data, to be general
     }
     if (msOfLargest < 1000000) {
-        return (ms/1000).toFixed() + "ms";
+        return parseFloat((ms/1000).toFixed(3)) + "ms";
     }
-    return (ms/1000000).toFixed(1) + "s";
-}
-
-function textFiveNumberSummary(details) {
-    return "{min} {q1} {median} {q3} {max}"
-        //.replace("{count}", details.count)
-        .replace("{min}", formatMicroseconds(details.min))
-        .replace("{q1}", formatMicroseconds(details.q1))
-        .replace("{median}", formatMicroseconds(details.median))
-        .replace("{q3}", formatMicroseconds(details.q3))
-        .replace("{max}", formatMicroseconds(details.max));
+    return parseFloat((ms/1000000).toFixed(6)) + "s";
 }
 
 function source(event) {
@@ -835,7 +847,7 @@ function lifelineX(data, processName) {
     if (!processName) {
         throw new Error("missing processName");
     }
-    
+
     var index = data.processes.findIndex(function(ele) { return ele.id == processName; });
     return (index + 0.5) * (processWidth+processMargin);
 }
@@ -843,15 +855,15 @@ function lifelineX(data, processName) {
 // Returns an array of {id:"productpage", title:"productpage", color:"purple"}
 function deriveProcessesFromTrace(trace) {
     // console.log("messages is " + JSON.stringify(messages));
-    
+
     var defaultColors = ["purple", "red", "gold", "navy"];
     var processes = getServices(trace);
-    
+
     var internalServices = trace.timelines.map(function (t) { return t.service; });
 
     return processes.map(function(process, index) {
-        return {id: process, title: prettyProcessName(process), 
-            color: defaultColors[index%defaultColors.length], 
+        return {id: process, title: prettyProcessName(process),
+            color: defaultColors[index%defaultColors.length],
             external: internalServices.indexOf(process) < 0
         };
     });
@@ -866,7 +878,7 @@ function greatestTime(events) {
 
 function generateProcessTitleMap(spans) {
     var retval = {};
-    
+
     for (i in spans) {
         var ip = annotationEndpointIPV4(spans[i], "ss");
         var nodeId = binaryAnnotation(spans[i], "node_id");
@@ -885,7 +897,7 @@ function generateProcessTitleMap(spans) {
             }
         }
     }
-    
+
     return retval;
 }
 
@@ -935,7 +947,7 @@ function matchingTraces(trace, zipkin_traces) {
 // from a selected trace.
 //
 // 'siblingTraces' is an array of Fabio's output.
-// summarizeTraces() generates an object in Fabio's format, but with added median/min/max/q1/q3/count/avg 
+// summarizeTraces() generates an object in Fabio's format, but with added median/min/max/q1/q3/count/avg
 function summarizeTraces(siblingTraces, selectedTrace) {
 
     summary = {
@@ -967,7 +979,7 @@ function summarizeTraces(siblingTraces, selectedTrace) {
                     parent_span_id: selectedEvent.parent_span_id,
                     type: selectedEvent.type,
                     service: service,                            // denormalize the service (each event shall refer to it)
-                    interlocutor: selectedEvent.interlocutor, 
+                    interlocutor: selectedEvent.interlocutor,
                     request: selectedEvent.request,                // TODO summarize request
                     response_code: selectedEvent.response_code,    // TODO summarize response_code
                     responseCodes: summarizeResponseCodes(nthBlockingEvents.map(function (evt) { return evt.response_code; })),
@@ -999,7 +1011,7 @@ function summarizeTraces(siblingTraces, selectedTrace) {
                     parent_span_id: selectedEvent.parent_span_id,
                     type: selectedEvent.type,
                     service: service,                            // denormalize the service (each event shall refer to it)
-                    interlocutor: selectedEvent.interlocutor, 
+                    interlocutor: selectedEvent.interlocutor,
                     request: selectedEvent.request,                // TODO summarize request
                     // response_code: selectedEvent.response_code,
                     duration: summarize(nthTimeoutEvents.map(function (evt) { return evt.duration; })),
@@ -1014,10 +1026,10 @@ function summarizeTraces(siblingTraces, selectedTrace) {
                 summaryTimeline.events.push(summaryEvent);
             }
         }
-        
+
         summary.timelines.push(summaryTimeline);
     }
-    
+
     return summary;
 }
 
@@ -1025,15 +1037,15 @@ function getServices(trace) {
     if (!trace.timelines) {
         throw new Error("trace has no timelines: " + JSON.stringify(trace));
     }
-    
+
     // Get all of the services that have timelines
     var retval = trace.timelines.map(function (t) { return t.service; });
-    
+
     // Sort by earliest timestamp
     retval.sort(function (a, b) {
         return getServiceTimeline(trace, a).events[0].timestamp - getServiceTimeline(trace, b).events[0].timestamp;
     });
-    
+
     // Add in the interlocutors that lack timelines
     // console.log("trace.timelines = " + JSON.stringify(trace.timelines));
     for (var timeline of trace.timelines) {
@@ -1044,7 +1056,7 @@ function getServices(trace) {
             }
         }
     }
-    
+
     return retval;
 }
 
@@ -1053,7 +1065,7 @@ function getServiceTimeline(trace, service) {
     if (retval) {
         return retval;
     }
-    
+
     // Create a dummy empty timeline for interlocutors that lack an entry.
     return { service: service, events: []};
 }
@@ -1069,7 +1081,7 @@ function summarize(arr) {
     if (arr.length == 0) {
         throw new Error("arr empty");
     }
-    
+
     arr.sort(sortNumber);
     // console.log("in summarize(), sorted arr is " + JSON.stringify(arr));
 
@@ -1079,7 +1091,7 @@ function summarize(arr) {
     var highQ1 = Math.ceil((arr.length - 1) / 4);
     var lowQ3 = Math.floor(3 * (arr.length - 1) / 4);
     var highQ3 = Math.ceil(3 * (arr.length - 1) / 4);
-    
+
     return {
         median: (arr[lowMiddle] + arr[highMiddle]) / 2,
         max: Math.max.apply(null, arr),
@@ -1116,8 +1128,8 @@ function orderEvents(trace) {
 
     var basetime = 0;
     for (var i in events) {
-        //console.log("setting next/start/complete for " + events[i].service + "/" 
-        //        + events[i].type + " " + events[i].request + " which has timeout " 
+        //console.log("setting next/start/complete for " + events[i].service + "/"
+        //        + events[i].type + " " + events[i].request + " which has timeout "
         //        + JSON.stringify(events[i].timeout));
 
         events[i].nextEvent = allEvents[i+1];
@@ -1150,8 +1162,8 @@ function orderEvents(trace) {
         }
         basetime = basetime + events[i].duration.median;
 
-        //console.log("Set start to " + events[i].start + " for " + events[i].service + "/" 
-        //        + events[i].type + " " + events[i].request + " which has timestamp " 
+        //console.log("Set start to " + events[i].start + " for " + events[i].service + "/"
+        //        + events[i].type + " " + events[i].request + " which has timestamp "
         //        + events[i].timestamp);
     }
 }
@@ -1262,12 +1274,12 @@ function prettyProcessName(host) {
     if (typeof host != "string") {
         throw new Error("'host' must be a string but got " + JSON.stringify(host));
     }
-    
+
     // Is this a numeric IP?  If so, use it unchanged
     if (/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(host)) {
         return host;
     }
-    
+
     // In the interest of space chop off the namespace and domain name
     return  host.split('.')[0];
 }
@@ -1277,10 +1289,10 @@ function prepareChart() {
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
       .append("g")
-        .attr("transform", 
+        .attr("transform",
               "translate(" + margin.left + "," + margin.top + ")");
-          
-    // These aren't really needed ... we use them to make it easier to find a particular 
+
+    // These aren't really needed ... we use them to make it easier to find a particular
     // SVG element in the Elements debug view.  We could add directly to SVG.
     svg.append("g")
         .attr("id", "scale")
@@ -1321,7 +1333,7 @@ function prepareChart() {
     svg.append("g")
         .attr("id", "debugging")
         .attr("transform", makeTranslation(timeMargin, processHeight));
-    
+
     return svg;
 }
 
@@ -1341,7 +1353,7 @@ function boxplotPolylinePoints(longline, x, start, finish) {
     var retval;
 
     if (longline) {
-        
+
         // Draw a long line break
         //
         //  | x, y1
@@ -1361,12 +1373,12 @@ function boxplotPolylinePoints(longline, x, start, finish) {
             .replace(/yb1/g, y1+.45*(y2-y1)).replace(/yb2/g, y1+.55*(y2-y1))
             .replace(/x/g, x);
     } else {
-    
+
         // Finish is fine, no need to make a long line break
         var str = "x,y1 x,y2";
         var retval = str.replace(/x/g, x).replace("y1", start).replace("y2", finish);
     }
-    
+
     // console.log("boxplotPolylinePoints returning " + retval);
     return retval;
 }

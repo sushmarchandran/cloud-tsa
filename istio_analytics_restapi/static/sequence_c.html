@@ -31,13 +31,19 @@ Canary Traces: {{ (clusters_diffs && clusters_diffs[nflow]) ? clusters_diffs[nfl
         markerWidth="5" markerHeight="5" orient="auto">
       <path d="M 0 0 L 10 5 L 0 10 z" />
     </marker>
-
+    <marker id="SolidErrorArrowhead" viewBox="0 0 10 10" refX="1" refY="5"
+        markerWidth="5" markerHeight="5" orient="auto" fill="red">
+      <path d="M 0 0 L 20 5 L 0 10 z" />
+    </marker>
     <!-- This is used as an async message return arrowhead -->
     <marker id="OpenArrowhead" viewBox="0 0 10 10" refX="1" refY="5"
         markerWidth="5" markerHeight="5" orient="auto" fill="transparent" stroke="black">
       <path d="M 0 0 L 10 5 L 0 10" />
     </marker>
-
+    <marker id="OpenErrorArrowhead" viewBox="0 0 10 10" refX="1" refY="5"
+        markerWidth="5" markerHeight="5" orient="auto" fill="transparent" stroke="red">
+      <path d="M 0 0 L 10 5 L 0 10" />
+    </marker>
     <marker id="SolidTimeoutArrowhead" viewBox="0 0 10 10" refX="1" refY="5"
         markerWidth="5" markerHeight="5" orient="auto" fill="lightblue">
       <path d="M 0 0 L 20 5 L 0 10 z" />
