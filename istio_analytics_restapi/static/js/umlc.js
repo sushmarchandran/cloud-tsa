@@ -467,8 +467,8 @@ function addCommunication(data) {
         .attr("x1", outgoingProcessBoxEdge)
         .attr("x2", incomingProcessBoxEdge)
         .attr("y1", function(d) { return d.start * timeScale; })
-        .attr("stroke", function (d) { return d.timeout ? "lightblue" : "black"; })
-        .attr("marker-end", function (d) { return d.timeout ? "url(#SolidTimeoutArrowhead)" : "url(#SolidArrowhead)"; })
+        .attr("stroke", function (d) {return d.timeout ? "lightblue" : ((bucketHttpStatusCode(d.response_code) == "50x" || bucketHttpStatusCode(d.response_code) == "40x") ? "red" : "black"); })
+        .attr("marker-end", function (d) { return d.timeout ? "url(#SolidTimeoutArrowhead)" : ((bucketHttpStatusCode(d.response_code) == "50x" || bucketHttpStatusCode(d.response_code) == "40x") ? "url(#SolidErrorArrowhead)" : "url(#SolidArrowhead)"); })
         .attr("y2", function(d) { return d.complete * timeScale; })
         .attr("visibility", function(d) { return (source(d) != target(d)) ? "visible" : "hidden"; });
 
@@ -488,8 +488,8 @@ function addCommunication(data) {
     messageArrows.exit().remove();
     messageArrows.transition().duration(0)
         .attr("points", selfRequestPoints)
-        .attr("stroke", function (d) { return d.timeout ? "lightblue" : "black"; })
-        .attr("marker-end", function (d) { return d.timeout ? "url(#SolidTimeoutArrowhead)" : "url(#SolidArrowhead)"; })
+        .attr("stroke", function (d) {return d.timeout ? "lightblue" : ((bucketHttpStatusCode(d.response_code) == "50x" || bucketHttpStatusCode(d.response_code) == "40x") ? "red" : "black"); })
+        .attr("marker-end", function (d) { return d.timeout ? "url(#SolidTimeoutArrowhead)" : ((bucketHttpStatusCode(d.response_code) == "50x" || bucketHttpStatusCode(d.response_code) == "40x") ? "url(#SolidErrorArrowhead)" : "url(#SolidArrowhead)"); })
 
     var messageLabels = d3.select("#messageLabels")
     .selectAll(".messageLabel")
@@ -498,13 +498,13 @@ function addCommunication(data) {
         .attr("class", "messageLabel")
         .attr("text-anchor", "middle")
         .attr("alignment-baseline", "middle")
-        .attr("fill", messageLabelFillColor)
         .on("mouseleave", function(d, i) {
             d3.select("#popups").selectAll(".messageLabelDetails").remove();
         });
     messageLabels.exit().remove();
     messageLabels.transition().duration(0)
         .text(function(d) { return d.request; })
+        .attr("fill", function (d) {return d.timeout ? "lightblue" : ((bucketHttpStatusCode(d.response_code) == "50x" || bucketHttpStatusCode(d.response_code) == "40x") ? "red" : "black"); })
         .each(function (d) {
             // We can't do transition().on() so we use each() and do the on() there.
             // This is because 'data' is a closure and will be stale if we set on()
@@ -517,11 +517,27 @@ function addCommunication(data) {
                     .attr("alignment-baseline", "middle")
                     .attr("fill", "black")
                     .attr("filter", "url(#LabelBackground)")
-                    t.append("tspan").attr("x", 0).attr("dy", "1.2em").text(
-                            "{5number} vs {canary_5number}"
-                            .replace("{5number}", textFiveNumberSummary(d.baseline_stats.duration))
-                            .replace("{canary_5number}", textFiveNumberSummary(d.canary_stats.duration))
-                            )
+                    t.append("tspan").style("font-weight", "bold").attr("x", 0).attr("dy", "1.2em").text("Min")
+                    t.append("tspan").style("font-weight", "bold").attr("x", 50).text("Q1")
+                    t.append("tspan").style("font-weight", "bold").attr("x", 100).text("Median")
+                    t.append("tspan").style("font-weight", "bold").attr("x", 150).text("Q3")
+                    t.append("tspan").style("font-weight", "bold").attr("x", 200).text("Max")
+                    t.append("tspan").attr("x", 0).attr("dy", "1.2em").text(prettyMicroseconds(d.baseline_stats.duration.min))
+                    t.append("tspan").attr("x", 50).text(prettyMicroseconds(d.baseline_stats.duration.q1))
+                    t.append("tspan").attr("x", 100).text(prettyMicroseconds(d.baseline_stats.duration.median))
+                    t.append("tspan").attr("x", 150).text(prettyMicroseconds(d.baseline_stats.duration.q3))
+                    t.append("tspan").attr("x", 200).text(prettyMicroseconds(d.baseline_stats.duration.max))
+                    t.append("tspan").attr("x", 0).attr("dy", "1.2em").text("vs")
+                    t.append("tspan").style("font-weight", "bold").attr("x", 0).attr("dy", "1.2em").text("Min")
+                    t.append("tspan").style("font-weight", "bold").attr("x", 50).text("Q1")
+                    t.append("tspan").style("font-weight", "bold").attr("x", 100).text("Median")
+                    t.append("tspan").style("font-weight", "bold").attr("x", 150).text("Q3")
+                    t.append("tspan").style("font-weight", "bold").attr("x", 200).text("Max")
+                    t.append("tspan").attr("x", 0).attr("dy", "1.2em").text(prettyMicroseconds(d.canary_stats.duration.min))
+                    t.append("tspan").attr("x", 50).text(prettyMicroseconds(d.canary_stats.duration.q1))
+                    t.append("tspan").attr("x", 100).text(prettyMicroseconds(d.canary_stats.duration.median))
+                    t.append("tspan").attr("x", 150).text(prettyMicroseconds(d.canary_stats.duration.q3))
+                    t.append("tspan").attr("x", 200).text(prettyMicroseconds(d.canary_stats.duration.max))
                     t.append("tspan").attr("x", 0).attr("dy", "1.2em").text("{count} vs {canary_count} request(s)"
                             .replace("{count}", d.baseline_stats.event_count)
                             .replace("{canary_count}", d.canary_stats.event_count)
@@ -566,18 +582,19 @@ function addCommunication(data) {
     .data(responses);
     returnMessages.enter().append("line")
         .attr("class", "returnMessage")
-        .attr("stroke", "black")
+
         .attr("stroke-dasharray", "2,2")
         .on("click", function(d) {
             alert("Debug: This is global event " + d.canary_stats.global_event_sequence_number); // TODO remove
         })
-        .attr("marker-end", "url(#OpenArrowhead)");
+        .attr("marker-end", function (d) {return ((bucketHttpStatusCode(d.response_code) == "50x" || bucketHttpStatusCode(d.response_code) == "40x") ? "url(#OpenErrorArrowhead)" : "url(#OpenArrowhead)");});
     returnMessages.exit().remove();
     returnMessages.transition().duration(0)
         .attr("x1", outgoingProcessBoxEdge)
         .attr("x2", incomingProcessBoxEdge)
         .attr("y1", function(d) { return d.start * timeScale; })
         .attr("y2", function(d) { return d.complete * timeScale; })
+        .attr("stroke", function(d) {return d.timeout ? "lightblue" : ((bucketHttpStatusCode(d.response_code) == "50x" || bucketHttpStatusCode(d.response_code) == "40x") ? "red" : "black"); })
         .attr("visibility", function(d) { return d.response_code != "0" ? "visible" : "hidden"; });
 
     // TODO use a transform so that we can draw at cs and it gets moved below processHeight and scaled
@@ -587,13 +604,13 @@ function addCommunication(data) {
     messageLabels.enter().append("text")
         .attr("class", "messageLabel")
         .attr("text-anchor", "middle")
-        .attr("fill", "black")
         .on("mouseleave", function(d, i) {
             d3.select("#popups").selectAll(".messageLabelDetails").remove();
         })
     messageLabels.exit().remove();
     messageLabels.transition().duration(0)
         .text(function(d) { return responseCodes(d); })
+        .attr("stroke", function(d) {return d.timeout ? "lightblue" : ((bucketHttpStatusCode(d.response_code) == "50x" || bucketHttpStatusCode(d.response_code) == "40x") ? "red" : "black"); })
         .each(function (d) {
             // We can't do transition().on() so we use each() and do the on() there.
             // This is because 'data' is a closure and will be stale if we set on()
@@ -606,11 +623,28 @@ function addCommunication(data) {
                     .attr("alignment-baseline", "middle")
                     .attr("filter", "url(#LabelBackground)")
                     .attr("fill", "black")
-                    t.append("tspan").attr("x", 0).attr("dy", "1.2em").text(
-                            "{dur} vs {canaryDur}"
-                            .replace("{dur}", textFiveNumberSummary(d.baseline_stats.duration))
-                            .replace("{canaryDur}", textFiveNumberSummary(d.canary_stats.duration))
-                    )
+                    t.append("tspan").style("font-weight", "bold").attr("x", 0).attr("dy", "1.2em").text("Min")
+                    t.append("tspan").style("font-weight", "bold").attr("x", 50).text("Q1")
+                    t.append("tspan").style("font-weight", "bold").attr("x", 100).text("Median")
+                    t.append("tspan").style("font-weight", "bold").attr("x", 150).text("Q3")
+                    t.append("tspan").style("font-weight", "bold").attr("x", 200).text("Max")
+                    t.append("tspan").attr("x", 0).attr("dy", "1.2em").text(prettyMicroseconds(d.baseline_stats.duration.min))
+                    t.append("tspan").attr("x", 50).text(prettyMicroseconds(d.baseline_stats.duration.q1))
+                    t.append("tspan").attr("x", 100).text(prettyMicroseconds(d.baseline_stats.duration.median))
+                    t.append("tspan").attr("x", 150).text(prettyMicroseconds(d.baseline_stats.duration.q3))
+                    t.append("tspan").attr("x", 200).text(prettyMicroseconds(d.baseline_stats.duration.max))
+                    t.append("tspan").attr("x", 0).attr("dy", "1.2em").text("vs")
+                    t.append("tspan").style("font-weight", "bold").attr("x", 0).attr("dy", "1.2em").text("Min")
+                    t.append("tspan").style("font-weight", "bold").attr("x", 50).text("Q1")
+                    t.append("tspan").style("font-weight", "bold").attr("x", 100).text("Median")
+                    t.append("tspan").style("font-weight", "bold").attr("x", 150).text("Q3")
+                    t.append("tspan").style("font-weight", "bold").attr("x", 200).text("Max")
+                    t.append("tspan").attr("x", 0).attr("dy", "1.2em").text(prettyMicroseconds(d.canary_stats.duration.min))
+                    t.append("tspan").attr("x", 50).text(prettyMicroseconds(d.canary_stats.duration.q1))
+                    t.append("tspan").attr("x", 100).text(prettyMicroseconds(d.canary_stats.duration.median))
+                    t.append("tspan").attr("x", 150).text(prettyMicroseconds(d.canary_stats.duration.q3))
+                    t.append("tspan").attr("x", 200).text(prettyMicroseconds(d.canary_stats.duration.max))
+
                     t.append("tspan").attr("x", 0).attr("dy", "1.2em").text(
                             "{count} vs {canaryCount} request(s)"
                             .replace("{count}", d.baseline_stats.event_count)
@@ -681,7 +715,7 @@ function addCanaryIndicators(data) {
             return "rotate(angle x y) translate(x y)"
                 .replace("angle", theta_deg)
                 .replace(/x/g, lifelineX(data, source(d)))
-                .replace(/y/g, (d.complete + d.start)/2 * timeScale); 
+                .replace(/y/g, (d.complete + d.start)/2 * timeScale);
         });
 
     var responses = data.events.filter(function f(evt) { return evt.type == "send_response"; });
@@ -724,7 +758,7 @@ function addCanaryIndicators(data) {
             return "rotate(angle x y) translate(x y)"
                 .replace("angle", theta_deg)
                 .replace(/x/g, (lifelineX(data, source(d)) + lifelineX(data, target(d))) / 2)
-                .replace(/y/g, (d.complete + d.start)/2 * timeScale); 
+                .replace(/y/g, (d.complete + d.start)/2 * timeScale);
         });
 }
 
@@ -828,9 +862,9 @@ function prettyMicroseconds(ms, msOfLargest) {
         return ms.toFixed() + "μs";    // We use toFixed(), which isn't needed for Zipkin data, to be general
     }
     if (msOfLargest < 1000000) {
-        return (ms/1000).toFixed() + "ms";
+        return parseFloat((ms/1000).toFixed(3)) + "ms";
     }
-    return (ms/1000000).toFixed(1) + "s";
+    return parseFloat((ms/1000000).toFixed(6)) + "s";
 }
 
 // Place sequence diagram "activation boxes" in the activationBoxes <g>.
@@ -1043,19 +1077,6 @@ function target(event) {
     // console.log(retval + " is the target of " + JSON.stringify(event));
     return retval;
 }
-
-function textFiveNumberSummary(details) {
-    // By passing max with the desired number we ensure the units are the same on all examples
-    var retval = "{min} {first_quartile} {median} {third_quartile} {max}"
-        .replace("{min}", prettyMicroseconds(details.min, details.max))
-        .replace("{first_quartile}", prettyMicroseconds(details.first_quartile, details.max))
-        .replace("{median}", prettyMicroseconds(details.median, details.max))
-        .replace("{third_quartile}", prettyMicroseconds(details.third_quartile, details.max))
-        .replace("{max}", prettyMicroseconds(details.max));
-
-    return retval;
-}
-
 // Generate points for a polyline from self to self that looks like a UML process diagram
 // activation box sending a message to the same process.
 function selfRequestPoints(d) {
