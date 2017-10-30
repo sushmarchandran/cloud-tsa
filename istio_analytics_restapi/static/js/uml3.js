@@ -310,7 +310,11 @@ function addRetries(data) {
     timeoutRetries.enter().append("line")
         .attr("class", "retryInterval")
         .attr("marker-start", "url(#SolidTimeoutStartArrowhead)")
-        .attr("marker-end", "url(#SolidTimeoutArrowhead)")
+        // Note that location.href is needed for Safari but not Chrome or Firefox.
+        // See https://github.ibm.com/istio-analytics/restapi_server/issues/23
+        .attr("marker-end", function (d) {
+            return "url(" + location.href + "#SolidTimeoutArrowhead)";
+        });
     timeoutRetries.exit().remove();
     timeoutRetries.transition().duration(0)
         .attr("x1", timeoutX)
