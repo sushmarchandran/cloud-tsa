@@ -558,7 +558,7 @@ function addCommunication(data) {
         .on("click", function(d) {
             alert("Debug: This is global event " + d.global_event_sequence_number); // TODO remove
         })
-        .attr("marker-end", funtion(d) {return ((bucketHttpStatusCode(d.response_code) == "50x" || bucketHttpStatusCode(d.response_code) == "40x") ? "url(#OpenErrorArrowhead)" : "url(#OpenArrowhead)");});
+        .attr("marker-end", function(d) {return ((bucketHttpStatusCode(d.response_code) == "50x" || bucketHttpStatusCode(d.response_code) == "40x") ? "url(#OpenErrorArrowhead)" : "url(#OpenArrowhead)");});
     returnMessages.exit().remove();
     returnMessages.transition().duration(0)
         .attr("x1", outgoingProcessBoxEdge)
