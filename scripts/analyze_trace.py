@@ -6,10 +6,10 @@ import sys
 import istio_analytics_restapi.api.distributed_tracing.zipkin_util
 
 def main():
-    
+
     if len(sys.argv) != 2:
         sys.exit("usage: analyze_trace.py <filename>")
-        
+
     json_file = sys.argv[1]
     json_data=open(json_file)
     zipkin_trace_list = json.load(json_data)

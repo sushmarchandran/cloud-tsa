@@ -150,9 +150,9 @@ def has_sr_annotation(zipkin_span):
 def zipkin_trace_list_to_istio_analytics_trace_list(zipkin_trace_list):
     '''Converts a list of traces as returned by Zipkin into the format 
     specified by the REST API POST /distributed_tracing/traces/.
-    
+
     @param zipkin_trace_list (list): List of traces as returned by Zipkin GET /api/v1/traces/
-    
+
     @rtype: list
     @return Trace list as specified by POST /distributed_tracing/traces
     '''
@@ -165,9 +165,9 @@ def zipkin_trace_list_to_istio_analytics_trace_list(zipkin_trace_list):
         istio_analytics_trace = {
             constants.TRACE_ID_STR: trace_id
         }
-        
+
         istio_analytics_spans = []
-        
+
         # Lookup table that associates IP addresses to names of microservices
         ip_to_name_lookup_table = {}
 
@@ -203,10 +203,10 @@ def zipkin_trace_list_to_istio_analytics_trace_list(zipkin_trace_list):
                         ip_to_name_lookup_table[ip_address]
                 elif annotation[ZIPKIN_ANNOTATIONS_VALUE_STR] == ZIPKIN_SR_ANNOTATION:
                     # This is the target (microservice that received the call)
-                    
+
                     # Set the target IP address
                     istio_analytics_span[constants.TARGET_IP_STR] = ip_address
-                    
+
                     # Set the target name
                     if not ip_address in ip_to_name_lookup_table:
                         ip_to_name_lookup_table[ip_address] = zipkin_span[ZIPKIN_NAME_STR].split(':')[0]
@@ -265,9 +265,9 @@ def global_sort_annotations(zipkin_trace):
     to fetch the corresponding span, its binary annotations, and its annotations. The latter
     is used for caching, to speed up the algorithm implemented as part of the function
     zipkin_trace_list_to_timelines.
-    
+
     @param zipkin_trace (dictionary): The representation of a Zipkin trace
-    
+
     @rtype: tuple(dictionary, list)
     @return: A tuple containing (1) the span-lookup table and (2) the sorted list of all
     annotations of all spans 
@@ -427,6 +427,7 @@ def process_cs_annotation(cs_ann, zipkin_span_dict, ip_to_name_lookup_table,
 
     if previous_event:
         if (  (previous_event[constants.EVENT_TYPE_STR] == constants.EVENT_PROCESS_REQUEST and
+               constants.PARENT_SPAN_ID_STR in event and
                previous_event[constants.SPAN_ID_STR] == event[constants.PARENT_SPAN_ID_STR]) or
               (previous_event[constants.EVENT_TYPE_STR] == constants.EVENT_PROCESS_RESPONSE and
                constants.PARENT_SPAN_ID_STR in previous_event and
@@ -669,6 +670,9 @@ def zipkin_trace_list_to_timelines(zipkin_trace_list):
     '''
     ret_val = []
     for zipkin_trace in zipkin_trace_list:
+        assert isinstance(zipkin_trace, list), "zipkin_trace is a {}".format(type(zipkin_trace))
+        assert isinstance(zipkin_trace[0], dict), "zipkin_trace[0] is a {}".format(type(zipkin_trace))
+
         # Get the trace id from the first span in the trace
         # All spans of a given trace will have the same trace id value
         trace_id = zipkin_trace[0][ZIPKIN_TRACEID_STR]

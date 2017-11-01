@@ -45,24 +45,26 @@ def get_next_reference_list_index(current_event_indices, event_list_and_sizes):
     # All events of all lists have been processed
     return None
 
-def can_be_aggregated(event_1, event_2):    
+def can_be_aggregated(event_1, event_2):
     if (event_1[responses.EVENT_TYPE_STR]   == event_2[responses.EVENT_TYPE_STR] and
         event_1[responses.INTERLOCUTOR_STR] == event_2[responses.INTERLOCUTOR_STR] and
         event_1[responses.REQUEST_URL_STR]  == event_2[responses.REQUEST_URL_STR] and
         event_1[responses.PROTOCOL_STR]     == event_2[responses.PROTOCOL_STR] and
         event_1[responses.USER_AGENT_STR]   == event_2[responses.USER_AGENT_STR]):
         return True
+
     return False
 
 def select_events_to_aggregate(current_event_indices, next_reference_list_index,
                                event_list_and_sizes):
+
     reference_event = event_list_and_sizes[next_reference_list_index]\
                                           [EVENT_LIST]\
                                           [current_event_indices[next_reference_list_index]]
     reference_event[TRACE_ID] = event_list_and_sizes[next_reference_list_index][TRACE_ID]
     events_to_aggregate = [reference_event]
     for i in range(len(current_event_indices)):
-        if (i != next_reference_list_index and 
+        if (i != next_reference_list_index and
             current_event_indices[i] != event_list_and_sizes[i][SIZE]):
             candidate_event = event_list_and_sizes[i]\
                                                   [EVENT_LIST]\
@@ -99,14 +101,26 @@ def select_events_to_aggregate(current_event_indices, next_reference_list_index,
 #     return (duration_distribution, timeout_distribution, error_count, timeout_count)
 
 def aggregate_events(events_to_aggregate):
+    '''
+    Produce a single Aggregate Event from a list of events.
+
+    @param events_to_aggregate ([{global_event_sequence_number:, duration:, request_size:, ...}])
+    @rtype: {type:, request:, interlocutor:, trace_ids:}
+    '''
+
     event_type = events_to_aggregate[0][responses.EVENT_TYPE_STR]
 
     event_stats = {
         responses.EVENT_TYPE_STR: event_type,
         responses.REQUEST_URL_STR: events_to_aggregate[0][responses.REQUEST_URL_STR],
         responses.INTERLOCUTOR_STR: events_to_aggregate[0][responses.INTERLOCUTOR_STR],
+        responses.SPAN_ID_STR: events_to_aggregate[0][responses.SPAN_ID_STR],                # represents all aggregrated events of this type for all
         responses.TRACE_IDS_STR: []
     }
+
+    if responses.PARENT_SPAN_ID_STR in events_to_aggregate[0]:
+        # represents all aggregated events of this type
+        event_stats[responses.PARENT_SPAN_ID_STR] = events_to_aggregate[0][responses.PARENT_SPAN_ID_STR]
 
     event_count = 0
     error_count = 0
@@ -183,7 +197,7 @@ def aggregate_events(events_to_aggregate):
     event_stats[responses.TIMEOUT_COUNT_STR] = timeout_count
     event_stats[responses.EVENT_COUNT_STR] = event_count
     event_stats[responses.RETRY_COUNT_STR] = retry_count
-    
+
     if timeout_distribution:
         avg_microseconds = statistics.mean(timeout_distribution)
         event_stats[responses.AVG_TIMEOUT_SEC_STR] = \
@@ -199,7 +213,7 @@ def detect_retries(event_list, coalesce=False):
     '''
     Coalesces "send_request" events and "process_response" events for the same URL and 
     destination that might suggest one or more retries after a timeout or HTTP error code
-    
+
     @param event_list (list): List of events corresponding to the timeline of one service
         The event_list object will be updated if there are events to be coalesced
     '''
@@ -246,7 +260,7 @@ def detect_retries(event_list, coalesce=False):
                     # one the event_list has one fewer element
                     del event_list[cur_index + 2]
                     del event_list[cur_index + 2]
-                    
+
                     coalesced_events = True
                 else:
                     # Flag the requests that were retried
@@ -264,6 +278,13 @@ def detect_retries(event_list, coalesce=False):
             cur_index += 1
 
 def compute_cluster_stats(grouped_traces_timelines):
+    '''
+    Create a colescesed trace for a single trace type
+
+    @param grouped_traces_timelines ({events_per_service: [], grouped_trace_ids: []}):
+    @rtype: [{service: , events: []}]
+    '''
+
     cluster_stats_list = []
     for service, events_lists in grouped_traces_timelines[EVENTS_PER_SERVICE_STR].items():
         cluster_stats = {
@@ -299,7 +320,7 @@ def compute_cluster_stats(grouped_traces_timelines):
         next_reference_list_index = \
             get_next_reference_list_index(current_event_indices, event_list_and_sizes)
         while next_reference_list_index != None:
-            events_to_aggregate = select_events_to_aggregate(current_event_indices, 
+            events_to_aggregate = select_events_to_aggregate(current_event_indices,
                                                              next_reference_list_index,
                                                              event_list_and_sizes)
             cluster_stats[responses.EVENTS_STR].append(aggregate_events(events_to_aggregate))
@@ -308,10 +329,11 @@ def compute_cluster_stats(grouped_traces_timelines):
                 get_next_reference_list_index(current_event_indices, event_list_and_sizes)
 
         cluster_stats_list.append(cluster_stats)
+
     return cluster_stats_list
 
 def cluster_traces(traces_timelines):
-    '''Given a list of timelines for multiple traces, groups the traces into clusters
+    '''Given a list of timelines for multiple traces, groups the traces into clusters.
 
     @param traces_timelines (list): List of traces' timelines as returned by
     istio_analytics_restapi.api.distributed_tracing.zipkin_util.zipkin_trace_list_to_timelines()
