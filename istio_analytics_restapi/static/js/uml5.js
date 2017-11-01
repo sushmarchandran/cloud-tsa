@@ -604,7 +604,6 @@ function addCommunication(data) {
                     t.append("tspan").attr("x", 100).text(prettyMicroseconds(d.duration.median, d.duration.max))
                     t.append("tspan").attr("x", 150).text(prettyMicroseconds(d.duration.third_quartile, d.duration.max))
                     t.append("tspan").attr("x", 200).text(prettyMicroseconds(d.duration.max))
-                    t.append("tspan").attr("x", 0).attr("dy", "1.2em").text("{count} request(s)".replace("{count}", d.duration.count))
                     t.append("tspan").attr("x", 0).attr("dy", "1.2em").text("{count} request(s)".replace("{count}", d.event_count))
                     t.attr("transform", function(innerd) {
                         return makeSVGTransform(
