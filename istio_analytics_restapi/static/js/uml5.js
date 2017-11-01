@@ -462,8 +462,8 @@ function addCommunication(data) {
         .attr("x1", outgoingProcessBoxEdge)
         .attr("x2", incomingProcessBoxEdge)
         .attr("y1", function(d) { return d.start * timeScale; })
-        .attr("stroke", function (d) {return d.timeout ? "lightblue" : ((bucketHttpStatusCode(d.response_code) == "50x" || bucketHttpStatusCode(d.response_code) == "40x") ? "red" : "black"); })
-        .attr("marker-end", function (d) { return d.timeout ? "url(#SolidTimeoutArrowhead)" : ((bucketHttpStatusCode(d.response_code) == "50x" || bucketHttpStatusCode(d.response_code) == "40x") ? "url(#SolidErrorArrowhead)" : "url(#SolidArrowhead)"); })
+        .attr("stroke", messageLabelFillColor)
+        .attr("marker-end", solidMessageMarkerEnd)
         .attr("y2", function(d) { return d.complete * timeScale; })
         .attr("visibility", function(d) { return (source(d) != target(d)) ? "visible" : "hidden"; });
 
@@ -483,9 +483,8 @@ function addCommunication(data) {
     messageArrows.exit().remove();
     messageArrows.transition().duration(0)
         .attr("points", selfRequestPoints)
-        .attr("stroke", function (d) {return d.timeout ? "lightblue" : ((bucketHttpStatusCode(d.response_code) == "50x" || bucketHttpStatusCode(d.response_code) == "40x") ? "red" : "black"); })
-        .attr("marker-end", function (d) { return d.timeout ? "url(#SolidTimeoutArrowhead)" : ((bucketHttpStatusCode(d.response_code) == "50x" || bucketHttpStatusCode(d.response_code) == "40x") ? "url(#SolidErrorArrowhead)" : "url(#SolidArrowhead)"); })
-
+        .attr("stroke", messageLabelFillColor)
+        .attr("marker-end", solidMessageMarkerEnd)
     var messageLabels = d3.select("#messageLabels")
     .selectAll(".messageLabel")
     .data(requests);
@@ -499,7 +498,7 @@ function addCommunication(data) {
     messageLabels.exit().remove();
     messageLabels.transition().duration(0)
         .text(function(d) { return d.request; })
-        .attr("stroke", function (d) {return d.timeout ? "lightblue" : ((bucketHttpStatusCode(d.response_code) == "50x" || bucketHttpStatusCode(d.response_code) == "40x") ? "red" : "black"); })
+        .attr("fill", messageLabelFillColor)
         .each(function (d) {
             // We can't do transition().on() so we use each() and do the on() there.
             // This is because 'data' is a closure and will be stale if we set on()
@@ -558,14 +557,14 @@ function addCommunication(data) {
         .on("click", function(d) {
             alert("Debug: This is global event " + d.global_event_sequence_number); // TODO remove
         })
-        .attr("marker-end", function(d) {return ((bucketHttpStatusCode(d.response_code) == "50x" || bucketHttpStatusCode(d.response_code) == "40x") ? "url(#OpenErrorArrowhead)" : "url(#OpenArrowhead)");});
+        .attr("marker-end", openMessageMarkerEnd)
     returnMessages.exit().remove();
     returnMessages.transition().duration(0)
         .attr("x1", outgoingProcessBoxEdge)
         .attr("x2", incomingProcessBoxEdge)
         .attr("y1", function(d) { return d.start * timeScale; })
         .attr("y2", function(d) { return d.complete * timeScale; })
-        .attr("stroke", function (d) {return d.timeout ? "lightblue" : ((bucketHttpStatusCode(d.response_code) == "50x" || bucketHttpStatusCode(d.response_code) == "40x") ? "red" : "black"); })
+        .attr("stroke", messageLabelFillColor)
         .attr("visibility", function(d) { return d.response_code != "0" ? "visible" : "hidden"; });
 
     // TODO use a transform so that we can draw at cs and it gets moved below processHeight and scaled
@@ -581,7 +580,7 @@ function addCommunication(data) {
     messageLabels.exit().remove();
     messageLabels.transition().duration(0)
         .text(function(d) { return responseCodes(d); })
-        .attr("stroke", function (d) {return d.timeout ? "lightblue" : ((bucketHttpStatusCode(d.response_code) == "50x" || bucketHttpStatusCode(d.response_code) == "40x") ? "red" : "black"); })
+        .attr("fill", messageLabelFillColor)
         .each(function (d) {
             // We can't do transition().on() so we use each() and do the on() there.
             // This is because 'data' is a closure and will be stale if we set on()
@@ -1009,22 +1008,39 @@ function boxplotPolylinePoints(longline, x, start, finish) {
 }
 
 // TODO replace this with adding a class so that we can use CSS to define colors
-function messageLabelFillColor(d) {
-    if (d.error_count > 0 && d.timeout_count) {
+function messageLabelFillColor(d)
+{
+  if (d.error_count > 0 && d.timeout_count > 0) {
         return "purple";
     }
 
-    if (d.error_count > 0) {
-        return "red";
-    }
-
-    if (d.timeout_count) {
+  if (d.error_count > 0) {
+      return "red";
+  }
+    if (d.timeout_count > 0) {
         return "lightblue";
     }
-
     return "black";
 }
+function solidMessageMarkerEnd(d) {
+    var colorToArrow = {
+        black: "url(#SolidArrowhead)",
+        red: "url(#SolidErrorArrowhead)",
+        purple: "url(#SolidErrorTimeoutArrowhead)",
+        lightblue: "url(#SolidTimeoutArrowhead)"
+      };
+    return colorToArrow[messageLabelFillColor(d)];
+  }
 
+function openMessageMarkerEnd(d) {
+      var colorToArrow = {
+          black: "url(#OpenArrowhead)",
+          red: "url(#OpenErrorArrowhead)",
+          purple: "url(#OpenErrorTimeoutArrowhead)",
+          lightblue: "url(#OpenTimeoutArrowhead)"
+        };
+      return colorToArrow[messageLabelFillColor(d)];
+    }
 function responseCodeToColor(responseCode) {
     // Server error
     if (responseCode >= 500) {
