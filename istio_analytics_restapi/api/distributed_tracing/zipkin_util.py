@@ -16,6 +16,7 @@ ZIPKIN_ANNOTATIONS_VALUE_STR = 'value'
 ZIPKIN_ANNOTATIONS_TIMESTAMP_STR = 'timestamp'
 ZIPKIN_ANNOTATIONS_ENDPOINT_STR = 'endpoint'
 ZIPKIN_ANNOTATIONS_ENDPOINT_IPV4_STR = 'ipv4'
+ZIPKIN_ANNOTATIONS_ENDPOINT_SERVICENAME_STR = 'serviceName'
 ZIPKIN_BINARY_ANNOTATIONS_STR = 'binaryAnnotations'
 ZIPKIN_BINARY_ANNOTATIONS_KEY_STR = 'key'
 ZIPKIN_BINARY_ANNOTATIONS_VALUE_STR = 'value'
@@ -264,7 +265,7 @@ def zipkin_trace_list_to_istio_analytics_trace_list(zipkin_trace_list):
 
     return ret_val
 
-def global_sort_annotations(zipkin_trace):
+def global_sort_annotations(zipkin_trace, span_filter):
     '''
     Given a Zipkin trace, this function produces (1) a list of all regular annotations of
     all its spans, globally sorted by timestamp, and (2) a lookup table, indexed by span id,
@@ -280,17 +281,21 @@ def global_sort_annotations(zipkin_trace):
     '''
     global_annotations = []
     span_dict = {}
+    
     for zipkin_span in zipkin_trace:
-        span_dict[zipkin_span[ZIPKIN_SPANID_STR]] = {
-            'zipkin_span': zipkin_span,
-            'binary_annotations': build_binary_annotation_dict(zipkin_span),
-            'annotations': build_annotation_dict(zipkin_span)
-        }
+        if span_filter.filter(zipkin_span) == False:
+            continue
+	    
         for annotation in zipkin_span.get(ZIPKIN_ANNOTATIONS_STR, []):
             global_annotations.append({
                 'span_id': zipkin_span[ZIPKIN_SPANID_STR],
                 'annotation': annotation
             })
+        span_dict[zipkin_span[ZIPKIN_SPANID_STR]] = {
+            'zipkin_span': zipkin_span,
+            'binary_annotations': build_binary_annotation_dict(zipkin_span),
+            'annotations': build_annotation_dict(zipkin_span)
+        }
 
     sorted_global_annotations = sorted(global_annotations, key=lambda d:
                                        d['annotation'][ZIPKIN_ANNOTATIONS_TIMESTAMP_STR])
@@ -432,7 +437,7 @@ def process_cs_annotation(cs_ann, zipkin_span_dict, ip_to_name_lookup_table,
     update_events_per_span(events_per_span, event, span_id, constants.EVENT_SEND_REQUEST)
 
     if previous_event:
-        if (  (previous_event[constants.EVENT_TYPE_STR] == constants.EVENT_PROCESS_REQUEST and
+        if ((previous_event[constants.EVENT_TYPE_STR] == constants.EVENT_PROCESS_REQUEST and
                constants.PARENT_SPAN_ID_STR in event and
                previous_event[constants.SPAN_ID_STR] == event[constants.PARENT_SPAN_ID_STR]) or
               (previous_event[constants.EVENT_TYPE_STR] == constants.EVENT_PROCESS_RESPONSE and
@@ -442,14 +447,14 @@ def process_cs_annotation(cs_ann, zipkin_span_dict, ip_to_name_lookup_table,
             # If this event follows either a process_request event of a parent span,
             #   or a process_response event at the same level,
             # then set the previous event duration
-            previous_event_duration = (event[constants.TIMESTAMP_STR] -
+            previous_event_duration = (event[constants.TIMESTAMP_STR] - 
                                        previous_event[constants.TIMESTAMP_STR])
             previous_event[constants.DURATION_STR] = previous_event_duration
 
     # Return the send_request event created here
     return event
 
-def process_sr_annotation(sr_ann, zipkin_span_dict, ip_to_name_lookup_table, 
+def process_sr_annotation(sr_ann, zipkin_span_dict, ip_to_name_lookup_table,
                           events_per_service, events_per_span, event_sequence_number):
     '''
     Processes an SR annotation to create a process_request event.
@@ -576,28 +581,28 @@ def process_ss_annotation(ss_ann, zipkin_span_dict, ip_to_name_lookup_table,
     update_events_per_span(events_per_span, event, span_id, constants.EVENT_SEND_RESPONSE)
 
     if previous_event:
-        if (  (previous_event[constants.EVENT_TYPE_STR] == constants.EVENT_PROCESS_REQUEST and
+        if ((previous_event[constants.EVENT_TYPE_STR] == constants.EVENT_PROCESS_REQUEST and
                previous_event[constants.SPAN_ID_STR] == event[constants.SPAN_ID_STR]) or
 
               (previous_event[constants.EVENT_TYPE_STR] == constants.EVENT_PROCESS_RESPONSE and
                constants.PARENT_SPAN_ID_STR in previous_event and
                previous_event[constants.PARENT_SPAN_ID_STR] == event[constants.SPAN_ID_STR] and 
                events_per_span[previous_event[constants.SPAN_ID_STR]]
-                              [constants.EVENT_SEND_REQUEST][constants.TIMESTAMP_STR] >
+                              [constants.EVENT_SEND_REQUEST][constants.TIMESTAMP_STR] > 
                events_per_span[event[constants.SPAN_ID_STR]]
                               [constants.EVENT_SEND_REQUEST][constants.TIMESTAMP_STR])
            ):
             # If this event follows either a process_request event of the same span,
             #   or a process_response event of a later child span
             # then set the previous event duration
-            previous_event_duration = (event[constants.TIMESTAMP_STR] -
+            previous_event_duration = (event[constants.TIMESTAMP_STR] - 
                                        previous_event[constants.TIMESTAMP_STR])
             previous_event[constants.DURATION_STR] = previous_event_duration
 
     # Return the send_response event created here
     return event
 
-def process_cr_annotation(cr_ann, zipkin_span_dict, ip_to_name_lookup_table, 
+def process_cr_annotation(cr_ann, zipkin_span_dict, ip_to_name_lookup_table,
                           events_per_service, events_per_span, event_sequence_number):
     '''
     Processes a CR annotation to create a process_response event.
@@ -687,9 +692,13 @@ def zipkin_trace_list_to_timelines(zipkin_trace_list):
             constants.TRACE_ID_STR: trace_id,
             constants.REQUEST_URL_STR: get_trace_root_request(zipkin_trace)
         }
+        
+        # Specify the spans that should be filtered out
+        span_filter = Zipkin_Span_Filter()
+        span_filter.add_service("istio-mixer")
 
         # Sort all annotations of the trace globally
-        zipkin_span_dict, sorted_annotations = global_sort_annotations(zipkin_trace)
+        zipkin_span_dict, sorted_annotations = global_sort_annotations(zipkin_trace, span_filter)
 
         # Events per service; the keys of this dictionary are service names;
         # each value contains a service name and an array of events
@@ -727,13 +736,13 @@ def zipkin_trace_list_to_timelines(zipkin_trace_list):
             elif annotation['annotation']\
                            [ZIPKIN_ANNOTATIONS_VALUE_STR] == ZIPKIN_SS_ANNOTATION:
                 current_event = process_ss_annotation(annotation, zipkin_span_dict,
-                                                      ip_to_name_lookup_table, 
-                                                      events_per_service, 
+                                                      ip_to_name_lookup_table,
+                                                      events_per_service,
                                                       events_per_span, previous_event,
                                                       event_sequence_number)
             elif annotation['annotation']\
                            [ZIPKIN_ANNOTATIONS_VALUE_STR] == ZIPKIN_CR_ANNOTATION:
-                current_event = process_cr_annotation(annotation,  zipkin_span_dict,
+                current_event = process_cr_annotation(annotation, zipkin_span_dict,
                                                       ip_to_name_lookup_table,
                                                       events_per_service, events_per_span,
                                                       event_sequence_number)
@@ -752,3 +761,18 @@ def zipkin_trace_list_to_timelines(zipkin_trace_list):
         ret_val.append(trace_timelines)
 
     return ret_val
+
+class Zipkin_Span_Filter:
+    # Currently just filter out spans according to their service names
+    def __init__(self):
+        self.service_names = []
+        
+    def add_service(self, service_name):
+        self.service_names.append(service_name)
+        
+    def filter(self, zipkin_span):
+        for name in self.service_names:
+            if zipkin_span[ZIPKIN_ANNOTATIONS_STR][0][ZIPKIN_ANNOTATIONS_ENDPOINT_STR]\
+                [ZIPKIN_ANNOTATIONS_ENDPOINT_SERVICENAME_STR] == name:
+                return False
+        return True
