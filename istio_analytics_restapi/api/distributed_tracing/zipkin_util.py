@@ -697,8 +697,12 @@ def zipkin_trace_list_to_timelines(zipkin_trace_list):
         span_filter = Zipkin_Span_Filter()
         span_filter.add_service("istio-mixer")
 
-        # Sort all annotations of the trace globally
+        # Sort all annotations of the trace globally and filter out the spans speified in the filter
         zipkin_span_dict, sorted_annotations = global_sort_annotations(zipkin_trace, span_filter)
+        # If there is no span left in the trace, then the zipkin_span_dict is empty.
+        # We need to skip the processing of this trace in the rest of the loop.
+        if len(zipkin_span_dict) == 0:
+            continue
 
         # Events per service; the keys of this dictionary are service names;
         # each value contains a service name and an array of events
