@@ -184,7 +184,7 @@ def zipkin_trace_list_to_istio_analytics_trace_list(zipkin_trace_list):
             # Process each regular annotation of the span
             for annotation in annotations:
                 ip_address = annotation[ZIPKIN_ANNOTATIONS_ENDPOINT_STR]\
-                                       [ZIPKIN_ANNOTATIONS_ENDPOINT_IPV4_STR] 
+                                       .get(ZIPKIN_ANNOTATIONS_ENDPOINT_IPV4_STR, 'NO-IP')
 
                 # Set IP and name for source and target based on the current annotation being processed
                 if annotation[ZIPKIN_ANNOTATIONS_VALUE_STR] == ZIPKIN_CS_ANNOTATION:
@@ -378,7 +378,7 @@ def process_cs_annotation(cs_ann, zipkin_span_dict, ip_to_name_lookup_table,
     bin_ann_dict = zipkin_span_dict[span_id]['binary_annotations']
 
     ip_address = cs_ann['annotation'][ZIPKIN_ANNOTATIONS_ENDPOINT_STR]\
-                       [ZIPKIN_ANNOTATIONS_ENDPOINT_IPV4_STR]
+                       .get(ZIPKIN_ANNOTATIONS_ENDPOINT_IPV4_STR, 'NO-IP')
     if ip_address not in ip_to_name_lookup_table:
         # This is the root span of the trace
         node_id = get_binary_annotation_value(bin_ann_dict,
@@ -466,7 +466,7 @@ def process_sr_annotation(sr_ann, zipkin_span_dict, ip_to_name_lookup_table,
     bin_ann_dict = zipkin_span_dict[span_id]['binary_annotations']
 
     ip_address = sr_ann['annotation'][ZIPKIN_ANNOTATIONS_ENDPOINT_STR]\
-                       [ZIPKIN_ANNOTATIONS_ENDPOINT_IPV4_STR]
+                       .get(ZIPKIN_ANNOTATIONS_ENDPOINT_IPV4_STR, 'NO-IP')
 
     if not ip_address in ip_to_name_lookup_table:
         ip_to_name_lookup_table[ip_address] = zipkin_span[ZIPKIN_NAME_STR].split(':')[0]
@@ -543,7 +543,7 @@ def process_ss_annotation(ss_ann, zipkin_span_dict, ip_to_name_lookup_table,
         return None
 
     ip_address = ss_ann['annotation'][ZIPKIN_ANNOTATIONS_ENDPOINT_STR]\
-                       [ZIPKIN_ANNOTATIONS_ENDPOINT_IPV4_STR]
+                       .get(ZIPKIN_ANNOTATIONS_ENDPOINT_IPV4_STR, 'NO-IP')
 
     service_name = ip_to_name_lookup_table[ip_address]
 
@@ -615,7 +615,7 @@ def process_cr_annotation(cr_ann, zipkin_span_dict, ip_to_name_lookup_table,
     bin_ann_dict = zipkin_span_dict[span_id]['binary_annotations']
 
     ip_address = cr_ann['annotation'][ZIPKIN_ANNOTATIONS_ENDPOINT_STR]\
-                       [ZIPKIN_ANNOTATIONS_ENDPOINT_IPV4_STR]
+                       .get(ZIPKIN_ANNOTATIONS_ENDPOINT_IPV4_STR, 'NO-IP')
 
     service_name = ip_to_name_lookup_table[ip_address]
 
