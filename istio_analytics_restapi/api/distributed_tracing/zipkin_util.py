@@ -236,9 +236,6 @@ def zipkin_trace_list_to_istio_analytics_trace_list(zipkin_trace_list):
                 get_binary_annotation_value(bin_ann_dict,
                                             BINARY_ANNOTATION_USER_AGENT_STR)
 
-            print("@@@ ecs bin_ann_dict is {}".format(bin_ann_dict))
-            print("@@@ ecs annotations is {}".format(annotations))
-
             request_info = [
                 get_binary_annotation_value(bin_ann_dict, 'http.method', 'NO-METHOD'),
                 get_binary_annotation_value(bin_ann_dict, 'http.url', 'NO-URL'),

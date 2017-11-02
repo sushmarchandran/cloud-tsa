@@ -22,6 +22,18 @@ def main():
     json_file = sys.argv[1]
     json_data = open(json_file)
     zipkin_trace_list = json.load(json_data)
+
+    # Verify that this is traces, not spans
+    if not isinstance(zipkin_trace_list, list):
+        sys.stderr.write('filename not a list of traces\n')
+        return 1
+    if not isinstance(zipkin_trace_list[0], list):
+        sys.stderr.write('filename not a list of traces (perhaps it is spans)\n')
+        return 1
+    if 'traceId' not in zipkin_trace_list[0][0]:
+        sys.stderr.write('filename not a list of traces (no traceId)\n')
+        return 1
+
     # zipkin_span_list = json.load(json_data)
     # zipkin_trace_list = [zipkin_span_list]
     assert isinstance(zipkin_trace_list, list), "file should contain a Zipkin trace but zipkin_trace_list is a {}".format(type(zipkin_trace_list))
