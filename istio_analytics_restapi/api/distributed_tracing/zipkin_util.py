@@ -236,10 +236,19 @@ def zipkin_trace_list_to_istio_analytics_trace_list(zipkin_trace_list):
                 get_binary_annotation_value(bin_ann_dict,
                                             BINARY_ANNOTATION_USER_AGENT_STR)
 
-            request_info = \
-                get_binary_annotation_value(bin_ann_dict,
-                                            BINARY_ANNOTATION_REQUEST_LINE_STR,
-                                            "NO-METHOD NO-URL NO-PROTOCOL").split(' ')
+            print("@@@ ecs bin_ann_dict is {}".format(bin_ann_dict))
+            print("@@@ ecs annotations is {}".format(annotations))
+
+            request_info = [
+                get_binary_annotation_value(bin_ann_dict, 'http.method', 'NO-METHOD'),
+                get_binary_annotation_value(bin_ann_dict, 'http.url', 'NO-URL'),
+                get_binary_annotation_value(bin_ann_dict, 'http.protocol', 'NO-PROTCOL')
+                ]
+            if request_info[0] == 'NO-METHOD':
+                request_info = \
+                    get_binary_annotation_value(bin_ann_dict,
+                                                BINARY_ANNOTATION_REQUEST_LINE_STR,
+                                                "NO-METHOD NO-URL NO-PROTOCOL").split(' ')
             istio_analytics_span[constants.REQUEST_URL_STR] = ' '.join(request_info[0:2])
             istio_analytics_span[constants.PROTOCOL_STR] = request_info[2]
 
