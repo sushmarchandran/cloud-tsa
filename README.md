@@ -38,7 +38,7 @@ Prerequisite: [docker-compose](https://docs.docker.com/compose/install/)
 To build and run the istio-analytics server and zipkin server contianers on docker platform using docker-compose:
 
 ```bash
-cd script/
+cd scripts/
 docker-compose up -d
 ```
 
