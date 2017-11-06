@@ -33,14 +33,16 @@ Make sure to run the script `run_tests.sh` from inside the development VM that c
 
 ### Preferred approach: Docker
 
-First, you need to follow the instructions in [dev_env](https://github.ibm.com/istio-analytics/dev_env/) to stand up a development environment and Zipkin instance with test data.
-
-The preferred way to run Istio Analytics inside the development VM is via Docker. You need to build the `istio_analytics` Docker image and start the container. You can do so by running the following commands:
+Prerequisite: 
+[docker-compose](https://docs.docker.com/compose/install/)
+To build and run the istio-analytics server and zipkin server contianers on docker platform using docker-compose:
 
 ```bash
-sudo /istio-analytics/restapi_server/scripts/buildDocker.sh
-sudo /istio-analytics/restapi_server/scripts/runDocker.sh
+cd script/
+docker-compose up -d
 ```
+
+After this, please follow the [instructions](https://github.ibm.com/istio-analytics/dev_env#populating-zipkin)to populate Zipkin server with trace date.
 
 ### Alternative approach
 
