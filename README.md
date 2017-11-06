@@ -42,7 +42,7 @@ cd script/
 docker-compose up -d
 ```
 
-After this, please follow the [instructions](https://github.ibm.com/istio-analytics/dev_env#populating-zipkin) to populate Zipkin server with trace date.
+After this, please follow the [instructions](https://github.ibm.com/istio-analytics/dev_env#populating-zipkin) to populate Zipkin server with trace data.
 
 ### Alternative approach
 
