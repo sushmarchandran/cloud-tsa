@@ -33,8 +33,8 @@ Make sure to run the script `run_tests.sh` from inside the development VM that c
 
 ### Preferred approach: Docker
 
-Prerequisite: 
-[docker-compose](https://docs.docker.com/compose/install/)
+Prerequisite: [docker-compose](https://docs.docker.com/compose/install/)
+
 To build and run the istio-analytics server and zipkin server contianers on docker platform using docker-compose:
 
 ```bash
@@ -42,11 +42,12 @@ cd script/
 docker-compose up -d
 ```
 
-After this, please follow the [instructions](https://github.ibm.com/istio-analytics/dev_env#populating-zipkin)to populate Zipkin server with trace date.
+After this, please follow the [instructions](https://github.ibm.com/istio-analytics/dev_env#populating-zipkin) to populate Zipkin server with trace date.
 
 ### Alternative approach
 
 As an alternative, you can also run the following script to start Istio Analytics locally:
+
 ```bash
 ./scripts/localRunServer.sh
 ```
