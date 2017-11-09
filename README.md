@@ -35,7 +35,7 @@ Make sure to run the script `run_tests.sh` from inside the development VM that c
 
 Prerequisite: [docker-compose](https://docs.docker.com/compose/install/)
 
-To build and run the istio-analytics server and zipkin server contianers on docker platform using docker-compose:
+To build and run the istio-analytics server and zipkin server containers on docker platform using docker-compose:
 
 ```bash
 cd scripts/
