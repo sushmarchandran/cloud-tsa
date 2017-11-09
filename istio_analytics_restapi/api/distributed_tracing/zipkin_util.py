@@ -388,16 +388,18 @@ def process_cs_annotation(cs_ann, zipkin_span_dict, ip_to_name_lookup_table,
     ann_dict = zipkin_span_dict[span_id]['annotations']
     bin_ann_dict = zipkin_span_dict[span_id]['binary_annotations']
 
-    ip_address = cs_ann['annotation'][ZIPKIN_ANNOTATIONS_ENDPOINT_STR]\
+    service_name = cs_ann['annotation'][ZIPKIN_ANNOTATIONS_ENDPOINT_STR]\
+                       .get(ZIPKIN_ANNOTATIONS_ENDPOINT_SERVICENAME_STR)
+                       
+    if service_name == "istio-proxy":
+        ip_address = cs_ann['annotation'][ZIPKIN_ANNOTATIONS_ENDPOINT_STR]\
                        .get(ZIPKIN_ANNOTATIONS_ENDPOINT_IPV4_STR, 'NO-IP')
-    if ip_address not in ip_to_name_lookup_table:
+        if ip_address not in ip_to_name_lookup_table:
         # This is the root span of the trace
-        node_id = get_binary_annotation_value(bin_ann_dict,
+            node_id = get_binary_annotation_value(bin_ann_dict,
                                               BINARY_ANNOTATION_NODE_ID_STR)
-        ip_to_name_lookup_table[ip_address] = node_id
+            ip_to_name_lookup_table[ip_address] = node_id
 
-        service_name = ip_to_name_lookup_table[ip_address]
-    else:
         service_name = ip_to_name_lookup_table[ip_address]
 
     if not service_name in events_per_service:
@@ -411,7 +413,12 @@ def process_cs_annotation(cs_ann, zipkin_span_dict, ip_to_name_lookup_table,
     event = initialize_event(zipkin_span, cs_ann['annotation'], bin_ann_dict,
                              event_sequence_number)
     event[constants.EVENT_TYPE_STR] = constants.EVENT_SEND_REQUEST
-    event[constants.INTERLOCUTOR_STR] = zipkin_span[ZIPKIN_NAME_STR].split(':')[0]
+    
+    event[constants.INTERLOCUTOR_STR] = ann_dict.get(ZIPKIN_SS_ANNOTATION, {})\
+                                                .get(ZIPKIN_ANNOTATIONS_ENDPOINT_STR, {})\
+                                                .get(ZIPKIN_ANNOTATIONS_ENDPOINT_SERVICENAME_STR, "istio-proxy")
+    if event[constants.INTERLOCUTOR_STR] == "istio-proxy":
+        event[constants.INTERLOCUTOR_STR] = zipkin_span[ZIPKIN_NAME_STR].split(':')[0]
 
     if get_binary_annotation_value(bin_ann_dict,
                                    BINARY_ANNOTATION_RESPONSE_CODE_STR) == '0':
@@ -475,14 +482,18 @@ def process_sr_annotation(sr_ann, zipkin_span_dict, ip_to_name_lookup_table,
     zipkin_span = zipkin_span_dict[span_id]['zipkin_span']
     ann_dict = zipkin_span_dict[span_id]['annotations']
     bin_ann_dict = zipkin_span_dict[span_id]['binary_annotations']
+    
+    service_name = sr_ann['annotation'][ZIPKIN_ANNOTATIONS_ENDPOINT_STR]\
+                       .get(ZIPKIN_ANNOTATIONS_ENDPOINT_SERVICENAME_STR)
 
-    ip_address = sr_ann['annotation'][ZIPKIN_ANNOTATIONS_ENDPOINT_STR]\
+    if service_name == "istio-proxy":
+        ip_address = sr_ann['annotation'][ZIPKIN_ANNOTATIONS_ENDPOINT_STR]\
                        .get(ZIPKIN_ANNOTATIONS_ENDPOINT_IPV4_STR, 'NO-IP')
 
-    if not ip_address in ip_to_name_lookup_table:
-        ip_to_name_lookup_table[ip_address] = zipkin_span[ZIPKIN_NAME_STR].split(':')[0]
+        if not ip_address in ip_to_name_lookup_table:
+            ip_to_name_lookup_table[ip_address] = zipkin_span[ZIPKIN_NAME_STR].split(':')[0]
 
-    service_name = ip_to_name_lookup_table[ip_address]
+        service_name = ip_to_name_lookup_table[ip_address]
 
     if not service_name in events_per_service:
         # Initialize the events data structure for this service
@@ -496,12 +507,18 @@ def process_sr_annotation(sr_ann, zipkin_span_dict, ip_to_name_lookup_table,
                              event_sequence_number)
     event[constants.EVENT_TYPE_STR] = constants.EVENT_PROCESS_REQUEST
 
-    cs_ip_address = ann_dict.get(ZIPKIN_CS_ANNOTATION, {})\
+    event[constants.INTERLOCUTOR_STR] = ann_dict.get(ZIPKIN_CS_ANNOTATION, {})\
+                                        .get(ZIPKIN_ANNOTATIONS_ENDPOINT_STR)\
+                                        .get(ZIPKIN_ANNOTATIONS_ENDPOINT_SERVICENAME_STR, "istio-proxy")
+                                        
+    if event[constants.INTERLOCUTOR_STR] == "istio-proxy":                     
+        cs_ip_address = ann_dict.get(ZIPKIN_CS_ANNOTATION, {})\
                             .get(ZIPKIN_ANNOTATIONS_ENDPOINT_STR, {})\
                             .get(ZIPKIN_ANNOTATIONS_ENDPOINT_IPV4_STR, "NO-IP")
-    if cs_ip_address == 'NO-IP':
-        log.warn("Could not find cs IP address in {annotations}".format(annotations=ann_dict))
-    event[constants.INTERLOCUTOR_STR] = ip_to_name_lookup_table.get(cs_ip_address, "NO-NAME")
+                            
+        if cs_ip_address == 'NO-IP':
+            log.warn("Could not find cs IP address in {annotations}".format(annotations=ann_dict))
+        event[constants.INTERLOCUTOR_STR] = ip_to_name_lookup_table.get(cs_ip_address, "NO-NAME")
 
     # Add the new event to the list of events of the service receiving the call
     events_per_service[service_name][constants.EVENTS_STR].append(event)
@@ -553,22 +570,29 @@ def process_ss_annotation(ss_ann, zipkin_span_dict, ip_to_name_lookup_table,
         # We do not create a send_response event when the send_request event times out
         return None
 
-    ip_address = ss_ann['annotation'][ZIPKIN_ANNOTATIONS_ENDPOINT_STR]\
+    service_name = ss_ann['annotation'][ZIPKIN_ANNOTATIONS_ENDPOINT_STR]\
+                       .get(ZIPKIN_ANNOTATIONS_ENDPOINT_SERVICENAME_STR)
+    if service_name == "istio-proxy":
+        ip_address = ss_ann['annotation'][ZIPKIN_ANNOTATIONS_ENDPOINT_STR]\
                        .get(ZIPKIN_ANNOTATIONS_ENDPOINT_IPV4_STR, 'NO-IP')
 
-    service_name = ip_to_name_lookup_table[ip_address]
+        service_name = ip_to_name_lookup_table[ip_address]
 
     # Create a new send_response event
     event = initialize_event(zipkin_span, ss_ann['annotation'], bin_ann_dict,
                              event_sequence_number)
     event[constants.EVENT_TYPE_STR] = constants.EVENT_SEND_RESPONSE
 
-    cs_ip_address = ann_dict.get(ZIPKIN_CS_ANNOTATION, {})\
+    event[constants.INTERLOCUTOR_STR] = ann_dict.get(ZIPKIN_CS_ANNOTATION, {})\
+                                                .get(ZIPKIN_ANNOTATIONS_ENDPOINT_STR, {})\
+                                                .get(ZIPKIN_ANNOTATIONS_ENDPOINT_SERVICENAME_STR, "istio-proxy")
+    if event[constants.INTERLOCUTOR_STR] == "istio-proxy":
+        cs_ip_address = ann_dict.get(ZIPKIN_CS_ANNOTATION, {})\
                             .get(ZIPKIN_ANNOTATIONS_ENDPOINT_STR, {})\
                             .get(ZIPKIN_ANNOTATIONS_ENDPOINT_IPV4_STR, "NO-IP")
-    if cs_ip_address == 'NO-IP':
-        log.warn("Could not find cs IP address in {annotations}".format(annotations=ann_dict))
-    event[constants.INTERLOCUTOR_STR] = ip_to_name_lookup_table.get(cs_ip_address, "NO-NAME")
+        if cs_ip_address == 'NO-IP':
+            log.warn("Could not find cs IP address in {annotations}".format(annotations=ann_dict))
+        event[constants.INTERLOCUTOR_STR] = ip_to_name_lookup_table.get(cs_ip_address, "NO-NAME")
 
     if ZIPKIN_CR_ANNOTATION in ann_dict:
         # Set the duration of the new send_response event
@@ -625,10 +649,13 @@ def process_cr_annotation(cr_ann, zipkin_span_dict, ip_to_name_lookup_table,
     ann_dict = zipkin_span_dict[span_id]['annotations']
     bin_ann_dict = zipkin_span_dict[span_id]['binary_annotations']
 
-    ip_address = cr_ann['annotation'][ZIPKIN_ANNOTATIONS_ENDPOINT_STR]\
+    service_name = cr_ann['annotation'][ZIPKIN_ANNOTATIONS_ENDPOINT_STR]\
+                       .get(ZIPKIN_ANNOTATIONS_ENDPOINT_SERVICENAME_STR)
+    if service_name == "istio-proxy":
+        ip_address = cr_ann['annotation'][ZIPKIN_ANNOTATIONS_ENDPOINT_STR]\
                        .get(ZIPKIN_ANNOTATIONS_ENDPOINT_IPV4_STR, 'NO-IP')
 
-    service_name = ip_to_name_lookup_table[ip_address]
+        service_name = ip_to_name_lookup_table[ip_address]
 
     # Create a new process_response event
     event = initialize_event(zipkin_span, cr_ann['annotation'], bin_ann_dict,
@@ -642,7 +669,11 @@ def process_cr_annotation(cr_ann, zipkin_span_dict, ip_to_name_lookup_table,
         cr_ann_time = cr_ann['annotation'][ZIPKIN_ANNOTATIONS_TIMESTAMP_STR]
         event[constants.TIMEOUT_STR] = cr_ann_time - cs_ann_time
 
-    event[constants.INTERLOCUTOR_STR] = zipkin_span[ZIPKIN_NAME_STR].split(':')[0]
+    event[constants.INTERLOCUTOR_STR] = ann_dict.get(ZIPKIN_SS_ANNOTATION, {})\
+                                                .get(ZIPKIN_ANNOTATIONS_ENDPOINT_STR, {})\
+                                                .get(ZIPKIN_ANNOTATIONS_ENDPOINT_SERVICENAME_STR, "istio-proxy")
+    if event[constants.INTERLOCUTOR_STR] == "istio-proxy":
+        event[constants.INTERLOCUTOR_STR] = zipkin_span[ZIPKIN_NAME_STR].split(':')[0]
 
     # Add the new event to the list of events of the service receiving the response
     events_per_service[service_name][constants.EVENTS_STR].append(event)
