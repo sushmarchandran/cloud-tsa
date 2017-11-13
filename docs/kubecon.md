@@ -11,7 +11,7 @@ Make sure you have [Docker](https://www.docker.com/) installed on your laptop.
 Then, follow these steps:
 
 1. If you do not have Docker Compose installed, follow the 
-[Docker Compose installation instructions for your OS](https://docs.docker.com/compose/install/).
+[Docker Compose installation instructions](https://docs.docker.com/compose/install/) for your OS.
 
 2.  Clone the GitHub repository `git@github.ibm.com:istio-analytics/restapi_server.git`
 
