@@ -23,7 +23,7 @@ docker-compose up -d
 ``` 
 
 4. Verify that Zipkin is ready by pointing your browser to Zipkin's UI at 
-[localhost:9411](localhost:9411). If may take a few seconds for Zipkin to get started.
+[http://localhost:9411](http://localhost:9411). If may take a few seconds for Zipkin to get started.
 
 5. Clone the GitHub repository containing Zipkin traces we will use to populate Zipkin.
 This repository is `git@github.ibm.com:istio-analytics/dev_env.git`.
