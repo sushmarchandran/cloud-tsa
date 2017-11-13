@@ -1,4 +1,4 @@
-# Instructions to run Istio Analytics demos for KubeCon
+# Instructions to run Istio Analytics demos at KubeCon
 
 ## Start the Istio Analytics server locally
 
