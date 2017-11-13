@@ -5,35 +5,41 @@
 function units(d) {
     return d.type
 }
- 
-var margin = {top: 10, right: 10, bottom: 10, left: 10},
-    width = 1200 - margin.left - margin.right,
-    height = 1000 - margin.top - margin.bottom;
+
+// TODO the width and height should come from the <svg> node, not JavaScript.
+var margin = {top: 10, right: 10, bottom: 10, left: 10};
 
 var formatNumber = d3.format(",.0f"),    // zero decimal places
     format = function(d) { return formatNumber(d); },
     color = d3.scaleOrdinal(d3.schemeCategory20);
 
-// TODO These should not be global (but are needed currently for dragmove())
-// Set the sankey diagram properties
-var sankey = d3.sankey()
-    .nodeWidth(36)
-    .nodePadding(10)
-    .size([width, height * 0.67]);
-var svg;
-
-var path = sankey.link(); // path is a function
-
 function prepareSankey(chartId, $scope) {
-    svg = d3.select(chartId)
-        .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom)
+    var rawSVG = d3.select(chartId);
+    var width = rawSVG.attr("width") - margin.left - margin.right;
+    var height = rawSVG.attr("height") - margin.top - margin.bottom;
+
+    // Create a canvas within the margins
+    var svg = rawSVG
         .append("g")
+            .attr("class", "sankey_canvas")
             .attr("transform", 
                     "translate(" + margin.left + "," + margin.top + ")");
+
+    var sankey = d3.sankey()
+        .nodeWidth(36)
+        .nodePadding(10)
+        .size([width, height * 0.67]);
+
+    // Save our global variables so we can use them in showSankey()
+    return { rawSVG: rawSVG, svg: svg, sankey: sankey };
 }
 
 function showSankey(traceList, context) {
+    var sankey = context.sankey;
+    var path = sankey.link(); // path is a function
+
+    var rawSVG = context.rawSVG;
+    var svg = context.svg;
 
     // At this point convert traceList into nodes and links.
     // nodes is a list of {name:<string>}
@@ -66,29 +72,40 @@ function showSankey(traceList, context) {
       .links(graph.links)
       .layout(32);
 
-// add in the links
-  var link = svg.append("g").selectAll(".link")
+    // Remove any previously created graphs
+    svg.selectAll(".link").remove();
+    svg.selectAll(".node").remove();
+
+    // add in the links
+    var link = svg.selectAll(".link")
       .data(graph.links)
     .enter().append("path")
-      .attr("class", function(d) { return d.type + "_link" })
-      .attr("d", path)  // The d attribute is a string containing a series of path descriptions
-      .style("stroke-width", function(d) { return Math.max(1, d.dy); })
-      .sort(function(a, b) { return b.dy - a.dy; });
+        // Set two classes, "link" (so we can find all the links) and
+        // "normal_link" (so we can get CSS attributes specific to the type normal/bad_codes/timeout)
+        .attr("class", function(d) { return "link " + d.type + "_link" })
+        .attr("d", path)  // The d attribute is a string containing a series of path descriptions
+        .style("stroke-width", function(d) { return Math.max(1, d.dy); })
+        .sort(function(a, b) { return b.dy - a.dy; });
 
-// add the link titles
-  link.append("title")
+    // add the link titles
+    link.append("title")
         .text(function(d) {
         return d.source.name + " → " + 
                 d.target.name + "\n" + format(d.value) + " " + d.type; });
- 
-// add in the nodes
-  var node = svg.append("g").selectAll(".node")
+
+    // add in the nodes
+    var node = svg.selectAll(".node")
       .data(graph.nodes)
     .enter().append("g")
       .attr("class", "node")
-      .attr("transform", function(d) { 
-          return "translate(" + d.x + "," + d.y + ")"; });
-  // TODO add D3 V4 drag support
+      .attr("transform", function(d) {
+          return "translate(" + d.x + "," + d.y + ")"; })
+      .call(d3.drag()
+          .on("start", function() {
+              this.parentNode.appendChild(this); // TODO use raise() like https://bl.ocks.org/d3noob/204d08d309d2b2903e12554b0aef6a4d
+          })
+          .on("drag", dragmove)
+      );
  
 // add the rectangles for the nodes
   node.append("rect")
@@ -104,27 +121,31 @@ function showSankey(traceList, context) {
 
   // add the title for the nodes
   node.append("text")
-      .attr("x", -6)
-      .attr("y", function(d) { return d.dy / 2; })
-      .attr("dy", ".35em")
-      .attr("text-anchor", "end")
-      .attr("transform", null)
+      //.attr("y", function(d) { return d.dy / 2; })
+      // .attr("dy", ".35em")
+      .attr("transform", function(d) {
+          return "rotate(-90) translate({x} {y})"
+              .replace("{y}", sankey.nodeWidth()/2)
+              .replace("{x}", d.dy / -2);
+      })
       .text(function(d) { return d.name; })
-      .filter(function(d) { return d.x < width / 2; })
-      .attr("x", 6 + sankey.nodeWidth())
-      .attr("text-anchor", "start");
-}
+      //.attr("x", 0)
+      .attr("text-anchor", "middle")
+      .attr("alignment-baseline", "middle");
 
-// the function for moving the nodes
-function dragmove(d) {
-    d3.select(this).attr("transform",
-        "translate(" + (
-               d.x = Math.max(0, Math.min(width - d.dx, d3.event.x))
-            ) + "," + (
-                   d.y = Math.max(0, Math.min(height - d.dy, d3.event.y))
-            ) + ")");
-    sankey.relayout();
-    link.attr("d", path);
+    // The function for moving the nodes
+    function dragmove(d) {
+      // Move the node
+      d3.select(this).attr("transform",
+          "translate(" + (
+                 d.x = Math.max(0, Math.min(rawSVG.attr("width") - d.dx, d3.event.x))
+              ) + "," + (
+                     d.y = Math.max(0, Math.min(rawSVG.attr("height") - d.dy, d3.event.y))
+              ) + ")");
+      // Move the links
+      sankey.relayout();
+      svg.selectAll(".link").attr("d", path);
+  }
 }
 
 //istioAnalyticsToGraph generates a table of the form
