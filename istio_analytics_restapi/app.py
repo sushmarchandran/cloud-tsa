@@ -58,6 +58,10 @@ def canarypie(flow):
 def volume4():
     return app.send_static_file('volume4.html')
 
+@app.route("/sankey")
+def sankey():
+    return app.send_static_file('sankey.html')
+
 @app.after_request
 def modify_headers(response):
     '''Sets the server HTTP header returned to the clients for all requests 
