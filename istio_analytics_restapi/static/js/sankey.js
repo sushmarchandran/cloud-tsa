@@ -117,24 +117,19 @@ d3.sankey = function() {
         nextNodes,
         x = 0;
  
-    while (remainingNodes.length) {
+    while (remainingNodes.length && x <= nodes.length) {
       nextNodes = [];
       remainingNodes.forEach(function(node) {
         node.x = x;
         node.dx = nodeWidth;
         node.sourceLinks.forEach(function(link) {
-          if (link.target.x === undefined) {
-              nextNodes.push(link.target);
-          } else {
-              console.log("Warning: cycle in call graph detected from "
-                      + node.name + " to " + link.target.name);
-          }
+          nextNodes.push(link.target);
         });
       });
       remainingNodes = nextNodes;
       ++x;
     }
- 
+
     //
     moveSinksRight(x);
     scaleNodeBreadths((size[0] - nodeWidth) / (x - 1));
