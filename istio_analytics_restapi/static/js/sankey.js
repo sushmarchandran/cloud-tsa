@@ -123,7 +123,12 @@ d3.sankey = function() {
         node.x = x;
         node.dx = nodeWidth;
         node.sourceLinks.forEach(function(link) {
-          nextNodes.push(link.target);
+          if (link.target.x === undefined) {
+              nextNodes.push(link.target);
+          } else {
+              console.log("Warning: cycle in call graph detected from "
+                      + node.name + " to " + link.target.name);
+          }
         });
       });
       remainingNodes = nextNodes;
