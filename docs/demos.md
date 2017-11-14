@@ -107,3 +107,23 @@ appears on the traces because version 2 of the `reviews` microservice was used d
 Point your browser to the following URL to go through this scenario:
 
 [http://localhost:5555/uml5/sequence/flow/0/trace/0?start=2017-10-27T20:12:00.0Z&end=2017-10-27T20:16:00.0Z&max=500&auto=true](http://localhost:5555/uml5/sequence/flow/0/trace/0?start=2017-10-27T20:12:00.0Z&end=2017-10-27T20:16:00.0Z&max=500&auto=true)
+
+## 2. Cleaning up after the demo
+
+If you want to clean up after finishing the demo, you should remove the `zipkin` and `istio-analytics` Docker containers that are running on your laptop. Below we suggest one way of doing so.
+
+If you are on an environment with native Docker, run the following command from the same directory
+from where you ran the `docker-compose` command during setup:  
+
+```bash
+docker-compose down
+```
+
+If you used our Vagrantfile to create a VirtualBox VM, run the following commands:  
+
+```bash
+cd /istio-analytics/restapi_server/scripts
+sudo docker-compose down
+```
+
+*Note that the next time you want to run the demo, you will need start from the setup instructions above.*
