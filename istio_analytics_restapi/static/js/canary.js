@@ -80,9 +80,12 @@
             if ('canaryMax' in $location.search()) {
                 $scope.canaryMaxTraces = parseInt($location.search()['canaryMax']);
             }
+            if (parseBoolean($location.search()['auto'])) {
+                query(true);
+            }
         });
 
-        function query() {
+        function query(automatic) {
 
             $scope.dataOrigin = "";
             // TODO 'query' disable button?
@@ -98,14 +101,16 @@
             return;
             */
 
-            $location.search({
-                start: $scope.startTime,
-                end: $scope.endTime,
-                max: $scope.maxTraces,
-                canaryStart: $scope.canaryStartTime,
-                canaryEnd: $scope.canaryEndTime,
-                canaryMax: $scope.canaryMaxTraces || 500,
-            });
+            if (!automatic) {
+                $location.search({
+                    start: $scope.startTime,
+                    end: $scope.endTime,
+                    max: $scope.maxTraces,
+                    canaryStart: $scope.canaryStartTime,
+                    canaryEnd: $scope.canaryEndTime,
+                    canaryMax: $scope.canaryMaxTraces || 500,
+                });
+            }
 
             var requestTime = new Date();
             $http({
@@ -168,6 +173,16 @@
         $scope.advanceToNow = function() {
             var d = new Date();
             $scope.canaryEndTime = d.toISOString();
+        }
+
+        function parseBoolean(s) {
+            if (s == true) {
+                return true;
+            }
+            if (typeof s != "string") {
+                return false;
+            }
+            return s.toUpperCase() == "TRUE" || s == "1";
         }
 
         // Currently the only special time format we support is "NOW";

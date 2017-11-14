@@ -68,20 +68,25 @@
             if ('max' in $location.search()) {
                 $scope.maxTraces = parseInt($location.search()['max']);
             }
+            if (parseBoolean($location.search()['auto'])) {
+                query(true);
+            }
         });
 
-        function query() {
+        function query(automatic) {
             $scope.dataOrigin = "";
             // TODO 'query' disable button?
             $scope.queryStatus = "Posting cluster query";
 
-            // See https://stackoverflow.com/questions/20884551/set-url-query-parameters-without-state-change-using-angular-ui-router
-            //$state.transitionTo('search', {q: 'updated search term'}, { notify: false });
-            $location.search({
-                start: $scope.startTime,
-                end: $scope.endTime,
-                max: $scope.maxTraces,
-            });
+            if (!automatic) {
+                // See https://stackoverflow.com/questions/20884551/set-url-query-parameters-without-state-change-using-angular-ui-router
+                //$state.transitionTo('search', {q: 'updated search term'}, { notify: false });
+                $location.search({
+                    start: $scope.startTime,
+                    end: $scope.endTime,
+                    max: $scope.maxTraces,
+                });
+            }
 
             var requestTime = new Date();
             $http({
@@ -145,6 +150,16 @@
                 return d.toISOString();
             }
             return s;
+        }
+
+        function parseBoolean(s) {
+            if (s == true) {
+                return true;
+            }
+            if (typeof s != "string") {
+                return false;
+            }
+            return s.toUpperCase() == "TRUE" || s == "1";
         }
     } // TraceQueryController
 

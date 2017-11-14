@@ -52,8 +52,21 @@
             if ('max' in $location.search()) {
                 $scope.maxTraces = parseInt($location.search()['max']);
             }
+            if (parseBoolean($location.search()['auto'])) {
+                query(true);
+            }
         });
 
+
+        function parseBoolean(s) {
+            if (s == true) {
+                return true;
+            }
+            if (typeof s != "string") {
+                return false;
+            }
+            return s.toUpperCase() == "TRUE" || s == "1";
+        }
 
         // Currently the only special time format we support is "NOW";
         // otherwise s must be an ISO time string
@@ -65,13 +78,15 @@
             return s;
         }
 
-        function query() {
+        function query(automatic) {
             $scope.queryStatus = "Posting query";
             $scope.dataOrigin = "";
             // TODO disable button?
 
             // See https://stackoverflow.com/questions/20884551/set-url-query-parameters-without-state-change-using-angular-ui-router
-            $location.search({ start: $scope.startTime, end: $scope.endTime });
+            if (!automatic) {
+                $location.search({ start: $scope.startTime, end: $scope.endTime });
+            }
 
             var requestTime = new Date();
             $http({
