@@ -100,3 +100,12 @@ exhibiting normal behavior. In order to show it, point your browser to the follo
 
 When you hit the `query` button, analytics will be performed for the traces given the time interval shown by the 
 UI. Once the query is done, you can click on the `Sequence` link to show the trace aggregation as a sequence diagram.
+
+### Scenario 2: Traces showing normal behavior and one additional microservice
+
+This scenario also demonstrates traces exhibiting normal behavior. This time, the `ratings` microservice
+appears on the traces because version 2 of the `reviews` microservice was used during the time interval of interest. That version of reviews calls the `ratings` microservice.
+
+Point your browser to the following URL to go through this scenario:
+
+[http://localhost:5555/uml5/categories?start=2017-10-27T20:12:00.0Z&end=2017-10-27T20:16:00.0Z&max=500](http://localhost:5555/uml5/categories?start=2017-10-27T20:12:00.0Z&end=2017-10-27T20:16:00.0Z&max=500)
