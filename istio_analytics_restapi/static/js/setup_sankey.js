@@ -124,9 +124,9 @@ function showSankey(traceList, context) {
       //.attr("y", function(d) { return d.dy / 2; })
       // .attr("dy", ".35em")
       .attr("transform", function(d) {
-          return "rotate(-90) translate({x} {y})"
-              .replace("{y}", sankey.nodeWidth()/2)
-              .replace("{x}", d.dy / -2);
+          return "rotate(90) translate({x} {y})"
+              .replace("{y}", sankey.nodeWidth() / -2)
+              .replace("{x}", d.dy / 2);
       })
       .text(function(d) { return d.name; })
       //.attr("x", 0)
