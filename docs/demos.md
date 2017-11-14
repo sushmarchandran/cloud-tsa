@@ -108,7 +108,7 @@ Point your browser to the following URL to go through this scenario:
 
 [http://localhost:5555/uml5/sequence/flow/0/trace/0?start=2017-10-27T20:12:00.0Z&end=2017-10-27T20:16:00.0Z&max=500&auto=true](http://localhost:5555/uml5/sequence/flow/0/trace/0?start=2017-10-27T20:12:00.0Z&end=2017-10-27T20:16:00.0Z&max=500&auto=true)
 
-## 2. Cleaning up after the demo
+## 3. Cleaning up after the demo
 
 If you want to clean up after finishing the demo, you should remove the `zipkin` and `istio-analytics` Docker containers that are running on your laptop. Below we suggest one way of doing so.
 
