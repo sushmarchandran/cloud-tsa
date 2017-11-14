@@ -89,12 +89,12 @@ sudo docker-compose up -d
 
 ## 2. Using the Istio Analytics UI
 
-The scenarios below demonstrate analytics performed on traces to statistically aggregate and compare them. The sequence suggested here takes the viewer through the various capabilities of Istio Analytics, including aggregating traces showing normal behavior; aggregating traces while detecting timeouts, retries, and errors; and finally, comparing 
-baseline and canary aggregated traces. 
+The scenarios below demonstrate analytics performed on distributed traces of the _Bookinfo_ sample application. Istio Analytics can statistically aggregate traces and compare them. The sequence suggested here takes the viewer through the various capabilities of Istio Analytics, including aggregating traces showing normal behavior; aggregating traces while detecting timeouts, retries, and errors; and finally, comparing 
+baseline and canary aggregated traces.
 
 ### Scenario 1: Traces showing normal behavior
 
-This scenario demonstrates the statistical aggregation of traces from the  _Bookinfo_ sample application
+This scenario demonstrates the statistical aggregation of traces of the  _Bookinfo_ sample application
 exhibiting normal behavior. In order to show it, point your browser to the following URL:
 [http://localhost:5555/uml5/categories?start=2017-10-27T20:08:00.0Z&end=2017-10-27T20:11:00.0Z&max=500](http://localhost:5555/uml5/categories?start=2017-10-27T20:08:00.0Z&end=2017-10-27T20:11:00.0Z&max=500)
 
