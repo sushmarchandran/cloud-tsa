@@ -79,7 +79,7 @@ sudo docker-compose up -d
 7. Verify that Zipkin is ready by pointing your browser to Zipkin's UI at 
 [http://localhost:9411](http://localhost:9411). If may take a few seconds for Zipkin to get started.
 
-8. Populate Zipkin with previously-collected traces by running the following commands:
+8. Populate Zipkin with previously-collected traces by running the following command:
 
 ```bash
 /istio-analytics/dev_env/scripts/zipkinPopulate.sh
