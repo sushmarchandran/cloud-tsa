@@ -96,4 +96,4 @@ baseline and canary aggregated traces.
 
 This scenario demonstrates the statistical aggregation of traces from the  _Bookinfo_ sample application
 exhibiting normal behavior. In order to show it, point your browser to the following URL:
-[http://localhost:5555/uml5/sequence/flow/0/trace/0?start=2017-10-27T20:08:00.0Z&end=2017-10-27T20:11:00.0Z&max=500](http://localhost:5555/uml5/sequence/flow/0/trace/0?start=2017-10-27T20:08:00.0Z&end=2017-10-27T20:11:00.0Z&max=500)
+[http://localhost:5555/uml5/categories?start=2017-10-27T20:08:00.0Z&end=2017-10-27T20:11:00.0Z&max=500](http://localhost:5555/uml5/categories?start=2017-10-27T20:08:00.0Z&end=2017-10-27T20:11:00.0Z&max=500)
