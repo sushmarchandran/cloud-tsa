@@ -233,4 +233,4 @@ cd /istio-analytics/restapi_server/scripts
 sudo docker-compose down
 ```
 
-**Note that the next time you run the demo you will need start from the basic setup instructions again.**
+**Note that the next time you run the demo locally you will need start from the basic setup instructions again.**
