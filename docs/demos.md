@@ -4,6 +4,45 @@
 
 The first thing to do is to start the Istio Analytics server and Zipkin locally. We provide a Docker Compose manifest file to deploy both our server and Zipkin as Docker containers.
 
+### Setup for running on Armada
+
+A. First, follow the native Docker instructions steps 1-3 up to `docker-compose up -d --build`
+to ensure you have local images.
+
+B. Still in the _restapi_server/scripts_ directory run `./pushServer.sh` to push
+a copy of the Istio Analytics server to a Docker repo.  It defaults to the IBM
+Cloud private Docker repo.
+
+C. Provide local access to Istio Zipkin so that historical demo data may be loaded
+
+```bash
+kubectl port-forward --namespace istio-system $(kubectl get pod --namespace istio-system -l app=zipkin -o jsonpath='{.items[0].metadata.name}') 9411:9411 &
+```
+
+D. Follow the native Docker instructions steps 5-7 to populate Zipkin with historical
+data used in the following instructions.  (Zipkin will also continue to accumulate new data).
+
+E. Authorize the _istio-system_ namespace in your cluster to read your private images if given _imagePullSecrets_
+
+```bash
+# See https://www.ibm.com/blogs/bluemix/2017/03/whats-secret-pull-image-non-default-kubernetes-namespace-ibm-bluemix-container-service/
+kubectl get secret bluemix-default-secret -o yaml | sed 's/namespace: default/namespace: istio-system/g' | kubectl -n istio-system create -f -
+```
+
+F. Start the Istio analytics web service and UI
+
+```bash
+DOCKER_REGISTRY="registry.ng.bluemix.net" # Or use another registry
+DOCKER_NAMESPACE=<your Docker namespace> # Use "bx cr namespaces" for your Bluemix namespace
+cat istio-analytics.yaml | \
+   sed "s/NAMESPACE/$DOCKER_NAMESPACE/" | \
+   sed "s/REGISTRY/$DOCKER_REGISTRY/" | \
+   kubectl create -f -
+kubectl port-forward --namespace istio-system $(kubectl get pod --namespace istio-system -l run=istio-analytics -o jsonpath='{.items[0].metadata.name}') 5555:5555 &
+```
+
+G. Now you are ready to demonstrate Istio Analytics. Follow the [Istio Analytics UI instructions](#2-using-the-istio-analytics-ui) next.
+
 ### Setup for environments with native Docker installed
 
 Make sure you have [Docker](https://www.docker.com/) installed on your laptop.
