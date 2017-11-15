@@ -132,6 +132,16 @@ Point your browser to the following URL to see this scenario:
 
 ### Scenario 5: Fine-grain, holistic canary comparisons
 
+In this scenario, we show the sequence diagram for two time intervals: a baseline and a canary. In the baseline
+time interval, version 2 of `reviews` was used, whereas in the canary time interval `reviews` version 3 was used. The sequence diagram shows the effect of the rollout of the new version of `reviews`. Each element on the diagram has a
+needle that can be red or green. The needle can also be vertical or point to the left or right.
+
+In the diagram, the red needle shows the portion that was significantly slower for the version 3 of `reviews`; in particular, the time needed to process a response returned by `ratings`.
+
+Point your browser to the following URL to see this scenario:
+
+[http://localhost:5555/canary/sequence/flow/0/trace/0?start=2017-09-19T19:27:00.0Z&end=2017-09-19T19:30:00.0Z&max=50&canaryStart=2017-09-19T19:34:00.0Z&canaryEnd=2017-09-19T19:36:00.0Z&canaryMax=500&auto=true](http://localhost:5555/canary/sequence/flow/0/trace/0?start=2017-09-19T19:27:00.0Z&end=2017-09-19T19:30:00.0Z&max=50&canaryStart=2017-09-19T19:34:00.0Z&canaryEnd=2017-09-19T19:36:00.0Z&canaryMax=500&auto=true)
+
 ### Scenario 6: Volume flow diagram 
 
 ## 3. Cleaning up after the demo
