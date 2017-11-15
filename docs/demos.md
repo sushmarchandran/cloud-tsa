@@ -132,7 +132,7 @@ Point your browser to the following URL to see this scenario:
 
 ### Scenario 5: Fine-grain, holistic canary comparisons
 
-### Scenario 6: Volume flow diagrams 
+### Scenario 6: Volume flow diagram 
 
 ## 3. Cleaning up after the demo
 
