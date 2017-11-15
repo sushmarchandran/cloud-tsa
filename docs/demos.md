@@ -52,7 +52,7 @@ and running the following command:
 ```bash
 scripts/zipkinPopulate.sh
 ```
-*Note that Zipkin will have this historical data, but will also continue accumulating new data.*
+**Note that Zipkin will have this historical data, but will also continue accumulating new data.**
  
 8. Authorize the _istio-system_ namespace in your cluster to read your private images if given _imagePullSecrets_
 
