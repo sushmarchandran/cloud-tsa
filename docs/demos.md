@@ -232,5 +232,3 @@ If you used our Vagrantfile to create a VirtualBox VM, run the following command
 cd /istio-analytics/restapi_server/scripts
 sudo docker-compose down
 ```
-
-**Note that, after the clean-up, the next time you run the demo locally you will need start from the basic setup instructions again.**
