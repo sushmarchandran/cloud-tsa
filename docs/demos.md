@@ -124,7 +124,15 @@ Point your browser to the following URL to go through this scenario:
 
 In this scenario, we use version 3 of the `reviews` microservice, which has a timeout parameter compatible with that of the `productpage` microservice. Thus, in this case, `reviews` times out before `productpage`. When `reviews` times out, it returns a 500 HTTP code to `productpage`; in response to that, `productpage` retries calling `reviews`, which times out and again returns a 500 HTTP code back to `productpage`. After the second retry, `productpage` returns a 200 HTTP code back to the end user.
 
-Note that, in this case, `ratings` never received the call from `reviews`. Also, the red arrows/labels indicate that the call from `productpage` to `reviews` received a 500 HTTP return code. 
+Note that, in this case, `ratings` never received the call from `reviews`. Also, the red arrows/labels indicate that the call from `productpage` to `reviews` received a 500 HTTP return code.
+
+Point your browser to the following URL to see this scenario:
+
+[http://localhost:5555/uml5/sequence/flow/0/trace/0?start=2017-11-13T18:17:17.0Z&end=2017-11-13T19:48:35.0Z&max=5&auto=true](http://localhost:5555/uml5/sequence/flow/0/trace/0?start=2017-11-13T18:17:17.0Z&end=2017-11-13T19:48:35.0Z&max=5&auto=true)
+
+### Scenario 5: Fine-grain, holistic canary comparisons
+
+### Scenario 6: Volume flow diagrams 
 
 ## 3. Cleaning up after the demo
 
