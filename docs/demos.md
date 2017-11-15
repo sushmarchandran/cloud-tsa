@@ -34,23 +34,34 @@ From the _restapi_server/scripts_ directory, run `./pushServer.sh` to push
 a copy of the Istio Analytics server to a Docker repo.  It defaults to the IBM
 Cloud private Docker repo.
 
-4. Provide local access to Istio Zipkin so that historical demo data may be loaded
+4. Provide local access to Istio's Zipkin so that historical demo data may be loaded
 
 ```bash
 kubectl port-forward --namespace istio-system $(kubectl get pod --namespace istio-system -l app=zipkin -o jsonpath='{.items[0].metadata.name}') 9411:9411 &
 ```
 
-5. Follow the native Docker instructions steps 5-7 to populate Zipkin with historical
-data used in the following instructions.  (Zipkin will also continue to accumulate new data).
+5. Verify you can access Istio's Zipkin by pointing your browser to Zipkin's UI at 
+[http://localhost:9411](http://localhost:9411).
 
-6. Authorize the _istio-system_ namespace in your cluster to read your private images if given _imagePullSecrets_
+6. Clone the GitHub repository containing Zipkin traces we will use to populate Zipkin with historical
+data. This repository is `git@github.ibm.com:istio-analytics/dev_env.git`.
+
+7. Populate Zipkin with historical data by going into the top directory of the repo cloned above 
+and running the following command:
+
+```bash
+scripts/zipkinPopulate.sh
+```
+*Note that Zipkin will have this historical data, but will also continue accumulating new data.*
+ 
+8. Authorize the _istio-system_ namespace in your cluster to read your private images if given _imagePullSecrets_
 
 ```bash
 # See https://www.ibm.com/blogs/bluemix/2017/03/whats-secret-pull-image-non-default-kubernetes-namespace-ibm-bluemix-container-service/
 kubectl get secret bluemix-default-secret -o yaml | sed 's/namespace: default/namespace: istio-system/g' | kubectl -n istio-system create -f -
 ```
 
-7. Start the Istio analytics web service and UI
+9. Start the Istio analytics web service and UI
 
 ```bash
 DOCKER_REGISTRY="registry.ng.bluemix.net" # Or use another registry
@@ -62,7 +73,7 @@ cat istio-analytics.yaml | \
 kubectl port-forward --namespace istio-system $(kubectl get pod --namespace istio-system -l run=istio-analytics -o jsonpath='{.items[0].metadata.name}') 5555:5555 &
 ```
 
-8. Now you are ready to demonstrate Istio Analytics. Follow the [Istio Analytics UI instructions](#2-using-the-istio-analytics-ui) next.
+10. Now you are ready to demonstrate Istio Analytics. Follow the [Istio Analytics UI instructions](#2-using-the-istio-analytics-ui) next.
 
 ### Setup for running locally on environments with native Docker installed
 
