@@ -1,17 +1,27 @@
 # Instructions for demonstrating Istio Analytics
 
-## 1. Basic setup: run the Istio Analytics server locally
+## 1. Basic setup: run the Istio Analytics server
 
-The first thing to do is to start the Istio Analytics server and Zipkin locally. We provide a Docker Compose manifest file to deploy both our server and Zipkin as Docker containers.
+Before demonstrating the Istio Analytics capabilities, the Istio Analytics server must be running. 
+Below we have instructions on how to set it up to run either locally or on Armada. Follow the instructions
+suitable for your desired demo environment.
+
+* [Running on Armada](#setup-for-running-on-armada)
+* [Running locally with native Docker](#setup-for-running-locally-on-environments-with-native-Docker-installed)
+* [Running locally on a VM](#setup-for-running-locally-on-environments-with-no-native-Docker)
 
 ### Setup for running on Armada
 
-A. First, follow the native Docker instructions steps 1-3 up to `docker-compose up -d --build`
-to ensure you have local images.
+1. Clone the GitHub repository `git@github.ibm.com:istio-analytics/restapi_server.git`.
 
-B.
+2. Build the istio-analytics Docker image by running the following command from the top directory
+where you cloned the repo above:
 
-Ensure you are logged into the IBM Bluemix image registry by doing `bx cr images`.
+```bash
+scripts/buildDocker.sh
+```
+
+3. Ensure you are logged into the IBM Bluemix image registry by doing `bx cr images`.
 If you are not logged in do `bx cr login`.  If _bx cr_ is not a registered command
 do `bx plugin install container-registry -r Bluemix` and then repeat the steps above.
 
@@ -23,23 +33,23 @@ Remain in the _restapi_server/scripts_ directory.  Run `./pushServer.sh` to push
 a copy of the Istio Analytics server to a Docker repo.  It defaults to the IBM
 Cloud private Docker repo.
 
-C. Provide local access to Istio Zipkin so that historical demo data may be loaded
+4. Provide local access to Istio Zipkin so that historical demo data may be loaded
 
 ```bash
 kubectl port-forward --namespace istio-system $(kubectl get pod --namespace istio-system -l app=zipkin -o jsonpath='{.items[0].metadata.name}') 9411:9411 &
 ```
 
-D. Follow the native Docker instructions steps 5-7 to populate Zipkin with historical
+5. Follow the native Docker instructions steps 5-7 to populate Zipkin with historical
 data used in the following instructions.  (Zipkin will also continue to accumulate new data).
 
-E. Authorize the _istio-system_ namespace in your cluster to read your private images if given _imagePullSecrets_
+6. Authorize the _istio-system_ namespace in your cluster to read your private images if given _imagePullSecrets_
 
 ```bash
 # See https://www.ibm.com/blogs/bluemix/2017/03/whats-secret-pull-image-non-default-kubernetes-namespace-ibm-bluemix-container-service/
 kubectl get secret bluemix-default-secret -o yaml | sed 's/namespace: default/namespace: istio-system/g' | kubectl -n istio-system create -f -
 ```
 
-F. Start the Istio analytics web service and UI
+7. Start the Istio analytics web service and UI
 
 ```bash
 DOCKER_REGISTRY="registry.ng.bluemix.net" # Or use another registry
@@ -51,9 +61,9 @@ cat istio-analytics.yaml | \
 kubectl port-forward --namespace istio-system $(kubectl get pod --namespace istio-system -l run=istio-analytics -o jsonpath='{.items[0].metadata.name}') 5555:5555 &
 ```
 
-G. Now you are ready to demonstrate Istio Analytics. Follow the [Istio Analytics UI instructions](#2-using-the-istio-analytics-ui) next.
+8. Now you are ready to demonstrate Istio Analytics. Follow the [Istio Analytics UI instructions](#2-using-the-istio-analytics-ui) next.
 
-### Setup for environments with native Docker installed
+### Setup for running locally on environments with native Docker installed
 
 Make sure you have [Docker](https://www.docker.com/) installed on your laptop.
 
@@ -89,7 +99,7 @@ scripts/zipkinPopulate.sh
 
 8. Now you are ready to demonstrate Istio Analytics. Follow the [Istio Analytics UI instructions](#2-using-the-istio-analytics-ui) next.
 
-### Setup for environments with no native Docker 
+### Setup for running locally on environments with no native Docker 
 
 If you do not want to (or cannot) install Docker on your system, you can resort to our Vagrantfile to create
 a VirtualBox VM with Docker and Docker Compose. 
@@ -193,9 +203,9 @@ Point your browser to the following URL to see this scenario:
 
 ### Scenario 6: Volume flow diagram 
 
-## 3. Cleaning up after the demo
+## 3. Cleaning up after the demo (for local runs)
 
-If you want to clean up after finishing the demo, you should remove the `zipkin` and `istio-analytics` Docker containers that are running on your laptop. Below we suggest one way of doing so.
+To clean up after running the demo locally (not on Armada), you should remove the `zipkin` and `istio-analytics` Docker containers that are running on your laptop. Below we suggest one way of doing so.
 
 If you are on an environment with native Docker, run the following command from the same directory
 from where you ran the `docker-compose` command during setup:  
