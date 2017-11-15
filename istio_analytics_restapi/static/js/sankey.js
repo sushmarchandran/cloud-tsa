@@ -117,7 +117,7 @@ d3.sankey = function() {
         nextNodes,
         x = 0;
  
-    while (remainingNodes.length) {
+    while (remainingNodes.length && x <= nodes.length) {
       nextNodes = [];
       remainingNodes.forEach(function(node) {
         node.x = x;
@@ -129,7 +129,7 @@ d3.sankey = function() {
       remainingNodes = nextNodes;
       ++x;
     }
- 
+
     //
     moveSinksRight(x);
     scaleNodeBreadths((size[0] - nodeWidth) / (x - 1));

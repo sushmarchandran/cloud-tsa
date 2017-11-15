@@ -181,6 +181,13 @@ function istioAnalyticsToGraph(traceList) {
             //  "ss":1505849364891668,
             //  "cr":1505849364892409}
 
+            // Detect self-calls
+            if (span.source_name == span.target_name) {
+                console.log("Ignoring self-call span for "
+                        + span.source_name + ".  trace_id= " + trace.trace_id + " span_id=" + span.span_id);
+                continue;
+            }
+
             var src = accum[span.source_name];
             if (src == undefined) {
                 src = {};
