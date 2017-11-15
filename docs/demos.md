@@ -7,8 +7,8 @@ Below we have instructions on how to set it up to run either locally or on Armad
 suitable for your desired demo environment.
 
 * [Running on Armada](#setup-for-running-on-armada)
-* [Running locally with native Docker](#setup-for-running-locally-on-environments-with-native-Docker-installed)
-* [Running locally on a VM](#setup-for-running-locally-on-environments-with-no-native-Docker)
+* [Running locally with native Docker](#setup-for-running-locally-on-environments-with-native-docker-installed)
+* [Running locally on a VM](#setup-for-running-locally-on-environments-with-no-native-docker)
 
 ### Setup for running on Armada
 
