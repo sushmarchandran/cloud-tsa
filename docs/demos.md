@@ -9,7 +9,17 @@ The first thing to do is to start the Istio Analytics server and Zipkin locally.
 A. First, follow the native Docker instructions steps 1-3 up to `docker-compose up -d --build`
 to ensure you have local images.
 
-B. Still in the _restapi_server/scripts_ directory run `./pushServer.sh` to push
+B.
+
+Ensure you are logged into the IBM Bluemix image registry by doing `bx cr images`.
+If you are not logged in do `bx cr login`.  If _bx cr_ is not a registered command
+do `bx plugin install container-registry -r Bluemix` and then repeat the steps above.
+
+```bash
+export DOCKER_NAMESPACE=<your Docker namespace> # Use "bx cr namespaces" for your Bluemix namespace
+```
+
+Remain in the _restapi_server/scripts_ directory.  Run `./pushServer.sh` to push
 a copy of the Istio Analytics server to a Docker repo.  It defaults to the IBM
 Cloud private Docker repo.
 
