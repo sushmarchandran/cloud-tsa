@@ -19,7 +19,7 @@ Then, follow these steps:
 
 ```bash
 cd scripts
-docker-compose up -d
+docker-compose up -d --build
 ```
 
 4. At this point, you should have both Istio Analytics and Zipkin running. Confirm that by running `docker-compose ps`.
@@ -70,7 +70,7 @@ Zipkin. To do so, run the following command:
 
 ```bash
 cd /istio-analytics/restapi_server/scripts
-sudo docker-compose up -d
+sudo docker-compose up -d --build
 ```
 
 6. At this point, you should have both Istio Analytics and Zipkin running. Confirm that by running 
@@ -99,6 +99,8 @@ exhibiting normal behavior. In order to show it, point your browser to the follo
 
 [http://localhost:5555/uml5/sequence/flow/0/trace/0?start=2017-10-27T20:08:00.0Z&end=2017-10-27T20:11:00.0Z&max=500&auto=true](http://localhost:5555/uml5/sequence/flow/0/trace/0?start=2017-10-27T20:08:00.0Z&end=2017-10-27T20:11:00.0Z&max=500&auto=true)
 
+In this case, version 1 of the `reviews` microservice was used.
+
 ### Scenario 2: Traces showing normal behavior and one additional microservice
 
 This scenario also demonstrates traces exhibiting normal behavior. This time, the `ratings` microservice
@@ -107,6 +109,16 @@ appears on the traces because version 2 of the `reviews` microservice was used d
 Point your browser to the following URL to go through this scenario:
 
 [http://localhost:5555/uml5/sequence/flow/0/trace/0?start=2017-10-27T20:12:00.0Z&end=2017-10-27T20:16:00.0Z&max=500&auto=true](http://localhost:5555/uml5/sequence/flow/0/trace/0?start=2017-10-27T20:12:00.0Z&end=2017-10-27T20:16:00.0Z&max=500&auto=true)
+
+### Scenario 3: Traces showing timeouts and retries
+
+Like the previous scenario, version 2 of the `reviews` microservice was used. However, a delay of 7 seconds was injected to all calls to the `ratings` microservice. This scenario highlights a mismatch between the timeout parameters of the `productpage` and `reviews`: even though `productpage` calls `reviews`, the first times out but the latter proceeds with its call to `ratings`. As a result, the response returned by `ratings` (dangling arrows) are not processed by `reviews`. 
+
+Note that the sequence diagram in this case shows that `productpage` retries calling `reviews`, and even the second and last attempt times out. The blue arrows/labels depict the timeouts.
+
+Point your browser to the following URL to go through this scenario:
+
+[http://localhost:5555/uml5/sequence/flow/0/trace/0?start=2017-11-13T16:18:14.0Z&end=2017-11-13T18:01:00.0Z&max=500&auto=true](http://localhost:5555/uml5/sequence/flow/0/trace/0?start=2017-11-13T16:18:14.0Z&end=2017-11-13T18:01:00.0Z&max=500&auto=true) 
 
 ## 3. Cleaning up after the demo
 
