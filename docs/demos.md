@@ -114,7 +114,7 @@ Point your browser to the following URL to go through this scenario:
 
 Like the previous scenario, version 2 of the `reviews` microservice was used. However, a delay of 7 seconds was injected to all calls to the `ratings` microservice. This scenario highlights a mismatch between the timeout parameters of the `productpage` and `reviews`: even though `productpage` calls `reviews`, the first times out but the latter proceeds with its call to `ratings`. As a result, the response returned by `ratings` (dangling arrows) are not processed by `reviews`. 
 
-Note that the sequence diagram in this case shows that `productpage` retries calling `reviews`, and even the second and last attempt times out. The blue arrows/labels depict the timeouts.
+Note that the sequence diagram shows that `productpage` retries calling `reviews` and times out again. The blue arrows/labels depict the timeouts.
 
 Point your browser to the following URL to go through this scenario:
 
