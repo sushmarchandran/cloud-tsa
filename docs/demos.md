@@ -14,7 +14,7 @@ suitable for your desired demo environment.
 
 1. Clone the GitHub repository `git@github.ibm.com:istio-analytics/restapi_server.git`.
 
-2. Build the istio-analytics Docker image by running the following command from the top directory
+2. Build the istio-analytics Docker image by running the following commands from the top directory
 where you cloned the repo above:
 
 ```bash
@@ -30,7 +30,7 @@ do `bx plugin install container-registry -r Bluemix` and then repeat the steps a
 export DOCKER_NAMESPACE=<your Docker namespace> # Use "bx cr namespaces" for your Bluemix namespace
 ```
 
-Remain in the _restapi_server/scripts_ directory.  Run `./pushServer.sh` to push
+From the _restapi_server/scripts_ directory, run `./pushServer.sh` to push
 a copy of the Istio Analytics server to a Docker repo.  It defaults to the IBM
 Cloud private Docker repo.
 
