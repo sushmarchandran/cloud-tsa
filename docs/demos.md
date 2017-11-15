@@ -110,7 +110,7 @@ Point your browser to the following URL to go through this scenario:
 
 [http://localhost:5555/uml5/sequence/flow/0/trace/0?start=2017-10-27T20:12:00.0Z&end=2017-10-27T20:16:00.0Z&max=500&auto=true](http://localhost:5555/uml5/sequence/flow/0/trace/0?start=2017-10-27T20:12:00.0Z&end=2017-10-27T20:16:00.0Z&max=500&auto=true)
 
-### Scenario 3: Traces showing timeouts and retries
+### Scenario 3: Traces showing a timeout-policy mismatch and retries
 
 Like the previous scenario, version 2 of the `reviews` microservice was used. However, a delay of 7 seconds was injected to all calls to the `ratings` microservice. This scenario highlights a mismatch between the timeout parameters of the `productpage` and `reviews`: even though `productpage` calls `reviews`, the first times out but the latter proceeds with its call to `ratings`. As a result, the response returned by `ratings` (dangling arrows) are not processed by `reviews`. 
 
@@ -118,7 +118,13 @@ Note that the sequence diagram shows that `productpage` retries calling `reviews
 
 Point your browser to the following URL to go through this scenario:
 
-[http://localhost:5555/uml5/sequence/flow/0/trace/0?start=2017-11-13T16:18:14.0Z&end=2017-11-13T18:01:00.0Z&max=500&auto=true](http://localhost:5555/uml5/sequence/flow/0/trace/0?start=2017-11-13T16:18:14.0Z&end=2017-11-13T18:01:00.0Z&max=500&auto=true) 
+[http://localhost:5555/uml5/sequence/flow/0/trace/0?start=2017-11-13T16:18:14.0Z&end=2017-11-13T18:01:00.0Z&max=500&auto=true](http://localhost:5555/uml5/sequence/flow/0/trace/0?start=2017-11-13T16:18:14.0Z&end=2017-11-13T18:01:00.0Z&max=500&auto=true)
+
+### Scenario 4: Traces showing compatible timeout policies with retries and errors
+
+In this scenario, we use version 3 of the `reviews` microservice, which has a timeout parameter compatible with that of the `productpage` microservice. Thus, in this case, `reviews` times out before `productpage`. When `reviews` times out, it returns a 500 HTTP code to `productpage`; in response to that, `productpage` retries calling `reviews`, which times out and again returns a 500 HTTP code back to `productpage`. After the second retry, `productpage` returns a 200 HTTP code back to the end user.
+
+Note that, in this case, `ratings` never received the call from `reviews`. Also, the red arrows/labels indicate that the call from `productpage` to `reviews` received a 500 HTTP return code. 
 
 ## 3. Cleaning up after the demo
 
