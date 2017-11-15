@@ -18,7 +18,8 @@ suitable for your desired demo environment.
 where you cloned the repo above:
 
 ```bash
-scripts/buildDocker.sh
+cd scripts
+./buildDocker.sh
 ```
 
 3. Ensure you are logged into the IBM Bluemix image registry by doing `bx cr images`.
