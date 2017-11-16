@@ -11,6 +11,7 @@ from istio_analytics_restapi.api.restplus import api
 START_TIME_PARAM_STR = 'start_time'
 END_TIME_PARAM_STR = 'end_time'
 MAX_TRACES_PARAM_STR = 'max'
+FILTER_LIST_PARAM_STR = 'filter'
 
 trace_list_body_parameters = api.model('trace_list_params', {
     START_TIME_PARAM_STR: fields.DateTime(required=True, dt_format='iso8601',
@@ -19,7 +20,9 @@ trace_list_body_parameters = api.model('trace_list_params', {
                             description='ISO8601 timestamp for the end of the time range of interest; '
                             'if omitted, current time is assumed'),
     MAX_TRACES_PARAM_STR: fields.Integer(required=False, min=1, example=100,
-                            description='Maximum number of traces to retrieve; default=100')
+                            description='Maximum number of traces to retrieve; default=100'),
+    FILTER_LIST_PARAM_STR: fields.List(fields.String, required=False, example=['istio-mixer'],
+                            description='List of service names whose spans will be ignored in processing')
 })
 
 ####

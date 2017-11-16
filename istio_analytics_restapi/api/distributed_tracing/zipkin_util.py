@@ -44,6 +44,9 @@ ZIPKIN_SR_ANNOTATION = 'sr'
 # See https://github.com/openzipkin/zipkin/issues/808
 # See https://github.com/openzipkin/zipkin/issues/1243
 
+# The service name used in traces from istio 0.1.x for all services
+ZIPKIN_01X_SERVICENAME_ISTIOPROXY_STR = 'istio-proxy'
+
 def build_binary_annotation_dict(zipkin_span):
     '''Given a Zipkin span, creates a dictionary for all of its binary annotations
 
@@ -148,7 +151,7 @@ def has_sr_annotation(zipkin_span):
             return True
     return False
 
-def zipkin_trace_list_to_istio_analytics_trace_list(zipkin_trace_list):
+def zipkin_trace_list_to_istio_analytics_trace_list(zipkin_trace_list, filter_list):
     '''Converts a list of traces as returned by Zipkin into the format 
     specified by the REST API POST /distributed_tracing/traces/.
 
@@ -157,6 +160,12 @@ def zipkin_trace_list_to_istio_analytics_trace_list(zipkin_trace_list):
     @rtype: list
     @return Trace list as specified by POST /distributed_tracing/traces
     '''
+            
+    # Specify the spans that should be filtered out
+    span_filter = Zipkin_Span_Filter()
+    for service_name in filter_list:
+        span_filter.add_service(service_name)
+    
     ret_val = []
     for zipkin_trace in zipkin_trace_list:
         # Get the trace id from the first span in the trace
@@ -174,6 +183,9 @@ def zipkin_trace_list_to_istio_analytics_trace_list(zipkin_trace_list):
 
         # Process each span of the current trace
         for zipkin_span in zipkin_trace:
+            if span_filter.filter(zipkin_span) == False:
+                continue
+            
             bin_ann_dict = build_binary_annotation_dict(zipkin_span)
             istio_analytics_span = {}
             if ZIPKIN_ANNOTATIONS_STR not in zipkin_span:
@@ -195,13 +207,20 @@ def zipkin_trace_list_to_istio_analytics_trace_list(zipkin_trace_list):
                     istio_analytics_span[constants.SOURCE_IP_STR] = ip_address                    
 
                     # Set the source name
-                    if ip_address not in ip_to_name_lookup_table:
-                        # This is the root span of the trace
-                        node_id = get_binary_annotation_value(bin_ann_dict,
-                                                              BINARY_ANNOTATION_NODE_ID_STR)
-                        ip_to_name_lookup_table[ip_address] = node_id
+                    # Get service name directly from span
                     istio_analytics_span[constants.SOURCE_NAME_STR] = \
-                        ip_to_name_lookup_table[ip_address]
+                        annotation.get(ZIPKIN_ANNOTATIONS_ENDPOINT_STR)\
+                                  .get(ZIPKIN_ANNOTATIONS_ENDPOINT_SERVICENAME_STR, ZIPKIN_01X_SERVICENAME_ISTIOPROXY_STR)
+                    
+                    # For traces collected from istio 0.1.x, service name can only be obtained by reading from lookup table
+                    if istio_analytics_span[constants.SOURCE_NAME_STR] == ZIPKIN_01X_SERVICENAME_ISTIOPROXY_STR:
+                        if ip_address not in ip_to_name_lookup_table:
+                            # This is the root span of the trace
+                            node_id = get_binary_annotation_value(bin_ann_dict,
+                                                              BINARY_ANNOTATION_NODE_ID_STR)
+                            ip_to_name_lookup_table[ip_address] = node_id
+                        istio_analytics_span[constants.SOURCE_NAME_STR] = \
+                            ip_to_name_lookup_table[ip_address]
                 elif annotation[ZIPKIN_ANNOTATIONS_VALUE_STR] == ZIPKIN_SR_ANNOTATION:
                     # This is the target (microservice that received the call)
 
@@ -209,10 +228,17 @@ def zipkin_trace_list_to_istio_analytics_trace_list(zipkin_trace_list):
                     istio_analytics_span[constants.TARGET_IP_STR] = ip_address
 
                     # Set the target name
-                    if not ip_address in ip_to_name_lookup_table:
-                        ip_to_name_lookup_table[ip_address] = zipkin_span[ZIPKIN_NAME_STR].split(':')[0]
+                    # Get service name directly from span
                     istio_analytics_span[constants.TARGET_NAME_STR] = \
-                        ip_to_name_lookup_table[ip_address]
+                        annotation.get(ZIPKIN_ANNOTATIONS_ENDPOINT_STR)\
+                                  .get(ZIPKIN_ANNOTATIONS_ENDPOINT_SERVICENAME_STR, ZIPKIN_01X_SERVICENAME_ISTIOPROXY_STR)
+                    
+                    # For traces collected from istio 0.1.x, service name can only be obtained by reading from lookup table                
+                    if istio_analytics_span[constants.TARGET_NAME_STR] == ZIPKIN_01X_SERVICENAME_ISTIOPROXY_STR:
+                        if not ip_address in ip_to_name_lookup_table:
+                            ip_to_name_lookup_table[ip_address] = zipkin_span[ZIPKIN_NAME_STR].split(':')[0]
+                        istio_analytics_span[constants.TARGET_NAME_STR] = \
+                            ip_to_name_lookup_table[ip_address]
 
                 # Set the CS/CR/SS/SR timestamps
                 istio_analytics_span[annotation[ZIPKIN_ANNOTATIONS_VALUE_STR]] = \
@@ -261,7 +287,10 @@ def zipkin_trace_list_to_istio_analytics_trace_list(zipkin_trace_list):
             istio_analytics_spans.append(istio_analytics_span)
 
         istio_analytics_trace[constants.SPANS_STR] = istio_analytics_spans
-        ret_val.append(istio_analytics_trace)
+        
+        # Do not display empty-span traces
+        if len(istio_analytics_trace[constants.SPANS_STR]) > 0:
+            ret_val.append(istio_analytics_trace)
 
     return ret_val
 
@@ -388,10 +417,13 @@ def process_cs_annotation(cs_ann, zipkin_span_dict, ip_to_name_lookup_table,
     ann_dict = zipkin_span_dict[span_id]['annotations']
     bin_ann_dict = zipkin_span_dict[span_id]['binary_annotations']
 
+    # For istio 0.2.x, service name is directly available from spans
     service_name = cs_ann['annotation'][ZIPKIN_ANNOTATIONS_ENDPOINT_STR]\
                        .get(ZIPKIN_ANNOTATIONS_ENDPOINT_SERVICENAME_STR)
-                       
-    if service_name == "istio-proxy":
+    
+    # Service names are the same for all services in data from istio 0.1.x 
+    # A lookup table is used to map the service ip to service name                  
+    if service_name == ZIPKIN_01X_SERVICENAME_ISTIOPROXY_STR:
         ip_address = cs_ann['annotation'][ZIPKIN_ANNOTATIONS_ENDPOINT_STR]\
                        .get(ZIPKIN_ANNOTATIONS_ENDPOINT_IPV4_STR, 'NO-IP')
         if ip_address not in ip_to_name_lookup_table:
@@ -414,10 +446,12 @@ def process_cs_annotation(cs_ann, zipkin_span_dict, ip_to_name_lookup_table,
                              event_sequence_number)
     event[constants.EVENT_TYPE_STR] = constants.EVENT_SEND_REQUEST
     
+    # The interlocutor can be derived from service name in span from istio 0.2.x
+    # For istio 0.1.x, it's read from the span name for the less meaningful service names
     event[constants.INTERLOCUTOR_STR] = ann_dict.get(ZIPKIN_SS_ANNOTATION, {})\
                                                 .get(ZIPKIN_ANNOTATIONS_ENDPOINT_STR, {})\
-                                                .get(ZIPKIN_ANNOTATIONS_ENDPOINT_SERVICENAME_STR, "istio-proxy")
-    if event[constants.INTERLOCUTOR_STR] == "istio-proxy":
+                                                .get(ZIPKIN_ANNOTATIONS_ENDPOINT_SERVICENAME_STR, ZIPKIN_01X_SERVICENAME_ISTIOPROXY_STR)                                            
+    if event[constants.INTERLOCUTOR_STR] == ZIPKIN_01X_SERVICENAME_ISTIOPROXY_STR:
         event[constants.INTERLOCUTOR_STR] = zipkin_span[ZIPKIN_NAME_STR].split(':')[0]
 
     if get_binary_annotation_value(bin_ann_dict,
@@ -483,10 +517,13 @@ def process_sr_annotation(sr_ann, zipkin_span_dict, ip_to_name_lookup_table,
     ann_dict = zipkin_span_dict[span_id]['annotations']
     bin_ann_dict = zipkin_span_dict[span_id]['binary_annotations']
     
+    # For istio 0.2.x, service name is directly available from spans
     service_name = sr_ann['annotation'][ZIPKIN_ANNOTATIONS_ENDPOINT_STR]\
                        .get(ZIPKIN_ANNOTATIONS_ENDPOINT_SERVICENAME_STR)
 
-    if service_name == "istio-proxy":
+    # Service names are the same for all services in data from istio 0.1.x 
+    # A lookup table is used to map the service ip to service name 
+    if service_name == ZIPKIN_01X_SERVICENAME_ISTIOPROXY_STR:
         ip_address = sr_ann['annotation'][ZIPKIN_ANNOTATIONS_ENDPOINT_STR]\
                        .get(ZIPKIN_ANNOTATIONS_ENDPOINT_IPV4_STR, 'NO-IP')
 
@@ -507,11 +544,13 @@ def process_sr_annotation(sr_ann, zipkin_span_dict, ip_to_name_lookup_table,
                              event_sequence_number)
     event[constants.EVENT_TYPE_STR] = constants.EVENT_PROCESS_REQUEST
 
+    # The interlocutor can be derived from service name in span from istio 0.2.x
+    # For istio 0.1.x, it's read from the span name for the less meaningful service names
     event[constants.INTERLOCUTOR_STR] = ann_dict.get(ZIPKIN_CS_ANNOTATION, {})\
                                         .get(ZIPKIN_ANNOTATIONS_ENDPOINT_STR)\
-                                        .get(ZIPKIN_ANNOTATIONS_ENDPOINT_SERVICENAME_STR, "istio-proxy")
+                                        .get(ZIPKIN_ANNOTATIONS_ENDPOINT_SERVICENAME_STR, ZIPKIN_01X_SERVICENAME_ISTIOPROXY_STR)
                                         
-    if event[constants.INTERLOCUTOR_STR] == "istio-proxy":                     
+    if event[constants.INTERLOCUTOR_STR] == ZIPKIN_01X_SERVICENAME_ISTIOPROXY_STR:                     
         cs_ip_address = ann_dict.get(ZIPKIN_CS_ANNOTATION, {})\
                             .get(ZIPKIN_ANNOTATIONS_ENDPOINT_STR, {})\
                             .get(ZIPKIN_ANNOTATIONS_ENDPOINT_IPV4_STR, "NO-IP")
@@ -570,9 +609,12 @@ def process_ss_annotation(ss_ann, zipkin_span_dict, ip_to_name_lookup_table,
         # We do not create a send_response event when the send_request event times out
         return None
 
+    # For istio 0.2.x, service name is directly available from spans
+    # Service names are the same for all services in data from istio 0.1.x 
+    # A lookup table is used to map the service ip to service name 
     service_name = ss_ann['annotation'][ZIPKIN_ANNOTATIONS_ENDPOINT_STR]\
                        .get(ZIPKIN_ANNOTATIONS_ENDPOINT_SERVICENAME_STR)
-    if service_name == "istio-proxy":
+    if service_name == ZIPKIN_01X_SERVICENAME_ISTIOPROXY_STR:
         ip_address = ss_ann['annotation'][ZIPKIN_ANNOTATIONS_ENDPOINT_STR]\
                        .get(ZIPKIN_ANNOTATIONS_ENDPOINT_IPV4_STR, 'NO-IP')
 
@@ -583,10 +625,12 @@ def process_ss_annotation(ss_ann, zipkin_span_dict, ip_to_name_lookup_table,
                              event_sequence_number)
     event[constants.EVENT_TYPE_STR] = constants.EVENT_SEND_RESPONSE
 
+    # The interlocutor can be derived from service name in span from istio 0.2.x
+    # For istio 0.1.x, it's read from the span name for the less meaningful service names
     event[constants.INTERLOCUTOR_STR] = ann_dict.get(ZIPKIN_CS_ANNOTATION, {})\
                                                 .get(ZIPKIN_ANNOTATIONS_ENDPOINT_STR, {})\
-                                                .get(ZIPKIN_ANNOTATIONS_ENDPOINT_SERVICENAME_STR, "istio-proxy")
-    if event[constants.INTERLOCUTOR_STR] == "istio-proxy":
+                                                .get(ZIPKIN_ANNOTATIONS_ENDPOINT_SERVICENAME_STR, ZIPKIN_01X_SERVICENAME_ISTIOPROXY_STR)
+    if event[constants.INTERLOCUTOR_STR] == ZIPKIN_01X_SERVICENAME_ISTIOPROXY_STR:
         cs_ip_address = ann_dict.get(ZIPKIN_CS_ANNOTATION, {})\
                             .get(ZIPKIN_ANNOTATIONS_ENDPOINT_STR, {})\
                             .get(ZIPKIN_ANNOTATIONS_ENDPOINT_IPV4_STR, "NO-IP")
@@ -649,9 +693,12 @@ def process_cr_annotation(cr_ann, zipkin_span_dict, ip_to_name_lookup_table,
     ann_dict = zipkin_span_dict[span_id]['annotations']
     bin_ann_dict = zipkin_span_dict[span_id]['binary_annotations']
 
+    # For istio 0.2.x, service name is directly available from spans
+    # Service names are the same for all services in data from istio 0.1.x 
+    # A lookup table is used to map the service ip to service name 
     service_name = cr_ann['annotation'][ZIPKIN_ANNOTATIONS_ENDPOINT_STR]\
                        .get(ZIPKIN_ANNOTATIONS_ENDPOINT_SERVICENAME_STR)
-    if service_name == "istio-proxy":
+    if service_name == ZIPKIN_01X_SERVICENAME_ISTIOPROXY_STR:
         ip_address = cr_ann['annotation'][ZIPKIN_ANNOTATIONS_ENDPOINT_STR]\
                        .get(ZIPKIN_ANNOTATIONS_ENDPOINT_IPV4_STR, 'NO-IP')
 
@@ -669,10 +716,12 @@ def process_cr_annotation(cr_ann, zipkin_span_dict, ip_to_name_lookup_table,
         cr_ann_time = cr_ann['annotation'][ZIPKIN_ANNOTATIONS_TIMESTAMP_STR]
         event[constants.TIMEOUT_STR] = cr_ann_time - cs_ann_time
 
+    # The interlocutor can be derived from service name in span from istio 0.2.x
+    # For istio 0.1.x, it's read from the span name for the less meaningful service names
     event[constants.INTERLOCUTOR_STR] = ann_dict.get(ZIPKIN_SS_ANNOTATION, {})\
                                                 .get(ZIPKIN_ANNOTATIONS_ENDPOINT_STR, {})\
-                                                .get(ZIPKIN_ANNOTATIONS_ENDPOINT_SERVICENAME_STR, "istio-proxy")
-    if event[constants.INTERLOCUTOR_STR] == "istio-proxy":
+                                                .get(ZIPKIN_ANNOTATIONS_ENDPOINT_SERVICENAME_STR, ZIPKIN_01X_SERVICENAME_ISTIOPROXY_STR)
+    if event[constants.INTERLOCUTOR_STR] == ZIPKIN_01X_SERVICENAME_ISTIOPROXY_STR:
         event[constants.INTERLOCUTOR_STR] = zipkin_span[ZIPKIN_NAME_STR].split(':')[0]
 
     # Add the new event to the list of events of the service receiving the response
@@ -701,11 +750,12 @@ def clean_up_timelines(timeline_list):
                          ]
         timeline[constants.EVENTS_STR] = new_event_list
 
-def zipkin_trace_list_to_timelines(zipkin_trace_list):
+def zipkin_trace_list_to_timelines(zipkin_trace_list, filter_list):
     '''Converts each trace of a list of traces as returned by Zipkin into timelines
     as specified by the REST API POST /distributed_tracing/traces/timelines.
 
     @param zipkin_trace_list (list): List of traces as returned by Zipkin GET /api/v1/traces/
+    @param filter_list(list): List of service names whose spans will be skipped
 
     @rtype: list
     @return List of trace timelines as specified by POST /distributed_tracing/traces/timelines
@@ -726,7 +776,8 @@ def zipkin_trace_list_to_timelines(zipkin_trace_list):
         
         # Specify the spans that should be filtered out
         span_filter = Zipkin_Span_Filter()
-        span_filter.add_service("istio-mixer")
+        for service_name in filter_list:
+            span_filter.add_service(service_name)
 
         # Sort all annotations of the trace globally and filter out the spans speified in the filter
         zipkin_span_dict, sorted_annotations = global_sort_annotations(zipkin_trace, span_filter)
