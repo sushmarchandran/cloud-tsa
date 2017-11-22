@@ -14,6 +14,9 @@ suitable for your desired demo environment.
 
 Make sure you have [Docker](https://www.docker.com/) installed on your laptop.
 
+**Also, make sure you allocate at least 4 GB of memory to Docker. On MacOs, for instance, this can be easily
+done through the UI, by clicking on the Docker icon in the tool bar and going into `Preferences -> Advanced`.**
+
 Then, follow these steps:
 
 1. If you do not have Docker Compose installed, follow the 
@@ -41,7 +44,7 @@ This repository is `git@github.ibm.com:istio-analytics/dev_env.git`.
 and running the following command:
 
 ```bash
-scripts/zipkinPopulate.sh
+scripts/populate_zipkin_demo.sh
 ```
 
 8. Now you are ready to demonstrate Istio Analytics. Follow the [Istio Analytics UI instructions](#2-using-the-istio-analytics-ui) next.
@@ -88,7 +91,7 @@ sudo docker-compose up -d --build
 8. Populate Zipkin with previously-collected traces by running the following command:
 
 ```bash
-/istio-analytics/dev_env/scripts/zipkinPopulate.sh
+/istio-analytics/dev_env/scripts/populate_zipkin_demo.sh
 ```
 
 9. Now you are ready to demonstrate Istio Analytics. Follow the [Istio Analytics UI instructions](#2-using-the-istio-analytics-ui) next.
@@ -133,7 +136,7 @@ data. This repository is `git@github.ibm.com:istio-analytics/dev_env.git`.
 and running the following command:
 
 ```bash
-scripts/zipkinPopulate.sh
+scripts/populate_zipkin_demo.sh
 ``` 
 **Note that Zipkin will have this historical data, but will also continue accumulating new data.**
  
