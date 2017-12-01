@@ -161,6 +161,17 @@ kubectl port-forward --namespace istio-system $(kubectl get pod --namespace isti
 
 10. Now you are ready to demonstrate Istio Analytics. Follow the [Istio Analytics UI instructions](#2-using-the-istio-analytics-ui) next.
 
+Note: If you are using Armada front door to view your istio-analytics and zipkin, you may add the environment var `ISTIO_ANALYTICS_ZIPKIN_OVERRIDE` to `istio-analytics.yaml`:
+
+```
+    spec:
+      containers:
+      - env:
+        - name: ISTIO_ANALYTICS_ZIPKIN_HOST
+          value: http://zipkin:9411
+        - name: ISTIO_ANALYTICS_ZIPKIN_OVERRIDE
+          value: http://zipkin.xxxxx.us-east.containers.mybluemix.net
+```
 ## 2. Using the Istio Analytics UI
 
 The scenarios below demonstrate analytics performed on distributed traces of the _Bookinfo_ sample application. Istio Analytics can statistically aggregate traces and compare them. The sequence suggested here takes the viewer through the various capabilities of Istio Analytics, including aggregating traces showing normal behavior; aggregating traces while detecting timeouts, retries, and errors; and finally, comparing 
