@@ -102,8 +102,9 @@ class Traces(Resource):
 
         if http_code == 200:
             zipkin_host = os.getenv(constants.ISTIO_ANALYTICS_ZIPKIN_HOST_ENV)
+            zipkin_override = os.getenv(constants.ISTIO_ANALYTICS_ZIPKIN_OVERRIDE_ENV)
             ret_val = {
-                zipkin_constants.ZIPKIN_URL_STR: zipkin_host
+                zipkin_constants.ZIPKIN_URL_STR: zipkin_override or zipkin_host
             }
             ret_val[zipkin_constants.TRACES_STR] = \
                 zipkin_util.zipkin_trace_list_to_istio_analytics_trace_list(json.loads(traces_or_error_msg), filter_list)
@@ -158,8 +159,9 @@ class Timelines(Resource):
 
         if http_code == 200:
             zipkin_host = os.getenv(constants.ISTIO_ANALYTICS_ZIPKIN_HOST_ENV)
+            zipkin_override = os.getenv(constants.ISTIO_ANALYTICS_ZIPKIN_OVERRIDE_ENV)
             ret_val = {
-                zipkin_constants.ZIPKIN_URL_STR: zipkin_host
+                zipkin_constants.ZIPKIN_URL_STR: zipkin_override or zipkin_host
             }
             ret_val[zipkin_constants.TRACES_TIMELINES_STR] = \
                 zipkin_util.zipkin_trace_list_to_timelines(json.loads(traces_or_error_msg), filter_list)
@@ -188,8 +190,9 @@ class TraceCluster(Resource):
 
         if http_code == 200:
             zipkin_host = os.getenv(constants.ISTIO_ANALYTICS_ZIPKIN_HOST_ENV)
+            zipkin_override = os.getenv(constants.ISTIO_ANALYTICS_ZIPKIN_OVERRIDE_ENV)
             ret_val = {
-                zipkin_constants.ZIPKIN_URL_STR: zipkin_host
+                zipkin_constants.ZIPKIN_URL_STR: zipkin_override or zipkin_host
             }
             traces_timelines = \
                 zipkin_util.zipkin_trace_list_to_timelines(json.loads(traces_or_error_msg), filter_list)
@@ -231,8 +234,9 @@ class TraceClusterDiff(Resource):
 
         if http_code == 200:
             zipkin_host = os.getenv(constants.ISTIO_ANALYTICS_ZIPKIN_HOST_ENV)
+            zipkin_override = os.getenv(constants.ISTIO_ANALYTICS_ZIPKIN_OVERRIDE_ENV)
             ret_val = {
-                zipkin_constants.ZIPKIN_URL_STR: zipkin_host
+                zipkin_constants.ZIPKIN_URL_STR: zipkin_override or zipkin_host
             }
 
             # Call Zipkin to get traces corresponding to the canary period
