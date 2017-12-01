@@ -30,3 +30,18 @@ spec:
       imagePullSecrets:
         - name: bluemix-default-secret
 status: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: istio-analytics
+  namespace: istio-system
+spec:
+  #type: NodePort
+  ports:
+  - port: 5555
+    #nodePort: 32000
+    name: http
+  selector:
+    run: istio-analytics
+---
