@@ -334,7 +334,7 @@ function dragEnd(d) {
     var end = d.x.invert(xEnd);
     console.log("selected " + start + " to " + end);
 
-    alert("TODO: clamp UI to " + start + " to " + end);
+    // alert("TODO: clamp UI to " + start + " to " + end);
 }
 
 function dragStartSelection(d, i) {
