@@ -544,11 +544,16 @@ def process_sr_annotation(sr_ann, zipkin_span_dict, ip_to_name_lookup_table,
                              event_sequence_number)
     event[constants.EVENT_TYPE_STR] = constants.EVENT_PROCESS_REQUEST
 
-    # The interlocutor can be derived from service name in span from istio 0.2.x
-    # For istio 0.1.x, it's read from the span name for the less meaningful service names
-    event[constants.INTERLOCUTOR_STR] = ann_dict.get(ZIPKIN_CS_ANNOTATION, {})\
-                                        .get(ZIPKIN_ANNOTATIONS_ENDPOINT_STR)\
-                                        .get(ZIPKIN_ANNOTATIONS_ENDPOINT_SERVICENAME_STR, ZIPKIN_01X_SERVICENAME_ISTIOPROXY_STR)
+    if not ZIPKIN_CS_ANNOTATION in ann_dict:
+        # The client of the span was not traced; therefore, we could not find
+        # a CS annotation in the span
+        event[constants.INTERLOCUTOR_STR] = "NO-NAME"
+    else:
+        # The interlocutor can be derived from service name in span from istio 0.2.x
+        # For istio 0.1.x, it's read from the span name for the less meaningful service names
+        event[constants.INTERLOCUTOR_STR] = ann_dict.get(ZIPKIN_CS_ANNOTATION, {})\
+            .get(ZIPKIN_ANNOTATIONS_ENDPOINT_STR)\
+            .get(ZIPKIN_ANNOTATIONS_ENDPOINT_SERVICENAME_STR, ZIPKIN_01X_SERVICENAME_ISTIOPROXY_STR)
                                         
     if event[constants.INTERLOCUTOR_STR] == ZIPKIN_01X_SERVICENAME_ISTIOPROXY_STR:                     
         cs_ip_address = ann_dict.get(ZIPKIN_CS_ANNOTATION, {})\
@@ -625,11 +630,17 @@ def process_ss_annotation(ss_ann, zipkin_span_dict, ip_to_name_lookup_table,
                              event_sequence_number)
     event[constants.EVENT_TYPE_STR] = constants.EVENT_SEND_RESPONSE
 
-    # The interlocutor can be derived from service name in span from istio 0.2.x
-    # For istio 0.1.x, it's read from the span name for the less meaningful service names
-    event[constants.INTERLOCUTOR_STR] = ann_dict.get(ZIPKIN_CS_ANNOTATION, {})\
-                                                .get(ZIPKIN_ANNOTATIONS_ENDPOINT_STR, {})\
-                                                .get(ZIPKIN_ANNOTATIONS_ENDPOINT_SERVICENAME_STR, ZIPKIN_01X_SERVICENAME_ISTIOPROXY_STR)
+    if not ZIPKIN_CS_ANNOTATION in ann_dict:
+        # The client of the span was not traced; therefore, we could not find
+        # a CS annotation in the span
+        event[constants.INTERLOCUTOR_STR] = "NO-NAME"
+    else:
+        # The interlocutor can be derived from service name in span from istio 0.2.x
+        # For istio 0.1.x, it's read from the span name for the less meaningful service names
+        event[constants.INTERLOCUTOR_STR] = ann_dict.get(ZIPKIN_CS_ANNOTATION, {})\
+            .get(ZIPKIN_ANNOTATIONS_ENDPOINT_STR, {})\
+            .get(ZIPKIN_ANNOTATIONS_ENDPOINT_SERVICENAME_STR, ZIPKIN_01X_SERVICENAME_ISTIOPROXY_STR)
+
     if event[constants.INTERLOCUTOR_STR] == ZIPKIN_01X_SERVICENAME_ISTIOPROXY_STR:
         cs_ip_address = ann_dict.get(ZIPKIN_CS_ANNOTATION, {})\
                             .get(ZIPKIN_ANNOTATIONS_ENDPOINT_STR, {})\
