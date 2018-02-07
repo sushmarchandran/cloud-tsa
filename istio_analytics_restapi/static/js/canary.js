@@ -55,9 +55,11 @@
         $scope.clusters_diffs = [];    // Array of {root_request:, baseline_trace_ids:, canary_trace_ids:, cluster_stats_diff: }
         $scope.startTime = "";
         $scope.endTime = "";
+        $scope.tags = "";
         $scope.maxTraces = 500;
         $scope.canaryStartTime = "";
         $scope.canaryEndTime = "";
+        $scope.canaryTags = "";
         $scope.canaryMaxTraces = null;
 
         $scope.query = query;
@@ -105,9 +107,11 @@
                 $location.search({
                     start: $scope.startTime,
                     end: $scope.endTime,
+                    tags: $scope.tags,
                     max: $scope.maxTraces,
                     canaryStart: $scope.canaryStartTime,
                     canaryEnd: $scope.canaryEndTime,
+                    canaryTags: $scope.canaryTags,
                     canaryMax: $scope.canaryMaxTraces || 500,
                 });
             }
@@ -120,11 +124,13 @@
                       baseline: {
                           start_time: $scope.startTime,
                           end_time: $scope.endTime,
+                          tags: parseTags($scope.tags),
                           max: $scope.maxTraces
                       },
                       canary: {
                           start_time: $scope.canaryStartTime,
                           end_time: $scope.canaryEndTime,
+                          tags: parseTags($scope.canaryTags),
                           max: $scope.canaryMaxTraces || 500
                       }
                   }
@@ -155,6 +161,11 @@
                     $scope.queryStatus = "Failed " + JSON.stringify(response);
                     $scope.clusters_diffs = [];
             });
+        }
+
+        // Given a string like "foo=bar, baz=123" return ["foo=bar", "baz=123"]
+        function parseTags(tags) {
+            return tags.split(/[,;\ ]/).filter(function (s) { return s; });
         }
 
         function annotateFlows(flows) {
