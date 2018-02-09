@@ -12,6 +12,7 @@ START_TIME_PARAM_STR = 'start_time'
 END_TIME_PARAM_STR = 'end_time'
 MAX_TRACES_PARAM_STR = 'max'
 FILTER_LIST_PARAM_STR = 'filter'
+TAGS_PARAM_STR = 'tags'
 
 trace_list_body_parameters = api.model('trace_list_params', {
     START_TIME_PARAM_STR: fields.DateTime(required=True, dt_format='iso8601',
@@ -22,7 +23,14 @@ trace_list_body_parameters = api.model('trace_list_params', {
     MAX_TRACES_PARAM_STR: fields.Integer(required=False, min=1, example=100,
                             description='Maximum number of traces to retrieve; default=100'),
     FILTER_LIST_PARAM_STR: fields.List(fields.String, required=False, example=['istio-mixer'],
-                            description='List of service names whose spans will be ignored in processing')
+                            description='List of service names whose spans will be ignored in processing'),
+    TAGS_PARAM_STR: fields.List(fields.String, required=False, example=['tag1_name:value1', 'tag2_name:value2'],
+                            description="List of key-value pairs to be used to filter the query results. "
+                            "Keys are supposed to refer to tags associated with spans. "
+                            "Traces will be selected such that the tag query matches span tags. " 
+                            "All key-value pairs in the query must match (AND semantics), but they "
+                            "do not have to match all spans; different key-value pairs may match "
+                            "different spans")
 })
 
 ####

@@ -472,8 +472,7 @@ def compare_clusters(baseline_clusters, canary_clusters):
     # to compare
     for baseline_cluster in baseline_clusters:
         root_request = baseline_cluster[responses.ROOT_REQUEST_STR]
-        canary_cluster = canary_clusters_hash_table[root_request]
-        
+        canary_cluster = canary_clusters_hash_table.get(root_request, None)
         if not canary_cluster:
             log.debug(u'Could not find canary match for root request {}'.
                       format(root_request))

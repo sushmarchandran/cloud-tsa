@@ -314,7 +314,7 @@ def global_sort_annotations(zipkin_trace, span_filter):
     for zipkin_span in zipkin_trace:
         if span_filter.filter(zipkin_span) == False:
             continue
-	    
+  
         for annotation in zipkin_span.get(ZIPKIN_ANNOTATIONS_STR, []):
             global_annotations.append({
                 'span_id': zipkin_span[ZIPKIN_SPANID_STR],

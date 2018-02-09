@@ -37,10 +37,11 @@ def process_common_parameters(request_body):
       @see: request_parameters.START_TIME_PARAM_STR (ISO8601 datetime)
       @see: request_parameters.END_TIME_PARAM_STR (ISO8601 datatime)
       @see: request_parameters.MAX_TRACES_PARAM_STR (integer)
-      @see: request_parameters.FILTER_LIST_PARAM_STR(string)
+      @see: request_parameters.FILTER_LIST_PARAM_STR(list of strings)
+      @see: request_parameters.TAGS_PARAM_STR(list of strings)
 
-    @rtype: tuple(integer, integer, integer, list)
-    @return: The values of the parameters start time, end time, max number of traces and filter list.
+    @rtype: tuple(integer, integer, integer, list, list)
+    @return: The values of the parameters start time, end time, max number of traces, filter list, and tags.
              Note that the returned times are in millisecond epoch time
     '''
     # Start time is a required parameter
@@ -71,9 +72,14 @@ def process_common_parameters(request_body):
         # This is the default service to be filtered out
         filter_list = ["istio-mixer"]
 
-    log.debug(u'Parameters: start_time = {0}; end_time = {1}; max = {2}; filet_list = {3}'.
-              format(start_time_milli, end_time_milli, max_traces, filter_list))
-    return start_time_milli, end_time_milli, max_traces, filter_list
+    # Check if tags and values were passed as parameters
+    tags = None
+    if request_parameters.TAGS_PARAM_STR in request_body:
+        tags = request_body[request_parameters.TAGS_PARAM_STR]
+
+    log.debug(u'Parameters: start_time = {0}; end_time = {1}; max = {2}; filter_list = {3}; tags = {4}'.
+              format(start_time_milli, end_time_milli, max_traces, filter_list, tags))
+    return start_time_milli, end_time_milli, max_traces, filter_list, tags
 
 ##################################
 ##################################
@@ -94,11 +100,12 @@ class Traces(Resource):
         '''
         log.info('Started processing request to get traces')
         request_body = request.json
-        start_time_milli, end_time_milli, max_traces, filter_list = process_common_parameters(request_body)
+        start_time_milli, end_time_milli, max_traces, filter_list, tags = \
+            process_common_parameters(request_body)
 
         # Call Zipkin
         traces_or_error_msg, http_code = \
-            zipkin_client.get_traces(start_time_milli, end_time_milli, max_traces=max_traces)
+            zipkin_client.get_traces(start_time_milli, end_time_milli, max_traces=max_traces, tags=tags)
 
         if http_code == 200:
             zipkin_host = os.getenv(constants.ISTIO_ANALYTICS_ZIPKIN_HOST_ENV)
@@ -107,7 +114,7 @@ class Traces(Resource):
                 zipkin_constants.ZIPKIN_URL_STR: zipkin_override or zipkin_host
             }
             ret_val[zipkin_constants.TRACES_STR] = \
-                zipkin_util.zipkin_trace_list_to_istio_analytics_trace_list(json.loads(traces_or_error_msg), filter_list)
+                zipkin_util.zipkin_trace_list_to_istio_analytics_trace_list(traces_or_error_msg, filter_list)
         else:
             log.warn(traces_or_error_msg)
             ret_val, http_code = build_http_error(traces_or_error_msg, http_code)
@@ -151,11 +158,12 @@ class Timelines(Resource):
         '''
         log.info('Started processing request to get timelines')
         request_body = request.json
-        start_time_milli, end_time_milli, max_traces, filter_list = process_common_parameters(request_body)
+        start_time_milli, end_time_milli, max_traces, filter_list, tags = \
+            process_common_parameters(request_body)
 
         # Call Zipkin
         traces_or_error_msg, http_code = \
-            zipkin_client.get_traces(start_time_milli, end_time_milli, max_traces=max_traces)
+            zipkin_client.get_traces(start_time_milli, end_time_milli, max_traces=max_traces, tags=tags)
 
         if http_code == 200:
             zipkin_host = os.getenv(constants.ISTIO_ANALYTICS_ZIPKIN_HOST_ENV)
@@ -164,7 +172,7 @@ class Timelines(Resource):
                 zipkin_constants.ZIPKIN_URL_STR: zipkin_override or zipkin_host
             }
             ret_val[zipkin_constants.TRACES_TIMELINES_STR] = \
-                zipkin_util.zipkin_trace_list_to_timelines(json.loads(traces_or_error_msg), filter_list)
+                zipkin_util.zipkin_trace_list_to_timelines(traces_or_error_msg, filter_list)
         else:
             log.warn(traces_or_error_msg)
             ret_val, http_code = build_http_error(traces_or_error_msg, http_code)
@@ -182,11 +190,12 @@ class TraceCluster(Resource):
         '''Retrieves clusters of traces timelines given a time interval'''
         log.info('Started processing request to get clusters of traces')
         request_body = request.json
-        start_time_milli, end_time_milli, max_traces, filter_list = process_common_parameters(request_body)
+        start_time_milli, end_time_milli, max_traces, filter_list, tags = \
+            process_common_parameters(request_body)
 
         # Call Zipkin
         traces_or_error_msg, http_code = \
-            zipkin_client.get_traces(start_time_milli, end_time_milli, max_traces=max_traces)
+            zipkin_client.get_traces(start_time_milli, end_time_milli, max_traces=max_traces, tags=tags)
 
         if http_code == 200:
             zipkin_host = os.getenv(constants.ISTIO_ANALYTICS_ZIPKIN_HOST_ENV)
@@ -195,7 +204,7 @@ class TraceCluster(Resource):
                 zipkin_constants.ZIPKIN_URL_STR: zipkin_override or zipkin_host
             }
             traces_timelines = \
-                zipkin_util.zipkin_trace_list_to_timelines(json.loads(traces_or_error_msg), filter_list)
+                zipkin_util.zipkin_trace_list_to_timelines(traces_or_error_msg, filter_list)
             ret_val[zipkin_constants.CLUSTERS_STR] = \
                 distributed_tracing.cluster_traces(traces_timelines)
         else:
@@ -221,16 +230,19 @@ class TraceClusterDiff(Resource):
         log.info('Started processing request to compare clusters of traces')
         request_body = request.json
 
-        start_time_milli_baseline, end_time_milli_baseline, max_traces_baseline, filter_list_baseline = \
+        start_time_milli_baseline, end_time_milli_baseline, max_traces_baseline, \
+            filter_list_baseline, tags_baseline = \
             process_common_parameters(request_body[request_parameters.BASELINE_STR])
-        start_time_milli_canary, end_time_milli_canary, max_traces_canary, filter_list_canary = \
+        start_time_milli_canary, end_time_milli_canary, max_traces_canary, \
+            filter_list_canary, tags_canary = \
             process_common_parameters(request_body[request_parameters.CANARY_STR])
 
         # Call Zipkin to get traces corresponding to the baseline period
         baseline_traces_or_error_msg, http_code = \
             zipkin_client.get_traces(start_time_milli_baseline,
                                      end_time_milli_baseline,
-                                     max_traces=max_traces_baseline)
+                                     max_traces=max_traces_baseline,
+                                     tags=tags_baseline)
 
         if http_code == 200:
             zipkin_host = os.getenv(constants.ISTIO_ANALYTICS_ZIPKIN_HOST_ENV)
@@ -243,7 +255,8 @@ class TraceClusterDiff(Resource):
             canary_traces_or_error_msg, http_code = \
                 zipkin_client.get_traces(start_time_milli_canary,
                                      end_time_milli_canary,
-                                     max_traces=max_traces_canary)
+                                     max_traces=max_traces_canary,
+                                     tags=tags_canary)
             if http_code != 200:
                 log.warn(canary_traces_or_error_msg)
                 ret_val, http_code = build_http_error(canary_traces_or_error_msg, http_code)
@@ -251,13 +264,13 @@ class TraceClusterDiff(Resource):
 
             # Cluster the baseline traces
             baseline_traces_timelines = \
-                zipkin_util.zipkin_trace_list_to_timelines(json.loads(baseline_traces_or_error_msg), filter_list_baseline)
+                zipkin_util.zipkin_trace_list_to_timelines(baseline_traces_or_error_msg, filter_list_baseline)
             baseline_clusters = \
                 distributed_tracing.cluster_traces(baseline_traces_timelines)
 
             # Cluster the canary traces
             canary_traces_timelines = \
-                zipkin_util.zipkin_trace_list_to_timelines(json.loads(canary_traces_or_error_msg), filter_list_canary)
+                zipkin_util.zipkin_trace_list_to_timelines(canary_traces_or_error_msg, filter_list_canary)
             canary_clusters = \
                 distributed_tracing.cluster_traces(canary_traces_timelines)
 

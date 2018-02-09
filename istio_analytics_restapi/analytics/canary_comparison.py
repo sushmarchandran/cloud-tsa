@@ -2,6 +2,9 @@ import istio_analytics_restapi.api.distributed_tracing.responses as responses
 
 def canary_simple_comparison(baseline_agg_event, canary_agg_event):
     delta = {}
+    if (not responses.DURATION_STR in baseline_agg_event or
+        not responses.DURATION_STR in canary_agg_event):
+        return {}
     duration_delta_mean = (baseline_agg_event[responses.DURATION_STR][responses.MEAN_STR] - 
                            canary_agg_event[responses.DURATION_STR][responses.MEAN_STR])
     duration_delta_mean_pct = (float(duration_delta_mean) / 
