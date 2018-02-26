@@ -13,6 +13,8 @@ The following environment variables control the behavior of the Istio Analytics 
 
 * `ISTIO_ANALYTICS_ZIPKIN_HOST`: URL to the Zipkin service containing tracing data. Setting this variable is required for the service to run. If Zipkin is running locally on its default port, set this variable to `http://localhost:9411`.
 
+* `ISTIO_ANALYTICS_ZIPKIN_OVERRIDE`: URL to the Zipkin service reported as part of the responses (in JSON) given by the Istio Analytics service. This is needed if `ISTIO_ANALYTICS_ZIPKIN_HOST` is an internal URL not visible from the user's browser where the Istio Analytics UI runs. If not set, the service will report the value of `ISTIO_ANALYTICS_ZIPKIN_HOST`.
+
 ## Swagger UI
 
 The interactive Swagger documentation for the REST API is available at:
