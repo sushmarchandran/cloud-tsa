@@ -70,6 +70,9 @@
 
             $scope.startTime = parseTime($location.search()['start']);
             $scope.endTime = parseTime($location.search()['end']);
+            if ('tags' in $location.search()) {
+                $scope.tags = $location.search()['tags'];
+            }
             if ('max' in $location.search()) {
                 $scope.maxTraces = parseInt($location.search()['max']);
             }
@@ -78,6 +81,9 @@
             }
             if ('canaryEnd' in $location.search()) {
                 $scope.canaryEndTime = parseTime($location.search()['canaryEnd']);
+            }
+            if ('canaryTags' in $location.search()) {
+                $scope.canaryTags = $location.search()['canaryTags'];
             }
             if ('canaryMax' in $location.search()) {
                 $scope.canaryMaxTraces = parseInt($location.search()['canaryMax']);
