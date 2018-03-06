@@ -2,7 +2,7 @@ import logging
 import os
 import sys
 
-from flask import Flask, Blueprint, redirect
+from flask import Flask, Blueprint, redirect, render_template
 
 from istio_analytics_restapi.api.restplus import api
 from istio_analytics_restapi.api.health.endpoints.health import health_namespace
@@ -61,6 +61,10 @@ def volume4():
 @app.route("/sankey")
 def sankey():
     return app.send_static_file('sankey.html')
+
+@app.route("/canary_dive")
+def canary_dive():
+    return render_template('canary-dive.html')
 
 @app.after_request
 def modify_headers(response):
