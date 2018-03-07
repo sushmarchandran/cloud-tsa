@@ -434,6 +434,11 @@ function clearSequenceDiagram() {
 function addCommunication(data) {
     var requests = data.events.filter(function f(evt) { return evt.type == "send_request"; });
 
+    var skydiveMenu = popupMenu().items(
+            'Focus',
+            'Capture',
+            'Stop Capturing');
+
     function outgoingProcessBoxEdge(d) {
         var xSource = lifelineX(data, source(d));
         var xTarget = lifelineX(data, target(d));
@@ -498,6 +503,20 @@ function addCommunication(data) {
         .attr("class", "messageLabel")
         .attr("text-anchor", "middle")
         .attr("alignment-baseline", "middle")
+        .on('contextmenu', function(d) {
+            d3.event.preventDefault();
+            var chart = d3.select("#chart")[0][0];
+            var m = d3.mouse(chart);
+            skydiveMenu(m[0], m[1], function (sel) {
+                if (sel == 'Focus') {
+                    skydiveFocus(d.service, d.interlocutor);
+                } else if (sel == 'Capture') {
+                    startCapture(d.service, d.interlocutor);
+                } else if (sel == 'Stop Capturing') {
+                    stopCapture(d.service, d.interlocutor);
+                }
+            });
+        })
         .on("mouseleave", function(d, i) {
             d3.select("#popups").selectAll(".messageLabelDetails").remove();
         });
@@ -509,6 +528,7 @@ function addCommunication(data) {
             // We can't do transition().on() so we use each() and do the on() there.
             // This is because 'data' is a closure and will be stale if we set on()
             // during enter().
+            /*
             d3.select(this)
                 .on("mouseenter", function(d2) {
                     var t = d3.select("#popups").append("text")
@@ -564,6 +584,7 @@ function addCommunication(data) {
                                 );
                     });
                 });
+                */
         })
         .attr("transform", function(d) {
             return makeSVGTransform(
@@ -604,6 +625,20 @@ function addCommunication(data) {
     messageLabels.enter().append("text")
         .attr("class", "messageLabel")
         .attr("text-anchor", "middle")
+        .on('contextmenu', function(d){
+            d3.event.preventDefault();
+            var chart = d3.select("#chart")[0][0];
+            var m = d3.mouse(chart);
+            skydiveMenu(m[0], m[1], function (sel) {
+                if (sel == 'Focus') {
+                    skydiveFocus(d.service, d.interlocutor);
+                } else if (sel == 'Capture') {
+                    startCapture(d.service, d.interlocutor);
+                } else if (sel == 'Stop Capturing') {
+                    stopCapture(d.service, d.interlocutor);
+                }
+            });
+        })
         .on("mouseleave", function(d, i) {
             d3.select("#popups").selectAll(".messageLabelDetails").remove();
         })
@@ -1268,4 +1303,108 @@ function prettyPercent(pct) {
         return (pct*100).toFixed(2) + "%";
     }
     return "<0.01%";
+}
+
+function popupMenu() {
+    var margin = 0.1; // % of width; const
+    var reScale = false; // flag
+    var height, width;
+    var items = []; // strings
+
+    /** Create a menu in SVG at the coordinate with a function that will be 
+     * called with the selected item string */
+    function menu(x, y, handler) {
+        d3.select('.context-menu').remove();
+        scaleMenu();
+
+        // Draw the menu
+        d3.select('svg').append('g')
+            .attr('class', 'context-menu')
+            .selectAll('temp')
+            .data(items).enter()
+            .append('g').attr('class', 'menu-item')
+            .style({'cursor': 'pointer'})
+            .on('mouseover', function(){ 
+                d3.select(this).select('rect').style({ 'fill': 'gray' }) })
+            .on('mouseout', function(){
+                d3.select(this).select('rect').style({ 'fill': 'lightgrey', 'stroke': 'white' }) })
+            .on('click', function(d) {
+                if (handler) {
+                    handler(d);
+                }
+            });
+
+        d3.selectAll('.menu-item').append('rect')
+            .attr('x', x)
+            .attr('y', function(d, i) { return i*height+y; })
+            .attr('height', height)
+            .attr('width', width)
+            .style({ 'fill': 'lightgrey', 'stroke': 'white'});
+
+        d3.selectAll('.menu-item').append('text')
+            .text(function(d) { return d; })
+            .attr('x', x)
+            .attr('y', function(d, i) { return i*height+y; })
+            .attr('dx', margin)
+            .attr('dy', height - margin/2)
+            .style({ 'fill': 'blue', 'font-size': '15'});
+
+        // Other interactions
+        d3.select('body')
+            .on('click', function() {
+                d3.select('.context-menu').remove();
+            });
+
+    }
+
+    // Automatically set width, height, and margin;
+    function scaleMenu() {
+        if (reScale) {
+            d3.select('svg').selectAll('temp')
+                .data(items).enter()
+                .append('text')
+                    .text(function(d){ return d; })
+                    .style({ 'fill': 'blue', 'font-size': '15'})
+                    .attr('x', -5000)
+                    .attr('y', -5000)
+                    .attr('class', 'temp');
+            var z = d3.selectAll('.temp')[0]
+                      .map(function(x){ return x.getBBox(); });
+            width = d3.max(z.map(function(x) { return x.width; }));
+            margin = margin*width;
+            width =  width + 2*margin;
+            height = d3.max(z.map(function(x) { return x.height + margin / 2; }));
+
+            d3.selectAll('.temp').remove();
+            reScale = false;
+        }
+    }
+
+    menu.items = function(e) {
+        for (var i in arguments) {
+            items.push(arguments[i]);
+        }
+
+        reScale = true;
+
+        return menu;
+    }
+
+    return menu;
+}
+
+function startCapture(service, interlocutor) {
+    alert("TODO Start Capture"
+            + " service=" + service + " interlocutor=" + interlocutor);
+}
+
+function stopCapture(service, interlocutor) {
+    alert("TODO Stop Capture"
+            + " service=" + service + " interlocutor=" + interlocutor);
+}
+
+
+function skydiveFocus(service, interlocutor) {
+    alert("TODO Focus"
+            + " service=" + service + " interlocutor=" + interlocutor);
 }
