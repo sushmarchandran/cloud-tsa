@@ -1,0 +1,2128 @@
+[
+	[
+		{
+			"traceId": "4bcbe76646c34748",
+			"id": "4bcbe76646c34748",
+			"name": "default-route",
+			"timestamp": 1510596065251271,
+			"duration": 6168361,
+			"annotations": 
+			[
+				{
+					"timestamp": 1510596065251271,
+					"value": "cs",
+					"endpoint": 
+					{
+						"serviceName": "istio-ingress",
+						"ipv4": "172.17.0.6"
+					}
+				},
+
+				{
+					"timestamp": 1510596065264103,
+					"value": "sr",
+					"endpoint": 
+					{
+						"serviceName": "productpage",
+						"ipv4": "172.17.0.13"
+					}
+				},
+
+				{
+					"timestamp": 1510596071406800,
+					"value": "ss",
+					"endpoint": 
+					{
+						"serviceName": "productpage",
+						"ipv4": "172.17.0.13"
+					}
+				},
+
+				{
+					"timestamp": 1510596071419632,
+					"value": "cr",
+					"endpoint": 
+					{
+						"serviceName": "istio-ingress",
+						"ipv4": "172.17.0.6"
+					}
+				}
+			],
+
+			"binaryAnnotations": 
+			[
+				{
+					"key": "downstream_cluster",
+					"value": "-",
+					"endpoint": 
+					{
+						"serviceName": "istio-ingress",
+						"ipv4": "172.17.0.6"
+					}
+				},
+
+				{
+					"key": "downstream_cluster",
+					"value": "-",
+					"endpoint": 
+					{
+						"serviceName": "productpage",
+						"ipv4": "172.17.0.13"
+					}
+				},
+
+				{
+					"key": "guid:x-request-id",
+					"value": "3b5d396b-29e7-90a8-9aaf-7483de48bf0e",
+					"endpoint": 
+					{
+						"serviceName": "istio-ingress",
+						"ipv4": "172.17.0.6"
+					}
+				},
+
+				{
+					"key": "guid:x-request-id",
+					"value": "3b5d396b-29e7-90a8-9aaf-7483de48bf0e",
+					"endpoint": 
+					{
+						"serviceName": "productpage",
+						"ipv4": "172.17.0.13"
+					}
+				},
+
+				{
+					"key": "http.method",
+					"value": "GET",
+					"endpoint": 
+					{
+						"serviceName": "istio-ingress",
+						"ipv4": "172.17.0.6"
+					}
+				},
+
+				{
+					"key": "http.method",
+					"value": "GET",
+					"endpoint": 
+					{
+						"serviceName": "productpage",
+						"ipv4": "172.17.0.13"
+					}
+				},
+
+				{
+					"key": "http.protocol",
+					"value": "HTTP/1.1",
+					"endpoint": 
+					{
+						"serviceName": "istio-ingress",
+						"ipv4": "172.17.0.6"
+					}
+				},
+
+				{
+					"key": "http.protocol",
+					"value": "HTTP/1.1",
+					"endpoint": 
+					{
+						"serviceName": "productpage",
+						"ipv4": "172.17.0.13"
+					}
+				},
+
+				{
+					"key": "http.status_code",
+					"value": "200",
+					"endpoint": 
+					{
+						"serviceName": "istio-ingress",
+						"ipv4": "172.17.0.6"
+					}
+				},
+
+				{
+					"key": "http.status_code",
+					"value": "200",
+					"endpoint": 
+					{
+						"serviceName": "productpage",
+						"ipv4": "172.17.0.13"
+					}
+				},
+
+				{
+					"key": "http.url",
+					"value": "http://192.168.99.100:32500/productpage",
+					"endpoint": 
+					{
+						"serviceName": "istio-ingress",
+						"ipv4": "172.17.0.6"
+					}
+				},
+
+				{
+					"key": "http.url",
+					"value": "http://192.168.99.100:32500/productpage",
+					"endpoint": 
+					{
+						"serviceName": "productpage",
+						"ipv4": "172.17.0.13"
+					}
+				},
+
+				{
+					"key": "node_id",
+					"value": "ingress~~istio-ingress-2834826339-9b852.istio-system~istio-system.svc.cluster.local",
+					"endpoint": 
+					{
+						"serviceName": "istio-ingress",
+						"ipv4": "172.17.0.6"
+					}
+				},
+
+				{
+					"key": "node_id",
+					"value": "sidecar~172.17.0.13~productpage-v1-478873460-d3sz7.default~default.svc.cluster.local",
+					"endpoint": 
+					{
+						"serviceName": "productpage",
+						"ipv4": "172.17.0.13"
+					}
+				},
+
+				{
+					"key": "request_size",
+					"value": "0",
+					"endpoint": 
+					{
+						"serviceName": "istio-ingress",
+						"ipv4": "172.17.0.6"
+					}
+				},
+
+				{
+					"key": "request_size",
+					"value": "0",
+					"endpoint": 
+					{
+						"serviceName": "productpage",
+						"ipv4": "172.17.0.13"
+					}
+				},
+
+				{
+					"key": "response_flags",
+					"value": "-",
+					"endpoint": 
+					{
+						"serviceName": "istio-ingress",
+						"ipv4": "172.17.0.6"
+					}
+				},
+
+				{
+					"key": "response_flags",
+					"value": "-",
+					"endpoint": 
+					{
+						"serviceName": "productpage",
+						"ipv4": "172.17.0.13"
+					}
+				},
+
+				{
+					"key": "response_size",
+					"value": "4083",
+					"endpoint": 
+					{
+						"serviceName": "istio-ingress",
+						"ipv4": "172.17.0.6"
+					}
+				},
+
+				{
+					"key": "response_size",
+					"value": "4083",
+					"endpoint": 
+					{
+						"serviceName": "productpage",
+						"ipv4": "172.17.0.13"
+					}
+				},
+
+				{
+					"key": "upstream_cluster",
+					"value": "out.304d4aa908c3ed9923066c887a9466a0755bd896",
+					"endpoint": 
+					{
+						"serviceName": "istio-ingress",
+						"ipv4": "172.17.0.6"
+					}
+				},
+
+				{
+					"key": "upstream_cluster",
+					"value": "in.9080",
+					"endpoint": 
+					{
+						"serviceName": "productpage",
+						"ipv4": "172.17.0.13"
+					}
+				},
+
+				{
+					"key": "user_agent",
+					"value": "curl/7.54.0",
+					"endpoint": 
+					{
+						"serviceName": "istio-ingress",
+						"ipv4": "172.17.0.6"
+					}
+				},
+
+				{
+					"key": "user_agent",
+					"value": "curl/7.54.0",
+					"endpoint": 
+					{
+						"serviceName": "productpage",
+						"ipv4": "172.17.0.13"
+					}
+				}
+			]
+		},
+
+		{
+			"traceId": "4bcbe76646c34748",
+			"id": "652b33e0ea5b8069",
+			"name": "/istio.mixer.v1.mixer/check",
+			"parentId": "4bcbe76646c34748",
+			"timestamp": 1510596065266555,
+			"duration": 2320,
+			"annotations": 
+			[
+				{
+					"timestamp": 1510596065266555,
+					"value": "sr",
+					"endpoint": 
+					{
+						"serviceName": "istio-mixer",
+						"port": 9091
+					}
+				},
+
+				{
+					"timestamp": 1510596065268875,
+					"value": "ss",
+					"endpoint": 
+					{
+						"serviceName": "istio-mixer",
+						"port": 9091
+					}
+				}
+			],
+
+			"binaryAnnotations": 
+			[
+				{
+					"key": "component",
+					"value": "gRPC",
+					"endpoint": 
+					{
+						"serviceName": "istio-mixer",
+						"port": 9091
+					}
+				},
+
+				{
+					"key": "span.kind",
+					"value": "server",
+					"endpoint": 
+					{
+						"serviceName": "istio-mixer",
+						"port": 9091
+					}
+				}
+			]
+		},
+
+		{
+			"traceId": "4bcbe76646c34748",
+			"id": "7f97c52a05a18922",
+			"name": "/istio.mixer.v1.mixer/check",
+			"parentId": "4bcbe76646c34748",
+			"timestamp": 1510596065287647,
+			"duration": 4597,
+			"annotations": 
+			[
+				{
+					"timestamp": 1510596065287647,
+					"value": "sr",
+					"endpoint": 
+					{
+						"serviceName": "istio-mixer",
+						"port": 9091
+					}
+				},
+
+				{
+					"timestamp": 1510596065292244,
+					"value": "ss",
+					"endpoint": 
+					{
+						"serviceName": "istio-mixer",
+						"port": 9091
+					}
+				}
+			],
+
+			"binaryAnnotations": 
+			[
+				{
+					"key": "component",
+					"value": "gRPC",
+					"endpoint": 
+					{
+						"serviceName": "istio-mixer",
+						"port": 9091
+					}
+				},
+
+				{
+					"key": "span.kind",
+					"value": "server",
+					"endpoint": 
+					{
+						"serviceName": "istio-mixer",
+						"port": 9091
+					}
+				}
+			]
+		},
+
+		{
+			"traceId": "4bcbe76646c34748",
+			"id": "00005a0cc7c2840f",
+			"name": "default-route",
+			"parentId": "4bcbe76646c34748",
+			"timestamp": 1510596065347443,
+			"duration": 32521,
+			"annotations": 
+			[
+				{
+					"timestamp": 1510596065347443,
+					"value": "cs",
+					"endpoint": 
+					{
+						"serviceName": "productpage",
+						"ipv4": "172.17.0.13"
+					}
+				},
+
+				{
+					"timestamp": 1510596065347858,
+					"value": "sr",
+					"endpoint": 
+					{
+						"serviceName": "details",
+						"ipv4": "172.17.0.9"
+					}
+				},
+
+				{
+					"timestamp": 1510596065379548,
+					"value": "ss",
+					"endpoint": 
+					{
+						"serviceName": "details",
+						"ipv4": "172.17.0.9"
+					}
+				},
+
+				{
+					"timestamp": 1510596065379964,
+					"value": "cr",
+					"endpoint": 
+					{
+						"serviceName": "productpage",
+						"ipv4": "172.17.0.13"
+					}
+				}
+			],
+
+			"binaryAnnotations": 
+			[
+				{
+					"key": "downstream_cluster",
+					"value": "-",
+					"endpoint": 
+					{
+						"serviceName": "productpage",
+						"ipv4": "172.17.0.13"
+					}
+				},
+
+				{
+					"key": "downstream_cluster",
+					"value": "-",
+					"endpoint": 
+					{
+						"serviceName": "details",
+						"ipv4": "172.17.0.9"
+					}
+				},
+
+				{
+					"key": "guid:x-request-id",
+					"value": "3b5d396b-29e7-90a8-9aaf-7483de48bf0e",
+					"endpoint": 
+					{
+						"serviceName": "productpage",
+						"ipv4": "172.17.0.13"
+					}
+				},
+
+				{
+					"key": "guid:x-request-id",
+					"value": "3b5d396b-29e7-90a8-9aaf-7483de48bf0e",
+					"endpoint": 
+					{
+						"serviceName": "details",
+						"ipv4": "172.17.0.9"
+					}
+				},
+
+				{
+					"key": "http.method",
+					"value": "GET",
+					"endpoint": 
+					{
+						"serviceName": "productpage",
+						"ipv4": "172.17.0.13"
+					}
+				},
+
+				{
+					"key": "http.method",
+					"value": "GET",
+					"endpoint": 
+					{
+						"serviceName": "details",
+						"ipv4": "172.17.0.9"
+					}
+				},
+
+				{
+					"key": "http.protocol",
+					"value": "HTTP/1.1",
+					"endpoint": 
+					{
+						"serviceName": "productpage",
+						"ipv4": "172.17.0.13"
+					}
+				},
+
+				{
+					"key": "http.protocol",
+					"value": "HTTP/1.1",
+					"endpoint": 
+					{
+						"serviceName": "details",
+						"ipv4": "172.17.0.9"
+					}
+				},
+
+				{
+					"key": "http.status_code",
+					"value": "200",
+					"endpoint": 
+					{
+						"serviceName": "productpage",
+						"ipv4": "172.17.0.13"
+					}
+				},
+
+				{
+					"key": "http.status_code",
+					"value": "200",
+					"endpoint": 
+					{
+						"serviceName": "details",
+						"ipv4": "172.17.0.9"
+					}
+				},
+
+				{
+					"key": "http.url",
+					"value": "http://details:9080/details/0",
+					"endpoint": 
+					{
+						"serviceName": "productpage",
+						"ipv4": "172.17.0.13"
+					}
+				},
+
+				{
+					"key": "http.url",
+					"value": "http://details:9080/details/0",
+					"endpoint": 
+					{
+						"serviceName": "details",
+						"ipv4": "172.17.0.9"
+					}
+				},
+
+				{
+					"key": "node_id",
+					"value": "sidecar~172.17.0.13~productpage-v1-478873460-d3sz7.default~default.svc.cluster.local",
+					"endpoint": 
+					{
+						"serviceName": "productpage",
+						"ipv4": "172.17.0.13"
+					}
+				},
+
+				{
+					"key": "node_id",
+					"value": "sidecar~172.17.0.9~details-v1-2883924736-44cxq.default~default.svc.cluster.local",
+					"endpoint": 
+					{
+						"serviceName": "details",
+						"ipv4": "172.17.0.9"
+					}
+				},
+
+				{
+					"key": "request_size",
+					"value": "0",
+					"endpoint": 
+					{
+						"serviceName": "productpage",
+						"ipv4": "172.17.0.13"
+					}
+				},
+
+				{
+					"key": "request_size",
+					"value": "0",
+					"endpoint": 
+					{
+						"serviceName": "details",
+						"ipv4": "172.17.0.9"
+					}
+				},
+
+				{
+					"key": "response_flags",
+					"value": "-",
+					"endpoint": 
+					{
+						"serviceName": "productpage",
+						"ipv4": "172.17.0.13"
+					}
+				},
+
+				{
+					"key": "response_flags",
+					"value": "-",
+					"endpoint": 
+					{
+						"serviceName": "details",
+						"ipv4": "172.17.0.9"
+					}
+				},
+
+				{
+					"key": "response_size",
+					"value": "178",
+					"endpoint": 
+					{
+						"serviceName": "productpage",
+						"ipv4": "172.17.0.13"
+					}
+				},
+
+				{
+					"key": "response_size",
+					"value": "178",
+					"endpoint": 
+					{
+						"serviceName": "details",
+						"ipv4": "172.17.0.9"
+					}
+				},
+
+				{
+					"key": "upstream_cluster",
+					"value": "out.c3f3e9bbee47cde8a40bce39c2a4aa4ddff1695e",
+					"endpoint": 
+					{
+						"serviceName": "productpage",
+						"ipv4": "172.17.0.13"
+					}
+				},
+
+				{
+					"key": "upstream_cluster",
+					"value": "in.9080",
+					"endpoint": 
+					{
+						"serviceName": "details",
+						"ipv4": "172.17.0.9"
+					}
+				},
+
+				{
+					"key": "user_agent",
+					"value": "python-requests/2.18.4",
+					"endpoint": 
+					{
+						"serviceName": "productpage",
+						"ipv4": "172.17.0.13"
+					}
+				},
+
+				{
+					"key": "user_agent",
+					"value": "python-requests/2.18.4",
+					"endpoint": 
+					{
+						"serviceName": "details",
+						"ipv4": "172.17.0.9"
+					}
+				}
+			]
+		},
+
+		{
+			"traceId": "4bcbe76646c34748",
+			"id": "0000a76f1c6d0949",
+			"name": "reviews-default",
+			"parentId": "4bcbe76646c34748",
+			"timestamp": 1510596065392874,
+			"duration": 3002519,
+			"annotations": 
+			[
+				{
+					"timestamp": 1510596065392874,
+					"value": "cs",
+					"endpoint": 
+					{
+						"serviceName": "productpage",
+						"ipv4": "172.17.0.13"
+					}
+				},
+
+				{
+					"timestamp": 1510596065404613,
+					"value": "sr",
+					"endpoint": 
+					{
+						"serviceName": "reviews",
+						"ipv4": "172.17.0.11"
+					}
+				},
+
+				{
+					"timestamp": 1510596068395393,
+					"value": "cr",
+					"endpoint": 
+					{
+						"serviceName": "productpage",
+						"ipv4": "172.17.0.13"
+					}
+				},
+
+				{
+					"timestamp": 1510596068407592,
+					"value": "ss",
+					"endpoint": 
+					{
+						"serviceName": "reviews",
+						"ipv4": "172.17.0.11"
+					}
+				}
+			],
+
+			"binaryAnnotations": 
+			[
+				{
+					"key": "downstream_cluster",
+					"value": "-",
+					"endpoint": 
+					{
+						"serviceName": "productpage",
+						"ipv4": "172.17.0.13"
+					}
+				},
+
+				{
+					"key": "downstream_cluster",
+					"value": "-",
+					"endpoint": 
+					{
+						"serviceName": "reviews",
+						"ipv4": "172.17.0.11"
+					}
+				},
+
+				{
+					"key": "error",
+					"value": "true",
+					"endpoint": 
+					{
+						"serviceName": "productpage",
+						"ipv4": "172.17.0.13"
+					}
+				},
+
+				{
+					"key": "error",
+					"value": "true",
+					"endpoint": 
+					{
+						"serviceName": "reviews",
+						"ipv4": "172.17.0.11"
+					}
+				},
+
+				{
+					"key": "guid:x-request-id",
+					"value": "3b5d396b-29e7-90a8-9aaf-7483de48bf0e",
+					"endpoint": 
+					{
+						"serviceName": "productpage",
+						"ipv4": "172.17.0.13"
+					}
+				},
+
+				{
+					"key": "guid:x-request-id",
+					"value": "3b5d396b-29e7-90a8-9aaf-7483de48bf0e",
+					"endpoint": 
+					{
+						"serviceName": "reviews",
+						"ipv4": "172.17.0.11"
+					}
+				},
+
+				{
+					"key": "http.method",
+					"value": "GET",
+					"endpoint": 
+					{
+						"serviceName": "productpage",
+						"ipv4": "172.17.0.13"
+					}
+				},
+
+				{
+					"key": "http.method",
+					"value": "GET",
+					"endpoint": 
+					{
+						"serviceName": "reviews",
+						"ipv4": "172.17.0.11"
+					}
+				},
+
+				{
+					"key": "http.protocol",
+					"value": "HTTP/1.1",
+					"endpoint": 
+					{
+						"serviceName": "productpage",
+						"ipv4": "172.17.0.13"
+					}
+				},
+
+				{
+					"key": "http.protocol",
+					"value": "HTTP/1.1",
+					"endpoint": 
+					{
+						"serviceName": "reviews",
+						"ipv4": "172.17.0.11"
+					}
+				},
+
+				{
+					"key": "http.status_code",
+					"value": "0",
+					"endpoint": 
+					{
+						"serviceName": "productpage",
+						"ipv4": "172.17.0.13"
+					}
+				},
+
+				{
+					"key": "http.status_code",
+					"value": "0",
+					"endpoint": 
+					{
+						"serviceName": "reviews",
+						"ipv4": "172.17.0.11"
+					}
+				},
+
+				{
+					"key": "http.url",
+					"value": "http://reviews:9080/reviews/0",
+					"endpoint": 
+					{
+						"serviceName": "productpage",
+						"ipv4": "172.17.0.13"
+					}
+				},
+
+				{
+					"key": "http.url",
+					"value": "http://reviews:9080/reviews/0",
+					"endpoint": 
+					{
+						"serviceName": "reviews",
+						"ipv4": "172.17.0.11"
+					}
+				},
+
+				{
+					"key": "node_id",
+					"value": "sidecar~172.17.0.13~productpage-v1-478873460-d3sz7.default~default.svc.cluster.local",
+					"endpoint": 
+					{
+						"serviceName": "productpage",
+						"ipv4": "172.17.0.13"
+					}
+				},
+
+				{
+					"key": "node_id",
+					"value": "sidecar~172.17.0.11~reviews-v2-986872416-gh8wr.default~default.svc.cluster.local",
+					"endpoint": 
+					{
+						"serviceName": "reviews",
+						"ipv4": "172.17.0.11"
+					}
+				},
+
+				{
+					"key": "request_size",
+					"value": "0",
+					"endpoint": 
+					{
+						"serviceName": "productpage",
+						"ipv4": "172.17.0.13"
+					}
+				},
+
+				{
+					"key": "request_size",
+					"value": "0",
+					"endpoint": 
+					{
+						"serviceName": "reviews",
+						"ipv4": "172.17.0.11"
+					}
+				},
+
+				{
+					"key": "response_flags",
+					"value": "-",
+					"endpoint": 
+					{
+						"serviceName": "productpage",
+						"ipv4": "172.17.0.13"
+					}
+				},
+
+				{
+					"key": "response_flags",
+					"value": "-",
+					"endpoint": 
+					{
+						"serviceName": "reviews",
+						"ipv4": "172.17.0.11"
+					}
+				},
+
+				{
+					"key": "response_size",
+					"value": "0",
+					"endpoint": 
+					{
+						"serviceName": "productpage",
+						"ipv4": "172.17.0.13"
+					}
+				},
+
+				{
+					"key": "response_size",
+					"value": "0",
+					"endpoint": 
+					{
+						"serviceName": "reviews",
+						"ipv4": "172.17.0.11"
+					}
+				},
+
+				{
+					"key": "upstream_cluster",
+					"value": "out.9885ad2b8f51ba5a8ef1dbd5c35677a57e298b14",
+					"endpoint": 
+					{
+						"serviceName": "productpage",
+						"ipv4": "172.17.0.13"
+					}
+				},
+
+				{
+					"key": "upstream_cluster",
+					"value": "in.9080",
+					"endpoint": 
+					{
+						"serviceName": "reviews",
+						"ipv4": "172.17.0.11"
+					}
+				},
+
+				{
+					"key": "user_agent",
+					"value": "python-requests/2.18.4",
+					"endpoint": 
+					{
+						"serviceName": "productpage",
+						"ipv4": "172.17.0.13"
+					}
+				},
+
+				{
+					"key": "user_agent",
+					"value": "python-requests/2.18.4",
+					"endpoint": 
+					{
+						"serviceName": "reviews",
+						"ipv4": "172.17.0.11"
+					}
+				}
+			]
+		},
+
+		{
+			"traceId": "4bcbe76646c34748",
+			"id": "0000b88cdaf50a8d",
+			"name": "reviews-default",
+			"parentId": "4bcbe76646c34748",
+			"timestamp": 1510596068398318,
+			"duration": 3003600,
+			"annotations": 
+			[
+				{
+					"timestamp": 1510596068398318,
+					"value": "cs",
+					"endpoint": 
+					{
+						"serviceName": "productpage",
+						"ipv4": "172.17.0.13"
+					}
+				},
+
+				{
+					"timestamp": 1510596068409659,
+					"value": "sr",
+					"endpoint": 
+					{
+						"serviceName": "reviews",
+						"ipv4": "172.17.0.11"
+					}
+				},
+
+				{
+					"timestamp": 1510596071401918,
+					"value": "cr",
+					"endpoint": 
+					{
+						"serviceName": "productpage",
+						"ipv4": "172.17.0.13"
+					}
+				},
+
+				{
+					"timestamp": 1510596071413756,
+					"value": "ss",
+					"endpoint": 
+					{
+						"serviceName": "reviews",
+						"ipv4": "172.17.0.11"
+					}
+				}
+			],
+
+			"binaryAnnotations": 
+			[
+				{
+					"key": "downstream_cluster",
+					"value": "-",
+					"endpoint": 
+					{
+						"serviceName": "productpage",
+						"ipv4": "172.17.0.13"
+					}
+				},
+
+				{
+					"key": "downstream_cluster",
+					"value": "-",
+					"endpoint": 
+					{
+						"serviceName": "reviews",
+						"ipv4": "172.17.0.11"
+					}
+				},
+
+				{
+					"key": "error",
+					"value": "true",
+					"endpoint": 
+					{
+						"serviceName": "productpage",
+						"ipv4": "172.17.0.13"
+					}
+				},
+
+				{
+					"key": "error",
+					"value": "true",
+					"endpoint": 
+					{
+						"serviceName": "reviews",
+						"ipv4": "172.17.0.11"
+					}
+				},
+
+				{
+					"key": "guid:x-request-id",
+					"value": "3b5d396b-29e7-90a8-9aaf-7483de48bf0e",
+					"endpoint": 
+					{
+						"serviceName": "productpage",
+						"ipv4": "172.17.0.13"
+					}
+				},
+
+				{
+					"key": "guid:x-request-id",
+					"value": "3b5d396b-29e7-90a8-9aaf-7483de48bf0e",
+					"endpoint": 
+					{
+						"serviceName": "reviews",
+						"ipv4": "172.17.0.11"
+					}
+				},
+
+				{
+					"key": "http.method",
+					"value": "GET",
+					"endpoint": 
+					{
+						"serviceName": "productpage",
+						"ipv4": "172.17.0.13"
+					}
+				},
+
+				{
+					"key": "http.method",
+					"value": "GET",
+					"endpoint": 
+					{
+						"serviceName": "reviews",
+						"ipv4": "172.17.0.11"
+					}
+				},
+
+				{
+					"key": "http.protocol",
+					"value": "HTTP/1.1",
+					"endpoint": 
+					{
+						"serviceName": "productpage",
+						"ipv4": "172.17.0.13"
+					}
+				},
+
+				{
+					"key": "http.protocol",
+					"value": "HTTP/1.1",
+					"endpoint": 
+					{
+						"serviceName": "reviews",
+						"ipv4": "172.17.0.11"
+					}
+				},
+
+				{
+					"key": "http.status_code",
+					"value": "0",
+					"endpoint": 
+					{
+						"serviceName": "productpage",
+						"ipv4": "172.17.0.13"
+					}
+				},
+
+				{
+					"key": "http.status_code",
+					"value": "0",
+					"endpoint": 
+					{
+						"serviceName": "reviews",
+						"ipv4": "172.17.0.11"
+					}
+				},
+
+				{
+					"key": "http.url",
+					"value": "http://reviews:9080/reviews/0",
+					"endpoint": 
+					{
+						"serviceName": "productpage",
+						"ipv4": "172.17.0.13"
+					}
+				},
+
+				{
+					"key": "http.url",
+					"value": "http://reviews:9080/reviews/0",
+					"endpoint": 
+					{
+						"serviceName": "reviews",
+						"ipv4": "172.17.0.11"
+					}
+				},
+
+				{
+					"key": "node_id",
+					"value": "sidecar~172.17.0.13~productpage-v1-478873460-d3sz7.default~default.svc.cluster.local",
+					"endpoint": 
+					{
+						"serviceName": "productpage",
+						"ipv4": "172.17.0.13"
+					}
+				},
+
+				{
+					"key": "node_id",
+					"value": "sidecar~172.17.0.11~reviews-v2-986872416-gh8wr.default~default.svc.cluster.local",
+					"endpoint": 
+					{
+						"serviceName": "reviews",
+						"ipv4": "172.17.0.11"
+					}
+				},
+
+				{
+					"key": "request_size",
+					"value": "0",
+					"endpoint": 
+					{
+						"serviceName": "productpage",
+						"ipv4": "172.17.0.13"
+					}
+				},
+
+				{
+					"key": "request_size",
+					"value": "0",
+					"endpoint": 
+					{
+						"serviceName": "reviews",
+						"ipv4": "172.17.0.11"
+					}
+				},
+
+				{
+					"key": "response_flags",
+					"value": "-",
+					"endpoint": 
+					{
+						"serviceName": "productpage",
+						"ipv4": "172.17.0.13"
+					}
+				},
+
+				{
+					"key": "response_flags",
+					"value": "-",
+					"endpoint": 
+					{
+						"serviceName": "reviews",
+						"ipv4": "172.17.0.11"
+					}
+				},
+
+				{
+					"key": "response_size",
+					"value": "0",
+					"endpoint": 
+					{
+						"serviceName": "productpage",
+						"ipv4": "172.17.0.13"
+					}
+				},
+
+				{
+					"key": "response_size",
+					"value": "0",
+					"endpoint": 
+					{
+						"serviceName": "reviews",
+						"ipv4": "172.17.0.11"
+					}
+				},
+
+				{
+					"key": "upstream_cluster",
+					"value": "out.9885ad2b8f51ba5a8ef1dbd5c35677a57e298b14",
+					"endpoint": 
+					{
+						"serviceName": "productpage",
+						"ipv4": "172.17.0.13"
+					}
+				},
+
+				{
+					"key": "upstream_cluster",
+					"value": "in.9080",
+					"endpoint": 
+					{
+						"serviceName": "reviews",
+						"ipv4": "172.17.0.11"
+					}
+				},
+
+				{
+					"key": "user_agent",
+					"value": "python-requests/2.18.4",
+					"endpoint": 
+					{
+						"serviceName": "productpage",
+						"ipv4": "172.17.0.13"
+					}
+				},
+
+				{
+					"key": "user_agent",
+					"value": "python-requests/2.18.4",
+					"endpoint": 
+					{
+						"serviceName": "reviews",
+						"ipv4": "172.17.0.11"
+					}
+				}
+			]
+		},
+
+		{
+			"traceId": "4bcbe76646c34748",
+			"id": "52eee39c6216fb01",
+			"name": "/istio.mixer.v1.mixer/check",
+			"parentId": "0000c56e4cd8f6a0",
+			"timestamp": 1510596075433077,
+			"duration": 909,
+			"annotations": 
+			[
+				{
+					"timestamp": 1510596075433077,
+					"value": "sr",
+					"endpoint": 
+					{
+						"serviceName": "istio-mixer",
+						"port": 9091
+					}
+				},
+
+				{
+					"timestamp": 1510596075433986,
+					"value": "ss",
+					"endpoint": 
+					{
+						"serviceName": "istio-mixer",
+						"port": 9091
+					}
+				}
+			],
+
+			"binaryAnnotations": 
+			[
+				{
+					"key": "component",
+					"value": "gRPC",
+					"endpoint": 
+					{
+						"serviceName": "istio-mixer",
+						"port": 9091
+					}
+				},
+
+				{
+					"key": "span.kind",
+					"value": "server",
+					"endpoint": 
+					{
+						"serviceName": "istio-mixer",
+						"port": 9091
+					}
+				}
+			]
+		},
+
+		{
+			"traceId": "4bcbe76646c34748",
+			"id": "0613cdc5bb209b5b",
+			"name": "attributes:default(kubernetes)",
+			"parentId": "652b33e0ea5b8069",
+			"timestamp": 1510596065267955,
+			"duration": 323,
+			"annotations": 
+			[
+				{
+					"timestamp": 1510596065268266,
+					"value": "aspect=attributes adapter=default impl=kubernetes response_code=OK response_message=",
+					"endpoint": 
+					{
+						"serviceName": "istio-mixer",
+						"port": 9091
+					}
+				}
+			],
+
+			"binaryAnnotations": 
+			[
+				{
+					"key": "lc",
+					"value": "istio-mixer",
+					"endpoint": 
+					{
+						"serviceName": "istio-mixer",
+						"port": 9091
+					}
+				}
+			]
+		},
+
+		{
+			"traceId": "4bcbe76646c34748",
+			"id": "01273cbd124e1182",
+			"name": "attributes:default(kubernetes)",
+			"parentId": "7f97c52a05a18922",
+			"timestamp": 1510596065288608,
+			"duration": 2865,
+			"annotations": 
+			[
+				{
+					"timestamp": 1510596065291455,
+					"value": "aspect=attributes adapter=default impl=kubernetes response_code=OK response_message=",
+					"endpoint": 
+					{
+						"serviceName": "istio-mixer",
+						"port": 9091
+					}
+				}
+			],
+
+			"binaryAnnotations": 
+			[
+				{
+					"key": "lc",
+					"value": "istio-mixer",
+					"endpoint": 
+					{
+						"serviceName": "istio-mixer",
+						"port": 9091
+					}
+				}
+			]
+		},
+
+		{
+			"traceId": "4bcbe76646c34748",
+			"id": "385ebb1ae18e7e49",
+			"name": "/istio.mixer.v1.mixer/check",
+			"parentId": "00005a0cc7c2840f",
+			"timestamp": 1510596065361693,
+			"duration": 6590,
+			"annotations": 
+			[
+				{
+					"timestamp": 1510596065361693,
+					"value": "sr",
+					"endpoint": 
+					{
+						"serviceName": "istio-mixer",
+						"port": 9091
+					}
+				},
+
+				{
+					"timestamp": 1510596065368283,
+					"value": "ss",
+					"endpoint": 
+					{
+						"serviceName": "istio-mixer",
+						"port": 9091
+					}
+				}
+			],
+
+			"binaryAnnotations": 
+			[
+				{
+					"key": "component",
+					"value": "gRPC",
+					"endpoint": 
+					{
+						"serviceName": "istio-mixer",
+						"port": 9091
+					}
+				},
+
+				{
+					"key": "span.kind",
+					"value": "server",
+					"endpoint": 
+					{
+						"serviceName": "istio-mixer",
+						"port": 9091
+					}
+				}
+			]
+		},
+
+		{
+			"traceId": "4bcbe76646c34748",
+			"id": "3a3d8cb7ab174960",
+			"name": "/istio.mixer.v1.mixer/check",
+			"parentId": "0000a76f1c6d0949",
+			"timestamp": 1510596065406439,
+			"duration": 4699,
+			"annotations": 
+			[
+				{
+					"timestamp": 1510596065406439,
+					"value": "sr",
+					"endpoint": 
+					{
+						"serviceName": "istio-mixer",
+						"port": 9091
+					}
+				},
+
+				{
+					"timestamp": 1510596065411138,
+					"value": "ss",
+					"endpoint": 
+					{
+						"serviceName": "istio-mixer",
+						"port": 9091
+					}
+				}
+			],
+
+			"binaryAnnotations": 
+			[
+				{
+					"key": "component",
+					"value": "gRPC",
+					"endpoint": 
+					{
+						"serviceName": "istio-mixer",
+						"port": 9091
+					}
+				},
+
+				{
+					"key": "span.kind",
+					"value": "server",
+					"endpoint": 
+					{
+						"serviceName": "istio-mixer",
+						"port": 9091
+					}
+				}
+			]
+		},
+
+		{
+			"traceId": "4bcbe76646c34748",
+			"id": "0000faf7ccdd2ddd",
+			"name": "ratings-test-delay",
+			"parentId": "0000a76f1c6d0949",
+			"timestamp": 1510596065576834,
+			"duration": 7004876,
+			"annotations": 
+			[
+				{
+					"timestamp": 1510596065576834,
+					"value": "cs",
+					"endpoint": 
+					{
+						"serviceName": "reviews",
+						"ipv4": "172.17.0.11"
+					}
+				},
+
+				{
+					"timestamp": 1510596069076742,
+					"value": "sr",
+					"endpoint": 
+					{
+						"serviceName": "ratings",
+						"ipv4": "172.17.0.8"
+					}
+				},
+
+				{
+					"timestamp": 1510596069081801,
+					"value": "ss",
+					"endpoint": 
+					{
+						"serviceName": "ratings",
+						"ipv4": "172.17.0.8"
+					}
+				},
+
+				{
+					"timestamp": 1510596072581710,
+					"value": "cr",
+					"endpoint": 
+					{
+						"serviceName": "reviews",
+						"ipv4": "172.17.0.11"
+					}
+				}
+			],
+
+			"binaryAnnotations": 
+			[
+				{
+					"key": "downstream_cluster",
+					"value": "-",
+					"endpoint": 
+					{
+						"serviceName": "reviews",
+						"ipv4": "172.17.0.11"
+					}
+				},
+
+				{
+					"key": "downstream_cluster",
+					"value": "-",
+					"endpoint": 
+					{
+						"serviceName": "ratings",
+						"ipv4": "172.17.0.8"
+					}
+				},
+
+				{
+					"key": "guid:x-request-id",
+					"value": "3b5d396b-29e7-90a8-9aaf-7483de48bf0e",
+					"endpoint": 
+					{
+						"serviceName": "reviews",
+						"ipv4": "172.17.0.11"
+					}
+				},
+
+				{
+					"key": "guid:x-request-id",
+					"value": "3b5d396b-29e7-90a8-9aaf-7483de48bf0e",
+					"endpoint": 
+					{
+						"serviceName": "ratings",
+						"ipv4": "172.17.0.8"
+					}
+				},
+
+				{
+					"key": "http.method",
+					"value": "GET",
+					"endpoint": 
+					{
+						"serviceName": "reviews",
+						"ipv4": "172.17.0.11"
+					}
+				},
+
+				{
+					"key": "http.method",
+					"value": "GET",
+					"endpoint": 
+					{
+						"serviceName": "ratings",
+						"ipv4": "172.17.0.8"
+					}
+				},
+
+				{
+					"key": "http.protocol",
+					"value": "HTTP/1.1",
+					"endpoint": 
+					{
+						"serviceName": "reviews",
+						"ipv4": "172.17.0.11"
+					}
+				},
+
+				{
+					"key": "http.protocol",
+					"value": "HTTP/1.1",
+					"endpoint": 
+					{
+						"serviceName": "ratings",
+						"ipv4": "172.17.0.8"
+					}
+				},
+
+				{
+					"key": "http.status_code",
+					"value": "200",
+					"endpoint": 
+					{
+						"serviceName": "reviews",
+						"ipv4": "172.17.0.11"
+					}
+				},
+
+				{
+					"key": "http.status_code",
+					"value": "200",
+					"endpoint": 
+					{
+						"serviceName": "ratings",
+						"ipv4": "172.17.0.8"
+					}
+				},
+
+				{
+					"key": "http.url",
+					"value": "http://ratings:9080/ratings/0",
+					"endpoint": 
+					{
+						"serviceName": "reviews",
+						"ipv4": "172.17.0.11"
+					}
+				},
+
+				{
+					"key": "http.url",
+					"value": "http://ratings:9080/ratings/0",
+					"endpoint": 
+					{
+						"serviceName": "ratings",
+						"ipv4": "172.17.0.8"
+					}
+				},
+
+				{
+					"key": "node_id",
+					"value": "sidecar~172.17.0.11~reviews-v2-986872416-gh8wr.default~default.svc.cluster.local",
+					"endpoint": 
+					{
+						"serviceName": "reviews",
+						"ipv4": "172.17.0.11"
+					}
+				},
+
+				{
+					"key": "node_id",
+					"value": "sidecar~172.17.0.8~ratings-v1-674162728-gwdqg.default~default.svc.cluster.local",
+					"endpoint": 
+					{
+						"serviceName": "ratings",
+						"ipv4": "172.17.0.8"
+					}
+				},
+
+				{
+					"key": "request_size",
+					"value": "0",
+					"endpoint": 
+					{
+						"serviceName": "reviews",
+						"ipv4": "172.17.0.11"
+					}
+				},
+
+				{
+					"key": "request_size",
+					"value": "0",
+					"endpoint": 
+					{
+						"serviceName": "ratings",
+						"ipv4": "172.17.0.8"
+					}
+				},
+
+				{
+					"key": "response_flags",
+					"value": "DI",
+					"endpoint": 
+					{
+						"serviceName": "reviews",
+						"ipv4": "172.17.0.11"
+					}
+				},
+
+				{
+					"key": "response_flags",
+					"value": "-",
+					"endpoint": 
+					{
+						"serviceName": "ratings",
+						"ipv4": "172.17.0.8"
+					}
+				},
+
+				{
+					"key": "response_size",
+					"value": "48",
+					"endpoint": 
+					{
+						"serviceName": "reviews",
+						"ipv4": "172.17.0.11"
+					}
+				},
+
+				{
+					"key": "response_size",
+					"value": "48",
+					"endpoint": 
+					{
+						"serviceName": "ratings",
+						"ipv4": "172.17.0.8"
+					}
+				},
+
+				{
+					"key": "upstream_cluster",
+					"value": "out.9702f67ee1d22e953c7eedda548c846c3d813a4c",
+					"endpoint": 
+					{
+						"serviceName": "reviews",
+						"ipv4": "172.17.0.11"
+					}
+				},
+
+				{
+					"key": "upstream_cluster",
+					"value": "in.9080",
+					"endpoint": 
+					{
+						"serviceName": "ratings",
+						"ipv4": "172.17.0.8"
+					}
+				},
+
+				{
+					"key": "user_agent",
+					"value": "Apache-CXF/3.1.11",
+					"endpoint": 
+					{
+						"serviceName": "reviews",
+						"ipv4": "172.17.0.11"
+					}
+				},
+
+				{
+					"key": "user_agent",
+					"value": "Apache-CXF/3.1.11",
+					"endpoint": 
+					{
+						"serviceName": "ratings",
+						"ipv4": "172.17.0.8"
+					}
+				}
+			]
+		},
+
+		{
+			"traceId": "4bcbe76646c34748",
+			"id": "16567a9119c32687",
+			"name": "/istio.mixer.v1.mixer/check",
+			"parentId": "0000b88cdaf50a8d",
+			"timestamp": 1510596068410673,
+			"duration": 3017,
+			"annotations": 
+			[
+				{
+					"timestamp": 1510596068410673,
+					"value": "sr",
+					"endpoint": 
+					{
+						"serviceName": "istio-mixer",
+						"port": 9091
+					}
+				},
+
+				{
+					"timestamp": 1510596068413690,
+					"value": "ss",
+					"endpoint": 
+					{
+						"serviceName": "istio-mixer",
+						"port": 9091
+					}
+				}
+			],
+
+			"binaryAnnotations": 
+			[
+				{
+					"key": "component",
+					"value": "gRPC",
+					"endpoint": 
+					{
+						"serviceName": "istio-mixer",
+						"port": 9091
+					}
+				},
+
+				{
+					"key": "span.kind",
+					"value": "server",
+					"endpoint": 
+					{
+						"serviceName": "istio-mixer",
+						"port": 9091
+					}
+				}
+			]
+		},
+
+		{
+			"traceId": "4bcbe76646c34748",
+			"id": "036033dcb2a903ba",
+			"name": "attributes:default(kubernetes)",
+			"parentId": "52eee39c6216fb01",
+			"timestamp": 1510596075433369,
+			"duration": 338,
+			"annotations": 
+			[
+				{
+					"timestamp": 1510596075433691,
+					"value": "aspect=attributes adapter=default impl=kubernetes response_code=OK response_message=",
+					"endpoint": 
+					{
+						"serviceName": "istio-mixer",
+						"port": 9091
+					}
+				}
+			],
+
+			"binaryAnnotations": 
+			[
+				{
+					"key": "lc",
+					"value": "istio-mixer",
+					"endpoint": 
+					{
+						"serviceName": "istio-mixer",
+						"port": 9091
+					}
+				}
+			]
+		},
+
+		{
+			"traceId": "4bcbe76646c34748",
+			"id": "773bc604b94b9777",
+			"name": "attributes:default(kubernetes)",
+			"parentId": "385ebb1ae18e7e49",
+			"timestamp": 1510596065366055,
+			"duration": 1164,
+			"annotations": 
+			[
+				{
+					"timestamp": 1510596065367205,
+					"value": "aspect=attributes adapter=default impl=kubernetes response_code=OK response_message=",
+					"endpoint": 
+					{
+						"serviceName": "istio-mixer",
+						"port": 9091
+					}
+				}
+			],
+
+			"binaryAnnotations": 
+			[
+				{
+					"key": "lc",
+					"value": "istio-mixer",
+					"endpoint": 
+					{
+						"serviceName": "istio-mixer",
+						"port": 9091
+					}
+				}
+			]
+		},
+
+		{
+			"traceId": "4bcbe76646c34748",
+			"id": "038d6a78dc4a5301",
+			"name": "attributes:default(kubernetes)",
+			"parentId": "3a3d8cb7ab174960",
+			"timestamp": 1510596065408385,
+			"duration": 1027,
+			"annotations": 
+			[
+				{
+					"timestamp": 1510596065409334,
+					"value": "aspect=attributes adapter=default impl=kubernetes response_code=OK response_message=",
+					"endpoint": 
+					{
+						"serviceName": "istio-mixer",
+						"port": 9091
+					}
+				}
+			],
+
+			"binaryAnnotations": 
+			[
+				{
+					"key": "lc",
+					"value": "istio-mixer",
+					"endpoint": 
+					{
+						"serviceName": "istio-mixer",
+						"port": 9091
+					}
+				}
+			]
+		},
+
+		{
+			"traceId": "4bcbe76646c34748",
+			"id": "441b6bb292d923e0",
+			"name": "/istio.mixer.v1.mixer/check",
+			"parentId": "0000faf7ccdd2ddd",
+			"timestamp": 1510596072577319,
+			"duration": 1315,
+			"annotations": 
+			[
+				{
+					"timestamp": 1510596072577319,
+					"value": "sr",
+					"endpoint": 
+					{
+						"serviceName": "istio-mixer",
+						"port": 9091
+					}
+				},
+
+				{
+					"timestamp": 1510596072578634,
+					"value": "ss",
+					"endpoint": 
+					{
+						"serviceName": "istio-mixer",
+						"port": 9091
+					}
+				}
+			],
+
+			"binaryAnnotations": 
+			[
+				{
+					"key": "component",
+					"value": "gRPC",
+					"endpoint": 
+					{
+						"serviceName": "istio-mixer",
+						"port": 9091
+					}
+				},
+
+				{
+					"key": "span.kind",
+					"value": "server",
+					"endpoint": 
+					{
+						"serviceName": "istio-mixer",
+						"port": 9091
+					}
+				}
+			]
+		},
+
+		{
+			"traceId": "4bcbe76646c34748",
+			"id": "3c9826fdfda4cf24",
+			"name": "attributes:default(kubernetes)",
+			"parentId": "16567a9119c32687",
+			"timestamp": 1510596068411798,
+			"duration": 676,
+			"annotations": 
+			[
+				{
+					"timestamp": 1510596068412359,
+					"value": "aspect=attributes adapter=default impl=kubernetes response_code=OK response_message=",
+					"endpoint": 
+					{
+						"serviceName": "istio-mixer",
+						"port": 9091
+					}
+				}
+			],
+
+			"binaryAnnotations": 
+			[
+				{
+					"key": "lc",
+					"value": "istio-mixer",
+					"endpoint": 
+					{
+						"serviceName": "istio-mixer",
+						"port": 9091
+					}
+				}
+			]
+		},
+
+		{
+			"traceId": "4bcbe76646c34748",
+			"id": "3d1915bed6f26d38",
+			"name": "attributes:default(kubernetes)",
+			"parentId": "441b6bb292d923e0",
+			"timestamp": 1510596072577839,
+			"duration": 334,
+			"annotations": 
+			[
+				{
+					"timestamp": 1510596072578159,
+					"value": "aspect=attributes adapter=default impl=kubernetes response_code=OK response_message=",
+					"endpoint": 
+					{
+						"serviceName": "istio-mixer",
+						"port": 9091
+					}
+				}
+			],
+
+			"binaryAnnotations": 
+			[
+				{
+					"key": "lc",
+					"value": "istio-mixer",
+					"endpoint": 
+					{
+						"serviceName": "istio-mixer",
+						"port": 9091
+					}
+				}
+			]
+		}
+	]
+]

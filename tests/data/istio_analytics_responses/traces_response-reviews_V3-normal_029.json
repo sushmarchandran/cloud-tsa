@@ -1,0 +1,87 @@
+{
+	"zipkin_url": "http://localhost:9411",
+	"trace_list": 
+	[
+		{
+			"trace_id": "91c6a20ffcc96460",
+			"spans": 
+			[
+				{
+					"span_id": "91c6a20ffcc96460",
+					"parent_span_id": null,
+					"source_ip": "172.17.0.5",
+					"source_name": "istio-ingress",
+					"target_ip": "172.17.0.14",
+					"target_name": "productpage",
+					"request": "GET http://192.168.99.100:31615/productpage",
+					"request_size": 0,
+					"protocol": "HTTP/1.1",
+					"response_size": 5595,
+					"response_code": 200,
+					"user_agent": "curl/7.54.0",
+					"cs": 1509135627268577,
+					"sr": 1509135627269245,
+					"ss": 1509135627477944,
+					"cr": 1509135627478613
+				},
+
+				{
+					"span_id": "00000f2ebd63b192",
+					"parent_span_id": "91c6a20ffcc96460",
+					"source_ip": "172.17.0.14",
+					"source_name": "productpage",
+					"target_ip": "172.17.0.8",
+					"target_name": "details",
+					"request": "GET http://details:9080/details/0",
+					"request_size": 0,
+					"protocol": "HTTP/1.1",
+					"response_size": 178,
+					"response_code": 200,
+					"user_agent": "python-requests/2.18.4",
+					"cs": 1509135627332740,
+					"sr": 1509135627333495,
+					"ss": 1509135627381217,
+					"cr": 1509135627381973
+				},
+
+				{
+					"span_id": "00006e3b94d8940b",
+					"parent_span_id": "91c6a20ffcc96460",
+					"source_ip": "172.17.0.14",
+					"source_name": "productpage",
+					"target_ip": "172.17.0.13",
+					"target_name": "reviews",
+					"request": "GET http://reviews:9080/reviews/0",
+					"request_size": 0,
+					"protocol": "HTTP/1.1",
+					"response_size": 375,
+					"response_code": 200,
+					"user_agent": "python-requests/2.18.4",
+					"cs": 1509135627400703,
+					"sr": 1509135627402657,
+					"ss": 1509135627464323,
+					"cr": 1509135627466277
+				},
+
+				{
+					"span_id": "0000a93880a1b159",
+					"parent_span_id": "00006e3b94d8940b",
+					"source_ip": "172.17.0.13",
+					"source_name": "reviews",
+					"target_ip": "172.17.0.10",
+					"target_name": "ratings",
+					"request": "GET http://ratings:9080/ratings/0",
+					"request_size": 0,
+					"protocol": "HTTP/1.1",
+					"response_size": 48,
+					"response_code": 200,
+					"user_agent": "Apache-CXF/3.1.11",
+					"cs": 1509135627443413,
+					"sr": 1509135627444752,
+					"ss": 1509135627447714,
+					"cr": 1509135627449054
+				}
+			]
+		}
+	]
+}

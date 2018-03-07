@@ -52,25 +52,43 @@ class Test(unittest.TestCase):
 
         # Files with traces returned by Zipkin
         cls.zipkin_trace_test_files = [
-            # Bookinfo; 1 trace; normal trace; reviews version 2
+            # Bookinfo; 1 trace; normal trace; reviews version 2; istio 0.1.6
             'zipkin-trace-reviews_v2-normal.json',
             
-            # Bookinfo; 1 trace; normal trace; reviews version 3
+            # Bookinfo; 1 trace; normal trace; reviews version 3; istio 0.1.6
             'zipkin-trace-reviews_v3-normal.json',
             
             # Bookinfo; 1 trace; reviews version 3; reviews times out and returns a 500 to 
-            # productpage as a result
+            # productpage as a result; istio 0.1.6
             'zipkin-trace-reviews_v3-delay.json',
             
             # Bookinfo; 1 trace; reviews version 2; productpage times out and reviews keeps
-            # going regardless
+            # going regardless; istio 0.1.6
             'zipkin-trace-reviews_v2-delay_7s.json',
             
-            # Bookinfo; 1 trace; reviews version 2; productpage times out and then reviews times out
+            # Bookinfo; 1 trace; reviews version 2; productpage times out and then reviews times out; istio 0.1.6
             'zipkin-trace-reviews_v2-delay_13s.json',
 
-            # DLaaS; 1 trace and 1 span; a service calling itself
-            'zipkin-trace-self-call.json'
+            # DLaaS; 1 trace and 1 span; a service calling itself; istio 0.1.6
+            'zipkin-trace-self-call.json',
+            
+            # Bookinfo; 1 trace; normal trace; reviews version 2; istio 0.2.9
+            'zipkin-trace-reviews_V2-normal-029.json',
+            
+            # Bookinfo; 1 trace; normal trace; reviews version 3; istio 0.2.9
+            'zipkin-trace-reviews_V3-normal-029.json',
+            
+            # Bookinfo; 1 trace; reviews version 2; productpage times out and reviews keeps
+            # going regardless; istio 0.2.9
+            'zipkin-trace-reviews_V2-delay7s-029.json',
+            
+            # Bookinfo; 1 trace; reviews version 2; productpage times out and then reviews times out; istio 0.2.9
+            'zipkin-trace-reviews_V2-delay13s-029.json',
+            
+            # Bookinfo; 1 trace; reviews version 3; reviews times out and returns a 500 to 
+            # productpage as a result; istio 0.2.9
+            'zipkin-trace-reviews_V3-delay7s-029.json',
+            'zipkin-trace-reviews_V3-delay13s-029.json',
         ]
 
         log.info('Completed initialization for testing the distributed-tracing analytics REST API')
@@ -86,7 +104,13 @@ class Test(unittest.TestCase):
             'traces_response-reviews_v3-delay.json',
             'traces_response-reviews_v2-delay_7s.json',
             'traces_response-reviews_v2-delay_13s.json',
-            'traces_self-trace.json'
+            'traces_self-trace.json',
+            'traces_response-reviews_V2-normal_029.json',
+            'traces_response-reviews_V3-normal_029.json',
+            'traces_response-reviews_V2-delay_7s-029.json',
+            'traces_response-reviews_V2-delay_13s-029.json',
+            'traces_response-reviews_V3-delay_7s-029.json',
+            'traces_response-reviews_V3-delay_13s-029.json'
         ]
 
         log.info('===TESTING THE ENDPOINT /distributed_tracing/traces')
@@ -157,7 +181,13 @@ class Test(unittest.TestCase):
             'timelines_v3_delay_reviews-timeout_and-return-500.json',
             'timelines_v2_delay_7s_pp-timeout_reviews-keeps_going.json',
             'timelines_v2_delay_13s_pp-timeout_reviews-timeout_mismatch.json',
-            'timelines_self-trace.json'
+            'timelines_self-trace.json',
+            'timelines_V2_normal_029.json',
+            'timelines_V3_normal_029.json',
+            'timelines_V2_delay_7s_pp-timeout_reviews-keeps_going-029.json',
+            'timelines_V2_delay_13s_pp-timeout_reviews-timeout_mismatch-029.json',
+            'timelines_V3_delay_7s_reviews-timeout_and_return_500-029.json',
+            'timelines_V3_delay_13s_reviews-timeout_and_return_500-029.json'
         ]
 
         log.info('===TESTING THE ENDPOINT /distributed_tracing/traces/timelines')
@@ -204,6 +234,7 @@ class Test(unittest.TestCase):
                 response_file_fullname = os.path.abspath(os.path.join(
                                         self.responses_directory,
                                         istio_analytics_timelines_response_files[i]))
+                
                 with open(response_file_fullname) as f:
                     istio_analytics_trace = f.read()
 
