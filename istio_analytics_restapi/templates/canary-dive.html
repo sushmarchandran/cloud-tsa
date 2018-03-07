@@ -15,10 +15,10 @@
 <iframe name="canary-analytics-frame" src="/canary/categories?{{ request.query_string.decode('ASCII') }}"
      frameborder="0" style="position:fixed;overflow:hidden;height:100%;width:50%" height="100%" width="50%"></iframe> -->
 
-<iframe name="baseline-skydive-frame" src="https://cognetiveyz.sl.haifa.il.ibm.com/UserFrosting/public/"
+<iframe name="baseline-skydive-frame" src="{{ skydive }}"
      frameborder="0" style="position:fixed;overflow:hidden;left:50%;height:50%;width:50%" height="50%" width="50%"></iframe>
 
-<iframe name="canary-skydiveframe" src="https://cognetiveyz.sl.haifa.il.ibm.com/UserFrosting/public/"
+<iframe name="canary-skydiveframe" src="{{ skydive }}"
      frameborder="0" style="position:fixed;overflow:hidden;left:50%;top:50%;height:50%;width:50%" height="50%" width="50%"></iframe>
 
 </body>

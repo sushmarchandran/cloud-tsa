@@ -64,7 +64,9 @@ def sankey():
 
 @app.route("/canary_dive")
 def canary_dive():
-    return render_template('canary-dive.html')
+    return render_template('canary-dive.html',
+                           skydive=os.environ.get(constants.ISTIO_ANALYTICS_SKYDIVE_HOST_ENV,
+                                                  constants.ISTIO_ANALYTICS_SKYDIVE_HOST_DEFAULT))
 
 @app.after_request
 def modify_headers(response):
@@ -94,14 +96,20 @@ def config_env():
     '''Reads the environment variables that control the server behavior and 
     populates the config dictionary'''
     logging.getLogger(__name__).info('Configuring Istio Analytics server')
-    
+
     if not os.getenv(constants.ISTIO_ANALYTICS_ZIPKIN_HOST_ENV):
         logging.getLogger(__name__).critical(u'The environment variable {0} was not set. '
                                              'Example of a valid value: "http://localhost:9411". '
                                              'Aborting!'.
                                              format(constants.ISTIO_ANALYTICS_ZIPKIN_HOST_ENV))
         sys.exit(1)
-    
+
+    if not os.getenv(constants.ISTIO_ANALYTICS_SKYDIVE_HOST_ENV):
+        logging.getLogger(__name__).warn(u'The environment variable {0} was not set. '
+                                             'Example of a valid value: "http://9.4.193.143:30703/topology". '.
+                                             format(constants.ISTIO_ANALYTICS_SKYDIVE_HOST_ENV))
+        os.environ[constants.ISTIO_ANALYTICS_SKYDIVE_HOST_ENV] = constants.ISTIO_ANALYTICS_SKYDIVE_HOST_DEFAULT
+
     app.config[constants.ISTIO_ANALYTICS_SERVER_PORT_ENV] = \
         os.getenv(constants.ISTIO_ANALYTICS_SERVER_PORT_ENV, 5555)
     logging.getLogger(__name__).info(u'The Istio Analytics server will listen on port {0}. '
