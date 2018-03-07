@@ -86,6 +86,7 @@ trace_list_response = api.model('trace_list_response', {
 ####
 # Schema of the list of traces' timelines produced by POST /distributed_tracing/traces/timelines
 ####
+SKYDIVE_URL_STR = 'skydive_url'
 TRACES_TIMELINES_STR = 'traces_timelines'
 TIMELINES_STR = 'timelines'
 SERVICE_STR = 'service'
@@ -101,6 +102,8 @@ EVENT_SEND_REQUEST = 'send_request'
 EVENT_SEND_RESPONSE = 'send_response'
 EVENT_PROCESS_REQUEST = 'process_request'
 EVENT_PROCESS_RESPONSE = 'process_response'
+
+SKYDIVE_QUERY_STR = 'skydive_query'
 
 event_details = api.model('event_details', {
     SPAN_ID_STR: fields.String(required=True, example='0000820a44d42d65',
@@ -135,7 +138,10 @@ event_details = api.model('event_details', {
                                  'to make the request related to the event'),
     TIMEOUT_STR: fields.Integer(required=True, example=10000000,
                                 description='Timeout (in microseconds) observed for the request related '
-                                'to the event')
+                                'to the event'),
+    SKYDIVE_QUERY_STR: fields.String(required=True, example="topology?filter=G.V().Has('Manager',NE('k8s'),'Docker.Labels.io.kubernetes.container.name', Regex('reviews.*|productpage.*'),'Docker.Labels.io.kubernetes.pod.name', Regex('reviews-v3.*|productpage-v1.*')).Both().Out().Has('Name',Regex('eth0|k8s_reviews.*|k8s_productpage.*')).ShortestPathTo(Metadata('Name','TOR1'))",
+                                     description='Skydive query to analyze the network latency at the '
+                                     'infrastructure level between the two corresponding endpoints')
 })
 
 timeline_details = api.model('timeline_details', {
@@ -155,6 +161,8 @@ trace_timelines = api.model('trace_timelines', {
 timelines_response = api.model('timelines_response', {
     ZIPKIN_URL_STR: fields.String(required=True, example='http://localhost:9411',
                                   description='URL of the Zipkin service where the tracing data is stored'),
+    SKYDIVE_URL_STR: fields.String(required=True, example='http://localhost:8082',
+                                  description='URL of the Skydive service monitoring the infrastructure network'),
     TRACES_TIMELINES_STR: fields.List(fields.Nested(trace_timelines), required=True,
                             description='Timelines of traces. Each trace is represented by one timeline per '
                             'microservice, where each timeline is a chronologically-sorted list of events')

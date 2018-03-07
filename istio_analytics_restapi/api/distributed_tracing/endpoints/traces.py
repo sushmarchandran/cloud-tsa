@@ -168,8 +168,11 @@ class Timelines(Resource):
         if http_code == 200:
             zipkin_host = os.getenv(constants.ISTIO_ANALYTICS_ZIPKIN_HOST_ENV)
             zipkin_override = os.getenv(constants.ISTIO_ANALYTICS_ZIPKIN_OVERRIDE_ENV)
+            skydive_host = os.getenv(constants.ISTIO_ANALYTICS_SKYDIVE_HOST_ENV)
+            skydive_override = os.getenv(constants.ISTIO_ANALYTICS_SKYDIVE_OVERRIDE_ENV)
             ret_val = {
-                zipkin_constants.ZIPKIN_URL_STR: zipkin_override or zipkin_host
+                zipkin_constants.ZIPKIN_URL_STR: zipkin_override or zipkin_host,
+                zipkin_constants.SKYDIVE_URL_STR: skydive_host or skydive_override
             }
             ret_val[zipkin_constants.TRACES_TIMELINES_STR] = \
                 zipkin_util.zipkin_trace_list_to_timelines(traces_or_error_msg, filter_list)
@@ -200,8 +203,11 @@ class TraceCluster(Resource):
         if http_code == 200:
             zipkin_host = os.getenv(constants.ISTIO_ANALYTICS_ZIPKIN_HOST_ENV)
             zipkin_override = os.getenv(constants.ISTIO_ANALYTICS_ZIPKIN_OVERRIDE_ENV)
+            skydive_host = os.getenv(constants.ISTIO_ANALYTICS_SKYDIVE_HOST_ENV)
+            skydive_override = os.getenv(constants.ISTIO_ANALYTICS_SKYDIVE_OVERRIDE_ENV)
             ret_val = {
-                zipkin_constants.ZIPKIN_URL_STR: zipkin_override or zipkin_host
+                zipkin_constants.ZIPKIN_URL_STR: zipkin_override or zipkin_host,
+                zipkin_constants.SKYDIVE_URL_STR: skydive_host or skydive_override
             }
             traces_timelines = \
                 zipkin_util.zipkin_trace_list_to_timelines(traces_or_error_msg, filter_list)
