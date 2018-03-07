@@ -104,19 +104,20 @@ def config_env():
                                              format(constants.ISTIO_ANALYTICS_ZIPKIN_HOST_ENV))
         sys.exit(1)
 
-    if not os.getenv(constants.ISTIO_ANALYTICS_SKYDIVE_HOST_ENV):
-        logging.getLogger(__name__).warn(u'The environment variable {0} was not set. '
-                                             'Example of a valid value: "http://9.4.193.143:30703/topology". '.
-                                             format(constants.ISTIO_ANALYTICS_SKYDIVE_HOST_ENV))
-        os.environ[constants.ISTIO_ANALYTICS_SKYDIVE_HOST_ENV] = constants.ISTIO_ANALYTICS_SKYDIVE_HOST_DEFAULT
-
     app.config[constants.ISTIO_ANALYTICS_SERVER_PORT_ENV] = \
         os.getenv(constants.ISTIO_ANALYTICS_SERVER_PORT_ENV, 5555)
     logging.getLogger(__name__).info(u'The Istio Analytics server will listen on port {0}. '
                                       'This value can be set by the environment variable {1}'.
                                      format(app.config[constants.ISTIO_ANALYTICS_SERVER_PORT_ENV],
                                      constants.ISTIO_ANALYTICS_SERVER_PORT_ENV))
-        
+
+    logging.getLogger(__name__).info(u'Istio Analytics will talk to Zipkin at {0}'.
+                                     format(os.getenv(constants.ISTIO_ANALYTICS_ZIPKIN_HOST_ENV)))
+
+    if os.getenv(constants.ISTIO_ANALYTICS_SKYDIVE_HOST_ENV):
+        logging.getLogger(__name__).info(u'Istio Analytics will talk to Skydive at {0}'.
+                                     format(os.getenv(constants.ISTIO_ANALYTICS_SKYDIVE_HOST_ENV)))
+
     debug_mode = os.getenv(constants.ISTIO_ANALYTICS_DEBUG_ENV, 'false')
     if debug_mode == '1' or str.lower(debug_mode) == 'true':
         app.config[constants.ISTIO_ANALYTICS_DEBUG_ENV] = True

@@ -4,7 +4,11 @@ Utility functions to manipulate Zipkin data
 import logging
 log = logging.getLogger(__name__)
 
+import os
+
+import istio_analytics_restapi.api.constants as env_constants
 import istio_analytics_restapi.api.distributed_tracing.responses as constants
+import istio_analytics_restapi.api.distributed_tracing.skydive_query_util as skydive_query_util
 
 # Keys used by Zipkin in the JSON containing a list of traces
 ZIPKIN_TRACEID_STR = 'traceId'
@@ -29,6 +33,11 @@ BINARY_ANNOTATION_RESPONSE_CODE_STR = 'response_code'
 BINARY_ANNOTATION_RESPONSE_SIZE_STR = 'response_size'
 BINARY_ANNOTATION_USER_AGENT_STR = 'user_agent'
 
+# Suffix we append to BINARY_ANNOTATION_NODE_ID_STR so that we can add to our dictionary
+# a key for a second node_id. Zipkin spans produced by Envoy/Istio contain two node_id tags,
+# and we use this suffix for the second entry in the dictionary we create. 
+BINARY_ANNOTATION_NODE_ID_SUFFIX_STR = '_2'
+
 # Open Tracing standardize keys
 BINARY_ANNOTATION_ALIASES = {
     BINARY_ANNOTATION_RESPONSE_CODE_STR: "http.status_code",
@@ -47,6 +56,74 @@ ZIPKIN_SR_ANNOTATION = 'sr'
 # The service name used in traces from istio 0.1.x for all services
 ZIPKIN_01X_SERVICENAME_ISTIOPROXY_STR = 'istio-proxy'
 
+def parse_node_id(node_id):
+    '''Given a node_id binary annotation value, extract from it the following
+    tuple: (pod IP address, pod name)
+    
+    Since Istio 0.2, the node_id values are of the form:
+      sidecar~10.1.208.199~reviews-v3-2608898768-30qnn.default~default.svc.cluster.local
+      
+    The field separator is the character '~'. The pod IP address and name appear in the
+    second and third fields, respectively.
+    
+    @param node_id (string): The value of a node_id binary annotation
+    
+    @rtype: tuple(string, string) 
+    @return: A tuple with the IP address and name of a pod extracted from the binary annotation,
+    or (None, None) if the given node_id cannot be parsed as expected
+    '''
+    fields = node_id.split('~')
+    if len(fields) < 3:
+        return (None, None)
+    pod_ip = fields[1]
+
+    pod_name_plus_namespace = fields[2]
+    subfields = pod_name_plus_namespace.split('.')
+    if len(subfields) < 2:
+        return (None, None)
+    pod_name = subfields[0]
+
+    return (pod_ip, pod_name)
+
+def add_skydive_query(event, service_name, cs_ann, bin_ann_dict):
+    '''
+    Provided that all data in the span related to the given CS annotation contains the 
+    expected information, this function will add to the given send_request event a Skydive 
+    query to express the shortest path between the two involved endpoints.
+
+    @param event (dictionary): The send_request event to which the Skydive query will be added
+    @param service_name (string): The name of the service to whose timeline the event belongs
+    @param cs_ann (dictionary): The Zipkin CS annotation corresponding to the send_request event
+    @param bin_ann_dict (dictionary): The dictionary with the binary annotations of the 
+    corresponding span 
+    '''
+    node_id_1 = get_binary_annotation_value(bin_ann_dict, BINARY_ANNOTATION_NODE_ID_STR)
+    node_id_2 = get_binary_annotation_value(bin_ann_dict, BINARY_ANNOTATION_NODE_ID_STR + 
+                                                BINARY_ANNOTATION_NODE_ID_SUFFIX_STR)
+    if node_id_1 and node_id_2:
+        (pod_ip_1, pod_name_1) = parse_node_id(node_id_1)
+        if pod_name_1 != None:
+            (_ , pod_name_2) = parse_node_id(node_id_2)
+            if pod_name_2 != None:
+                client_ip_address = cs_ann['annotation'][ZIPKIN_ANNOTATIONS_ENDPOINT_STR]\
+                    .get(ZIPKIN_ANNOTATIONS_ENDPOINT_IPV4_STR, 'NO-IP')
+                if client_ip_address != 'NO-IP':
+                    if pod_ip_1 == client_ip_address:
+                        source_pod_name = pod_name_1
+                        target_pod_name = pod_name_2
+                    else:
+                        source_pod_name = pod_name_2
+                        target_pod_name = pod_name_1
+                    # If we get here, all data validation succeeded.
+                    # So, let's finally build the Skydive query.
+                    event[constants.SKYDIVE_QUERY_STR] = \
+                        skydive_query_util.shortest_path_query(
+                            service_name, 
+                            source_pod_name, 
+                            event[constants.INTERLOCUTOR_STR], 
+                            target_pod_name
+                        )
+
 def build_binary_annotation_dict(zipkin_span):
     '''Given a Zipkin span, creates a dictionary for all of its binary annotations
 
@@ -62,7 +139,15 @@ def build_binary_annotation_dict(zipkin_span):
         return binary_ann_dict
 
     for binary_annotation in zipkin_span[ZIPKIN_BINARY_ANNOTATIONS_STR]:
-        binary_ann_dict[binary_annotation[ZIPKIN_BINARY_ANNOTATIONS_KEY_STR]] = \
+        if (binary_annotation[ZIPKIN_BINARY_ANNOTATIONS_KEY_STR] == BINARY_ANNOTATION_NODE_ID_STR
+            and BINARY_ANNOTATION_NODE_ID_STR in binary_ann_dict):
+            # In case there are two node_id annotations in the same span,
+            # we want to add both to the dictionary.
+            # This will allow us to properly add a Skydive query via add_skydive_query()
+            key = BINARY_ANNOTATION_NODE_ID_STR + BINARY_ANNOTATION_NODE_ID_SUFFIX_STR
+        else:
+            key = binary_annotation[ZIPKIN_BINARY_ANNOTATIONS_KEY_STR]
+        binary_ann_dict[key] = \
             binary_annotation[ZIPKIN_BINARY_ANNOTATIONS_VALUE_STR]
     return binary_ann_dict
 
@@ -466,6 +551,10 @@ def process_cs_annotation(cs_ann, zipkin_span_dict, ip_to_name_lookup_table,
         sr_ann_time = ann_dict[ZIPKIN_SR_ANNOTATION][ZIPKIN_ANNOTATIONS_TIMESTAMP_STR]
         cs_ann_time = cs_ann['annotation'][ZIPKIN_ANNOTATIONS_TIMESTAMP_STR]
         event[constants.DURATION_STR] = sr_ann_time - cs_ann_time
+
+        if os.getenv(env_constants.ISTIO_ANALYTICS_SKYDIVE_HOST_ENV):
+            # Try to add to the send_request event a shortest-path Skydive query for latency analysis
+            add_skydive_query(event, service_name, cs_ann, bin_ann_dict)
     elif (ZIPKIN_CR_ANNOTATION in ann_dict and
           event[constants.INTERLOCUTOR_STR] == service_name):
         # This is a self-call. We also need to set its duration
@@ -784,7 +873,7 @@ def zipkin_trace_list_to_timelines(zipkin_trace_list, filter_list):
             constants.TRACE_ID_STR: trace_id,
             constants.REQUEST_URL_STR: get_trace_root_request(zipkin_trace)
         }
-        
+
         # Specify the spans that should be filtered out
         span_filter = Zipkin_Span_Filter()
         for service_name in filter_list:
