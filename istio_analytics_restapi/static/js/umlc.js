@@ -1393,18 +1393,46 @@ function popupMenu() {
     return menu;
 }
 
+function getSkydiveUrl() {
+    // return "http://9.4.193.143:30703/topology";
+    return window.parent.document.getElementById("canary-analytics-frame").getAttribute("skydive-url");
+}
+
+function baselineFilteredUrl(service, interlocutor) {
+    return getSkydiveUrl() + 
+        "?expand=true&filter=G.V().Has('Manager',NE('k8s'),'Docker.Labels.io.kubernetes.container.name', Regex('" +
+        service +
+        ".*|" +
+        interlocutor +
+        ".*'),'Docker.Labels.io.kubernetes.pod.name', Regex('" +
+        service +   // and version?
+        ".*|" +
+        interlocutor + // and version?
+        ".*')).Both().Out().Has('Name',Regex('eth0|k8s_" +
+        service +
+        ".*|k8s_" +
+        interlocutor +
+        ".*')).ShortestPathTo(Metadata('Name','TOR1'))";
+}
+
+function canaryFilteredUrl(service, interlocutor) {
+    // TODO modifications for canary... where do I get the versions from?
+    return baselineFilteredUrl(service, interlocutor);
+}
+
 function startCapture(service, interlocutor) {
-    alert("TODO Start Capture"
-            + " service=" + service + " interlocutor=" + interlocutor);
+    // "global" Javascript is not global to code in an <iframe>
+    window.parent.skydiveStartCapture(service, interlocutor);
 }
 
 function stopCapture(service, interlocutor) {
-    alert("TODO Stop Capture"
-            + " service=" + service + " interlocutor=" + interlocutor);
+    // "global" Javascript is not global to code in an <iframe>
+    window.parent.skydiveStopCapture(service, interlocutor);
 }
 
 
 function skydiveFocus(service, interlocutor) {
-    alert("TODO Focus"
-            + " service=" + service + " interlocutor=" + interlocutor);
+    // "global" Javascript is not global to code in an <iframe>
+    window.parent.navigateBaseline(baselineFilteredUrl(service, interlocutor));
+    window.parent.navigateCanary(canaryFilteredUrl(service, interlocutor));
 }
