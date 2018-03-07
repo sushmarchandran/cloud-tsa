@@ -10,42 +10,21 @@
 <meta charset="utf-8">
 <meta http-equiv="Content-Language" content="en">
 <title>Canary Analytics for Istio WITH SKYDIVE v2</title>
+<script src="/static/js/canary-dive.js"></script>
 </head>
 <body id="canary-skydive" style="margin:0px;padding:0px;overflow:hidden">
 <iframe id="canary-analytics-frame" src="/canary/categories?{{ request.query_string.decode('ASCII') }}"
      skydive-url="{{ skydive }}"
      style="position:fixed;overflow:hidden;height:100%;width:50%" height="100%" width="50%"></iframe> -->
 
-<iframe id="baseline-skydive-frame" src="{{ skydive }}"
+<iframe id="baseline-skydive-frame" src="{{ skydive }}/topology"
      style="scroll-y:yes;position:fixed;overflow:hidden;left:50%;height:75%;width:50%" height="50%" width="50%"></iframe>
 
-<iframe id="canary-skydive-frame" src="{{ skydive }}"
+<iframe id="canary-skydive-frame" src="{{ skydive }}/topology"
      style="scroll-y:yes;position:fixed;overflow:hidden;left:50%;top:75%;height:75%;width:50%" height="50%" width="50%"></iframe>
 
 <script>
 console.log("Hello Javascript from canary-dive.html");
-
-function navigate(element, url) {
-    element.src = url;
-}
-
-function navigateBaseline(url) {
-    var element = document.getElementById("baseline-skydive-frame");
-    navigate(element, url);
-}
-
-function navigateCanary(url) {
-    var element = document.getElementById("canary-skydive-frame");
-    navigate(element, url);
-}
-
-function skydiveStartCapture(service, interlocutor) {
-    alert("TODO curl -X POST -H \"Content-Type: application/json\" -d '{\"GremlinQuery\":\"G.V()\"}' http://127.0.0.1:8082/api/capture")
-}
-
-function skydiveStopCapture(service, interlocutor) {
-    alert("TODO curl -X DELETE http://127.0.0.1:8082/api/capture/a36d3dd5-cc80-4d5f-7973-eba06dee917c")
-}
 </script>
 
 </body>

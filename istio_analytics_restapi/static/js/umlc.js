@@ -126,6 +126,7 @@ function showTrace(traceSummary, magnification, context) {
             events: allEvents,
             zipkinUrl: context.zipkinUrl,
             debugUI: context.debugUI,
+            angularHttp: context.angularHttp,
     };
 
     setupSequenceDiagram(sequenceData, magnification);
@@ -511,9 +512,9 @@ function addCommunication(data) {
                 if (sel == 'Focus') {
                     skydiveFocus(d.service, d.interlocutor);
                 } else if (sel == 'Capture') {
-                    startCapture(d.service, d.interlocutor);
+                    startCapture(data.angularHttp, d.service, d.interlocutor);
                 } else if (sel == 'Stop Capturing') {
-                    stopCapture(d.service, d.interlocutor);
+                    stopCapture(data.angularHttp, d.service, d.interlocutor);
                 }
             });
         })
@@ -633,9 +634,9 @@ function addCommunication(data) {
                 if (sel == 'Focus') {
                     skydiveFocus(d.service, d.interlocutor);
                 } else if (sel == 'Capture') {
-                    startCapture(d.service, d.interlocutor);
+                    startCapture(data.angularHttp, d.service, d.interlocutor);
                 } else if (sel == 'Stop Capturing') {
-                    stopCapture(d.service, d.interlocutor);
+                    stopCapture(data.angularHttp, d.service, d.interlocutor);
                 }
             });
         })
@@ -1394,13 +1395,13 @@ function popupMenu() {
 }
 
 function getSkydiveUrl() {
-    // return "http://9.4.193.143:30703/topology";
+    // return "http://9.4.193.143:30703";
     return window.parent.document.getElementById("canary-analytics-frame").getAttribute("skydive-url");
 }
 
 function baselineFilteredUrl(service, interlocutor) {
     return getSkydiveUrl() + 
-        "?expand=true&filter=G.V().Has('Manager',NE('k8s'),'Docker.Labels.io.kubernetes.container.name', Regex('" +
+        "/topology?expand=true&filter=G.V().Has('Manager',NE('k8s'),'Docker.Labels.io.kubernetes.container.name', Regex('" +
         service +
         ".*|" +
         interlocutor +
@@ -1420,14 +1421,14 @@ function canaryFilteredUrl(service, interlocutor) {
     return baselineFilteredUrl(service, interlocutor);
 }
 
-function startCapture(service, interlocutor) {
+function startCapture(angularHttp, service, interlocutor) {
     // "global" Javascript is not global to code in an <iframe>
-    window.parent.skydiveStartCapture(service, interlocutor);
+    window.parent.skydiveStartCapture(angularHttp, getSkydiveUrl(), service, interlocutor);
 }
 
-function stopCapture(service, interlocutor) {
+function stopCapture(angularHttp, service, interlocutor) {
     // "global" Javascript is not global to code in an <iframe>
-    window.parent.skydiveStopCapture(service, interlocutor);
+    window.parent.skydiveStopCapture(angularHttp, getSkydiveUrl(), service, interlocutor);
 }
 
 

@@ -213,7 +213,7 @@
         }
     } // TraceQueryController
 
-    function SequenceDiagramController($scope, $log, $location, $rootScope) {
+    function SequenceDiagramController($scope, $log, $location, $rootScope, $http) {
         $scope.location = $location;
 
         $scope.clusters_diffs = [];    // Array of {root_request:, baseline_trace_ids:, cluster_stats_diff: }
@@ -308,7 +308,8 @@
         function refreshTrace() {
               if ($scope.nflow >= $scope.clusters_diffs.length) {
                     showTrace({cluster_stats_diff: []}, $scope.magnification,
-                            { debugUI: $scope.debugUI });
+                            { debugUI: $scope.debugUI,
+                        angularHttp: $http });
                   return;
               }
 
@@ -321,6 +322,7 @@
                   {
                       zipkinUrl: $scope.$parent.dataOrigin,
                       debugUI: $scope.debugUI,
+                      angularHttp: $http
                   });
         }
 
