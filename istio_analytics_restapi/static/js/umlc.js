@@ -504,19 +504,21 @@ function addCommunication(data) {
         .attr("class", "messageLabel")
         .attr("text-anchor", "middle")
         .attr("alignment-baseline", "middle")
-        .on('contextmenu', function(d) {
-            d3.event.preventDefault();
+        .on('click', function(d) {
             var chart = d3.select("#chart")[0][0];
             var m = d3.mouse(chart);
-            skydiveMenu(m[0], m[1], function (sel) {
-                if (sel == 'Focus') {
-                    skydiveFocus(d.service, d.interlocutor);
-                } else if (sel == 'Capture') {
-                    startCapture(data.angularHttp, d.service, d.interlocutor);
-                } else if (sel == 'Stop Capturing') {
-                    stopCapture(data.angularHttp, d.service, d.interlocutor);
-                }
-            });
+            // Bring up the menu after this click is finished
+            setTimeout(function () {
+                skydiveMenu(m[0], m[1], function (sel) {
+                    if (sel == 'Focus') {
+                        skydiveFocus(d.service, d.interlocutor);
+                    } else if (sel == 'Capture') {
+                        startCapture(data.angularHttp, d.service, d.interlocutor);
+                    } else if (sel == 'Stop Capturing') {
+                        stopCapture(data.angularHttp, d.service, d.interlocutor);
+                    }
+                });
+            }, 1);
         })
         .on("mouseleave", function(d, i) {
             d3.select("#popups").selectAll(".messageLabelDetails").remove();
@@ -626,19 +628,21 @@ function addCommunication(data) {
     messageLabels.enter().append("text")
         .attr("class", "messageLabel")
         .attr("text-anchor", "middle")
-        .on('contextmenu', function(d){
-            d3.event.preventDefault();
+        .on('click', function(d) {
             var chart = d3.select("#chart")[0][0];
             var m = d3.mouse(chart);
-            skydiveMenu(m[0], m[1], function (sel) {
-                if (sel == 'Focus') {
-                    skydiveFocus(d.service, d.interlocutor);
-                } else if (sel == 'Capture') {
-                    startCapture(data.angularHttp, d.service, d.interlocutor);
-                } else if (sel == 'Stop Capturing') {
-                    stopCapture(data.angularHttp, d.service, d.interlocutor);
-                }
-            });
+            // Bring up the menu after this click is finished
+            setTimeout(function () {
+                skydiveMenu(m[0], m[1], function (sel) {
+                    if (sel == 'Focus') {
+                        skydiveFocus(d.service, d.interlocutor);
+                    } else if (sel == 'Capture') {
+                        startCapture(data.angularHttp, d.service, d.interlocutor);
+                    } else if (sel == 'Stop Capturing') {
+                        stopCapture(data.angularHttp, d.service, d.interlocutor);
+                    }
+                });
+            }, 1);
         })
         .on("mouseleave", function(d, i) {
             d3.select("#popups").selectAll(".messageLabelDetails").remove();
@@ -1315,12 +1319,12 @@ function popupMenu() {
     /** Create a menu in SVG at the coordinate with a function that will be 
      * called with the selected item string */
     function menu(x, y, handler) {
-        d3.select('.context-menu').remove();
+        d3.select('.popup-menu').remove();
         scaleMenu();
 
         // Draw the menu
         d3.select('svg').append('g')
-            .attr('class', 'context-menu')
+            .attr('class', 'popup-menu')
             .selectAll('temp')
             .data(items).enter()
             .append('g').attr('class', 'menu-item')
@@ -1350,12 +1354,10 @@ function popupMenu() {
             .attr('dy', height - margin/2)
             .style({ 'fill': 'blue', 'font-size': '15'});
 
-        // Other interactions
         d3.select('body')
             .on('click', function() {
-                d3.select('.context-menu').remove();
+                d3.select('.popup-menu').remove();
             });
-
     }
 
     // Automatically set width, height, and margin;

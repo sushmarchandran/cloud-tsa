@@ -24,13 +24,9 @@ function getSkydiveUrl() {
 }
 
 function skydiveStartCapture(angularHttp, skydiveHost, service, interlocutor) {
-    // alert("curl -X POST -H \"Content-Type: application/json\" -d '{\"GremlinQuery\":\"G.V()\"}' http://127.0.0.1:8082/api/capture")
-
-    // TODO This isn't going to work because it is cross-domain.  Either enable CORS or have restapi_server
-    // offer /api/capture/<skydive_host>/ that facades to <skydive_host>/api/capture
     angularHttp({
         method: 'POST',
-        url: getSkydiveUrl() + '/api/capture',
+        url: '/api/v1/skydive/capture/' + skydiveHost.split('/').slice(-1)[0],
         data: { GremlinQuery: "G.V()" }
     }).then(function successCallback(response) {
         alert("Start Capture Response from Skydive was " + JSON.stringify(response));
@@ -40,13 +36,10 @@ function skydiveStartCapture(angularHttp, skydiveHost, service, interlocutor) {
 }
 
 function skydiveStopCapture(angularHttp, skydiveHost, service, interlocutor) {
-    // alert("TODO curl -X DELETE http://127.0.0.1:8082/api/capture/a36d3dd5-cc80-4d5f-7973-eba06dee917c")
     captureId = "a36d3dd5-cc80-4d5f-7973-eba06dee917c"; // TODO Am I supposed to save this from the start?  Recreate?
-    // TODO This isn't going to work because it is cross-domain.  Either enable CORS or have restapi_server
-    // offer /api/capture/<skydive_host>/ that facades to <skydive_host>/api/capture
     angularHttp({
         method: 'DELETE',
-        url: getSkydiveUrl() + '/api/capture/' + captureId
+        url: '/api/v1/skydive/capture/' + skydiveHost.split('/').slice(-1)[0],
     }).then(function successCallback(response) {
         alert("Stop Capture Response from Skydive was " + JSON.stringify(response));
     }, function errorCallback(response) {
