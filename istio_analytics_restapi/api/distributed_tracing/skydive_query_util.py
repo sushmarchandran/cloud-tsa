@@ -27,7 +27,7 @@ def shortest_path_query(source_container_name, source_pod_name,
     @rtype: string
     @return: A Skydive query expressed in the Gremlin language  
     '''
-    query_string = (u"topology?expand=true&filter=G.V().Has('Manager',NE('k8s'),"
+    query_string = (u"/topology?expand=true&filter=G.V().Has('Manager',NE('k8s'),"
                     "'Docker.Labels.io.kubernetes.container.name', "
                         "Regex('{source_container}.*|{target_container}.*'),"
                     "'Docker.Labels.io.kubernetes.pod.name', "

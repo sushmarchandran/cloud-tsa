@@ -234,6 +234,9 @@ event_stat_details = api.model('event_stat_details', {
                                     description='The other microservice participating in this event'),
     REQUEST_URL_STR: fields.String(required=True, example='GET /catalog',
                                  description='The URL corresponding to the event'),
+    SKYDIVE_QUERY_STR: fields.String(required=True, example="topology?filter=G.V().Has('Manager',NE('k8s'),'Docker.Labels.io.kubernetes.container.name', Regex('reviews.*|productpage.*'),'Docker.Labels.io.kubernetes.pod.name', Regex('reviews-v3.*|productpage-v1.*')).Both().Out().Has('Name',Regex('eth0|k8s_reviews.*|k8s_productpage.*')).ShortestPathTo(Metadata('Name','TOR1'))",
+                                     description='Skydive query to analyze the network latency at the '
+                                     'infrastructure level between the two corresponding endpoints'),
     TRACE_IDS_STR: fields.List(fields.String, required=True,
                                 description='The ids (64-bit hex strings) of the traces to which '
                                 'the events aggregated under these statistics belong'),
@@ -283,6 +286,8 @@ trace_cluster = api.model('trace_cluster', {
 clusters_response = api.model('clusters_response', {
     ZIPKIN_URL_STR: fields.String(required=True, example='http://localhost:9411',
                                   description='URL of the Zipkin service where the tracing data is stored'),
+    SKYDIVE_URL_STR: fields.String(required=True, example='http://localhost:8082',
+                                  description='URL of the Skydive service monitoring the infrastructure network'),
     CLUSTERS_STR: fields.List(fields.Nested(trace_cluster), required=True,
                             description='Clusters of traces. Each cluster combines similar traces, '
                             'summarizing and aggregating them statistically. Statistics are computed '

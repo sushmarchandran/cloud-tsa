@@ -114,9 +114,13 @@ def aggregate_events(events_to_aggregate):
         responses.EVENT_TYPE_STR: event_type,
         responses.REQUEST_URL_STR: events_to_aggregate[0][responses.REQUEST_URL_STR],
         responses.INTERLOCUTOR_STR: events_to_aggregate[0][responses.INTERLOCUTOR_STR],
-        responses.SPAN_ID_STR: events_to_aggregate[0][responses.SPAN_ID_STR],                # represents all aggregrated events of this type for all
+        responses.SPAN_ID_STR: events_to_aggregate[0][responses.SPAN_ID_STR],
         responses.TRACE_IDS_STR: []
     }
+
+    if responses.SKYDIVE_QUERY_STR in events_to_aggregate[0]:
+        event_stats[responses.SKYDIVE_QUERY_STR] = \
+             events_to_aggregate[0][responses.SKYDIVE_QUERY_STR]
 
     if responses.PARENT_SPAN_ID_STR in events_to_aggregate[0]:
         # represents all aggregated events of this type

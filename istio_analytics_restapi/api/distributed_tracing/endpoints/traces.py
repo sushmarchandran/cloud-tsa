@@ -5,7 +5,6 @@ import logging
 log = logging.getLogger(__name__)
 
 import os
-import json
 from flask import request
 from flask_restplus import Resource
 import flask_restplus.errors
