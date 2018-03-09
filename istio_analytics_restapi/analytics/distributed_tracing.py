@@ -528,6 +528,10 @@ def compare_clusters(baseline_clusters, canary_clusters):
                             responses.INTERLOCUTOR_STR:  baseline_agg_event[responses.INTERLOCUTOR_STR],
                             responses.REQUEST_URL_STR: baseline_agg_event[responses.REQUEST_URL_STR]
                         }
+                        if responses.SKYDIVE_QUERY_STR in baseline_agg_event:
+                            event_diff[responses.SKYDIVE_QUERY_STR] = \
+                                baseline_agg_event[responses.SKYDIVE_QUERY_STR]
+
                         event_diff[responses.BASELINE_STATS_STR] = \
                             get_simplified_event(baseline_agg_event)
                         event_diff[responses.CANARY_STATS_STR] = \

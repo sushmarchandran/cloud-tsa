@@ -252,8 +252,11 @@ class TraceClusterDiff(Resource):
         if http_code == 200:
             zipkin_host = os.getenv(constants.ISTIO_ANALYTICS_ZIPKIN_HOST_ENV)
             zipkin_override = os.getenv(constants.ISTIO_ANALYTICS_ZIPKIN_OVERRIDE_ENV)
+            skydive_host = os.getenv(constants.ISTIO_ANALYTICS_SKYDIVE_HOST_ENV)
+            skydive_override = os.getenv(constants.ISTIO_ANALYTICS_SKYDIVE_OVERRIDE_ENV)
             ret_val = {
-                zipkin_constants.ZIPKIN_URL_STR: zipkin_override or zipkin_host
+                zipkin_constants.ZIPKIN_URL_STR: zipkin_override or zipkin_host,
+                zipkin_constants.SKYDIVE_URL_STR: skydive_host or skydive_override
             }
 
             # Call Zipkin to get traces corresponding to the canary period
