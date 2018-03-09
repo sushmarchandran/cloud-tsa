@@ -511,9 +511,13 @@ function addCommunication(data) {
             setTimeout(function () {
                 skydiveMenu(m[0], m[1], function (sel) {
                     if (sel == 'Focus') {
-                        skydiveFocus(d.service, d.interlocutor);
+                        skydiveFocus(d.skydive_query_baseline, d.skydive_query_canary);
                     } else if (sel == 'Capture') {
-                        startCapture(data.angularHttp, d.service, d.interlocutor);
+                        console.log(getGremlinQuery(d.skydive_query_baseline))
+                        console.log(getGremlinQuery(d.skydive_query_canary))
+                        startCapture(data.angularHttp, 
+                        			 getGremlinQuery(d.skydive_query_baseline), 
+                                     getGremlinQuery(d.skydive_query_canary));
                     } else if (sel == 'Stop Capturing') {
                         stopCapture(data.angularHttp, d.service, d.interlocutor);
                     }
@@ -635,9 +639,11 @@ function addCommunication(data) {
             setTimeout(function () {
                 skydiveMenu(m[0], m[1], function (sel) {
                     if (sel == 'Focus') {
-                        skydiveFocus(d.service, d.interlocutor);
+                        skydiveFocus(d.skydive_query_baseline, d.skydive_query_canary);
                     } else if (sel == 'Capture') {
-                        startCapture(data.angularHttp, d.service, d.interlocutor);
+                        startCapture(data.angularHttp, 
+                        			 getGremlinQuery(d.skydive_query_baseline), 
+                                     getGremlinQuery(d.skydive_query_canary));
                     } else if (sel == 'Stop Capturing') {
                         stopCapture(data.angularHttp, d.service, d.interlocutor);
                     }
@@ -1401,31 +1407,19 @@ function getSkydiveUrl() {
     return window.parent.document.getElementById("canary-analytics-frame").getAttribute("skydive-url");
 }
 
-function baselineFilteredUrl(service, interlocutor) {
-    return getSkydiveUrl() + 
-        "/topology?expand=true&filter=G.V().Has('Manager',NE('k8s'),'Docker.Labels.io.kubernetes.container.name', Regex('" +
-        service +
-        ".*|" +
-        interlocutor +
-        ".*'),'Docker.Labels.io.kubernetes.pod.name', Regex('" +
-        service +   // and version?
-        ".*|" +
-        interlocutor + // and version?
-        ".*')).Both().Out().Has('Name',Regex('eth0|k8s_" +
-        service +
-        ".*|k8s_" +
-        interlocutor +
-        ".*')).ShortestPathTo(Metadata('Name','TOR1'))";
+function filteredUrl(skydiveQuery) {
+    return getSkydiveUrl() + skydiveQuery
 }
 
-function canaryFilteredUrl(service, interlocutor) {
-    // TODO modifications for canary... where do I get the versions from?
-    return baselineFilteredUrl(service, interlocutor);
+function getGremlinQuery(skydiveTopologyQuery) {
+	// Extracts the Gremlin query substring from a full-fledged URL topology query
+	// by eliminating the substring up to the beginning of the Gremlin query
+	return skydiveTopologyQuery.substring(skydiveTopologyQuery.indexOf("G.V()"))
 }
 
-function startCapture(angularHttp, service, interlocutor) {
+function startCapture(angularHttp, skydiveGremlinQueryBaseline, skydiveGremlinQueryCanary) {
     // "global" Javascript is not global to code in an <iframe>
-    window.parent.skydiveStartCapture(angularHttp, getSkydiveUrl(), service, interlocutor);
+    window.parent.skydiveStartCapture(angularHttp, skydiveGremlinQueryBaseline, skydiveGremlinQueryCanary);
 }
 
 function stopCapture(angularHttp, service, interlocutor) {
@@ -1434,8 +1428,8 @@ function stopCapture(angularHttp, service, interlocutor) {
 }
 
 
-function skydiveFocus(service, interlocutor) {
+function skydiveFocus(skydiveQueryBaseline, skydiveQueryCanary) {
     // "global" Javascript is not global to code in an <iframe>
-    window.parent.navigateBaseline(baselineFilteredUrl(service, interlocutor));
-    window.parent.navigateCanary(canaryFilteredUrl(service, interlocutor));
+    window.parent.navigateBaseline(filteredUrl(skydiveQueryBaseline));
+    window.parent.navigateCanary(filteredUrl(skydiveQueryCanary));
 }

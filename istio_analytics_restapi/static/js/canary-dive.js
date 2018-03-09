@@ -23,23 +23,36 @@ function getSkydiveUrl() {
     return document.getElementById("canary-analytics-frame").getAttribute("skydive-url");
 }
 
-function skydiveStartCapture(angularHttp, skydiveHost, service, interlocutor) {
+function skydiveStartCapture(angularHttp, skydiveGremlinQueryBaseline, skydiveGremlinQueryCanary) {
+    console.log("Starting capture for baseline");
     angularHttp({
         method: 'POST',
-        url: '/api/v1/skydive/capture/' + skydiveHost.split('/').slice(-1)[0],
-        data: { GremlinQuery: "G.V()" }
+        url: '/api/v1/skydive/action/capture/',
+        data: { "GremlinQuery": skydiveGremlinQueryBaseline }
     }).then(function successCallback(response) {
         alert("Start Capture Response from Skydive was " + JSON.stringify(response));
     }, function errorCallback(response) {
       alert("ERROR Start Capture Response from Skydive was " + JSON.stringify(response));
     });
+
+    console.log("Starting capture for canary");
+    angularHttp({
+        method: 'POST',
+        url: '/api/v1/skydive/action/capture/',
+        data: { "GremlinQuery": skydiveGremlinQueryCanary }
+    }).then(function successCallback(response) {
+        alert("Start Capture Response from Skydive was " + JSON.stringify(response));
+    }, function errorCallback(response) {
+      alert("ERROR Start Capture Response from Skydive was " + JSON.stringify(response));
+    });
+    
 }
 
 function skydiveStopCapture(angularHttp, skydiveHost, service, interlocutor) {
     captureId = "a36d3dd5-cc80-4d5f-7973-eba06dee917c"; // TODO Am I supposed to save this from the start?  Recreate?
     angularHttp({
         method: 'DELETE',
-        url: '/api/v1/skydive/capture/' + skydiveHost.split('/').slice(-1)[0],
+        url: '/api/v1/skydive/action/capture/',
     }).then(function successCallback(response) {
         alert("Stop Capture Response from Skydive was " + JSON.stringify(response));
     }, function errorCallback(response) {
