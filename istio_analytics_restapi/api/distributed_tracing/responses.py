@@ -297,6 +297,9 @@ clusters_response = api.model('clusters_response', {
 ####
 # Schema of the trace clusters diff produced by POST /distributed_tracing/traces/timelines/clusters/diff
 ####
+SKYDIVE_QUERY_BASELINE_STR = 'skydive_query_baseline' 
+SKYDIVE_QUERY_CANARY_STR = 'skydive_query_canary'
+
 BASELINE_TRACE_IDS_STR = 'baseline_trace_ids'
 CANARY_TRACE_IDS_STR = 'canary_trace_ids'
 CLUSTERS_DIFFS = 'clusters_diffs'
@@ -408,9 +411,12 @@ event_stat_diff_details = api.model('event_stat_diff_details', {
                                     description='The other microservice participating in this event'),
     REQUEST_URL_STR: fields.String(required=True, example='GET /catalog',
                                  description='The URL corresponding to the event'),
-    SKYDIVE_QUERY_STR: fields.String(required=True, example="/topology?filter=G.V().Has('Manager',NE('k8s'),'Docker.Labels.io.kubernetes.container.name', Regex('reviews.*|productpage.*'),'Docker.Labels.io.kubernetes.pod.name', Regex('reviews-v3.*|productpage-v1.*')).Both().Out().Has('Name',Regex('eth0|k8s_reviews.*|k8s_productpage.*')).ShortestPathTo(Metadata('Name','TOR1'))",
+    SKYDIVE_QUERY_BASELINE_STR: fields.String(required=True, example="/topology?filter=G.V().Has('Manager',NE('k8s'),'Docker.Labels.io.kubernetes.container.name', Regex('reviews.*|productpage.*'),'Docker.Labels.io.kubernetes.pod.name', Regex('reviews-v3.*|productpage-v1.*')).Both().Out().Has('Name',Regex('eth0|k8s_reviews.*|k8s_productpage.*')).ShortestPathTo(Metadata('Name','TOR1'))",
                                      description='Skydive query to analyze the network latency at the '
-                                     'infrastructure level between the two corresponding endpoints'),
+                                     'infrastructure level between the two corresponding baseline endpoints'),
+    SKYDIVE_QUERY_CANARY_STR: fields.String(required=True, example="/topology?filter=G.V().Has('Manager',NE('k8s'),'Docker.Labels.io.kubernetes.container.name', Regex('reviews.*|productpage.*'),'Docker.Labels.io.kubernetes.pod.name', Regex('reviews-v3.*|productpage-v1.*')).Both().Out().Has('Name',Regex('eth0|k8s_reviews.*|k8s_productpage.*')).ShortestPathTo(Metadata('Name','TOR1'))",
+                                     description='Skydive query to analyze the network latency at the '
+                                     'infrastructure level between the two corresponding canary endpoints'),
     BASELINE_STATS_STR: fields.Nested(all_stats, required=True, 
                                       description='Aggregation of all statistics computed on a cluster '
                                       'of traces for the baseline period'),
