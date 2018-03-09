@@ -7,7 +7,7 @@ from flask import Flask, Blueprint, redirect, render_template
 from istio_analytics_restapi.api.restplus import api
 from istio_analytics_restapi.api.health.endpoints.health import health_namespace
 from istio_analytics_restapi.api.distributed_tracing.endpoints.traces import distributed_tracing_namespace
-from istio_analytics_restapi.api.distributed_tracing.endpoints.skydive import skydive_namespace
+from istio_analytics_restapi.api.skydive.skydive import skydive_namespace
 from istio_analytics_restapi.api import constants
 
 #  Create a Flask application
@@ -132,6 +132,7 @@ def initialize(flask_app):
     api.init_app(blueprint)
     api.add_namespace(health_namespace)
     api.add_namespace(distributed_tracing_namespace)
+    api.add_namespace(skydive_namespace)
     flask_app.register_blueprint(blueprint)
     config_env()
     
