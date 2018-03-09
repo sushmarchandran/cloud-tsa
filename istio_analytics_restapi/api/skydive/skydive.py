@@ -52,12 +52,6 @@ capture_response = api.model('capture_response', {
                             description='TODO')
 })
 
-stop_capture_response = api.model('stop_capture_response', {
-    dt_responses.SKYDIVE_URL_STR: fields.String(required=True, example='http://localhost:8082',
-                                  description='URL of the Skydive service monitoring the infrastructure network'),
-    MESSAGE_STR: fields.String(required=True, example=None, description='Message providing details about the response '
-                             'when applicable')
-})
 
 ##################################
 ##################################
@@ -69,7 +63,7 @@ stop_capture_response = api.model('stop_capture_response', {
 class CaptureCollection(Resource):
 
     @api.expect(capture_body_parameters, validate=True)
-    @api.marshal_with(capture_response)
+    @api.marshal_with(capture_response, code=201)
     @api.response(201, 'Action to capture network traffic successfully started')
     def post(self):
         '''
@@ -106,7 +100,7 @@ class CaptureCollection(Resource):
 class CaptureItem(Resource):
 
     @api.response(204, 'Action to capture network traffic successfully stopped')
-    @api.marshal_with(stop_capture_response, code=404)
+    @api.response(404, 'Action to capture network traffic was not found')
     def delete(self, capture_uuid):
         '''Asks Sydive to stop capturing network traffic
 
@@ -120,16 +114,10 @@ class CaptureItem(Resource):
         error_msg, http_code = skydive_client.stop_capture(capture_uuid)
 
         if http_code == 404:
-            skydive_host = os.getenv(constants.ISTIO_ANALYTICS_SKYDIVE_HOST_ENV)
-            skydive_override = os.getenv(constants.ISTIO_ANALYTICS_SKYDIVE_OVERRIDE_ENV)
-            ret_val = {
-                dt_responses.SKYDIVE_URL_STR: skydive_override or skydive_host,
-                MESSAGE_STR: error_msg
-            }
-            return ret_val, 404
+            return error_msg, 404
         elif http_code != 204:
             log.warn(error_msg)
-            ret_val, http_code = build_http_error(error_msg, http_code)
+            _, http_code = build_http_error(error_msg, http_code)
             flask_restplus.errors.abort(code=http_code, message=error_msg)
 
         log.info('Finished processing request to ask Skydive to stop capturing network traffic')
