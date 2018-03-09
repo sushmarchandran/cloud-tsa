@@ -139,7 +139,7 @@ event_details = api.model('event_details', {
     TIMEOUT_STR: fields.Integer(required=True, example=10000000,
                                 description='Timeout (in microseconds) observed for the request related '
                                 'to the event'),
-    SKYDIVE_QUERY_STR: fields.String(required=True, example="topology?filter=G.V().Has('Manager',NE('k8s'),'Docker.Labels.io.kubernetes.container.name', Regex('reviews.*|productpage.*'),'Docker.Labels.io.kubernetes.pod.name', Regex('reviews-v3.*|productpage-v1.*')).Both().Out().Has('Name',Regex('eth0|k8s_reviews.*|k8s_productpage.*')).ShortestPathTo(Metadata('Name','TOR1'))",
+    SKYDIVE_QUERY_STR: fields.String(required=True, example="/topology?filter=G.V().Has('Manager',NE('k8s'),'Docker.Labels.io.kubernetes.container.name', Regex('reviews.*|productpage.*'),'Docker.Labels.io.kubernetes.pod.name', Regex('reviews-v3.*|productpage-v1.*')).Both().Out().Has('Name',Regex('eth0|k8s_reviews.*|k8s_productpage.*')).ShortestPathTo(Metadata('Name','TOR1'))",
                                      description='Skydive query to analyze the network latency at the '
                                      'infrastructure level between the two corresponding endpoints')
 })
@@ -234,7 +234,7 @@ event_stat_details = api.model('event_stat_details', {
                                     description='The other microservice participating in this event'),
     REQUEST_URL_STR: fields.String(required=True, example='GET /catalog',
                                  description='The URL corresponding to the event'),
-    SKYDIVE_QUERY_STR: fields.String(required=True, example="topology?filter=G.V().Has('Manager',NE('k8s'),'Docker.Labels.io.kubernetes.container.name', Regex('reviews.*|productpage.*'),'Docker.Labels.io.kubernetes.pod.name', Regex('reviews-v3.*|productpage-v1.*')).Both().Out().Has('Name',Regex('eth0|k8s_reviews.*|k8s_productpage.*')).ShortestPathTo(Metadata('Name','TOR1'))",
+    SKYDIVE_QUERY_STR: fields.String(required=True, example="/topology?filter=G.V().Has('Manager',NE('k8s'),'Docker.Labels.io.kubernetes.container.name', Regex('reviews.*|productpage.*'),'Docker.Labels.io.kubernetes.pod.name', Regex('reviews-v3.*|productpage-v1.*')).Both().Out().Has('Name',Regex('eth0|k8s_reviews.*|k8s_productpage.*')).ShortestPathTo(Metadata('Name','TOR1'))",
                                      description='Skydive query to analyze the network latency at the '
                                      'infrastructure level between the two corresponding endpoints'),
     TRACE_IDS_STR: fields.List(fields.String, required=True,
@@ -408,7 +408,7 @@ event_stat_diff_details = api.model('event_stat_diff_details', {
                                     description='The other microservice participating in this event'),
     REQUEST_URL_STR: fields.String(required=True, example='GET /catalog',
                                  description='The URL corresponding to the event'),
-    SKYDIVE_QUERY_STR: fields.String(required=True, example="topology?filter=G.V().Has('Manager',NE('k8s'),'Docker.Labels.io.kubernetes.container.name', Regex('reviews.*|productpage.*'),'Docker.Labels.io.kubernetes.pod.name', Regex('reviews-v3.*|productpage-v1.*')).Both().Out().Has('Name',Regex('eth0|k8s_reviews.*|k8s_productpage.*')).ShortestPathTo(Metadata('Name','TOR1'))",
+    SKYDIVE_QUERY_STR: fields.String(required=True, example="/topology?filter=G.V().Has('Manager',NE('k8s'),'Docker.Labels.io.kubernetes.container.name', Regex('reviews.*|productpage.*'),'Docker.Labels.io.kubernetes.pod.name', Regex('reviews-v3.*|productpage-v1.*')).Both().Out().Has('Name',Regex('eth0|k8s_reviews.*|k8s_productpage.*')).ShortestPathTo(Metadata('Name','TOR1'))",
                                      description='Skydive query to analyze the network latency at the '
                                      'infrastructure level between the two corresponding endpoints'),
     BASELINE_STATS_STR: fields.Nested(all_stats, required=True, 
