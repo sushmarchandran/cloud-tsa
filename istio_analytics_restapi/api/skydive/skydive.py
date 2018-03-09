@@ -29,7 +29,6 @@ skydive_client = SkydiveClient(os.getenv(constants.ISTIO_ANALYTICS_SKYDIVE_HOST_
 skydive_namespace = api.namespace('skydive', description='Resources to execute Skydive commands')
 
 GREMLIN_QUERY_PARAM_STR = 'GremlinQuery'
-MESSAGE_STR = 'message'
 
 capture_body_parameters = api.model('capture_params', {
     GREMLIN_QUERY_PARAM_STR: fields.String(required=True, example='G.V()',
