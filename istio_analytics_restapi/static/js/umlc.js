@@ -519,7 +519,9 @@ function addCommunication(data) {
                         			 getGremlinQuery(d.skydive_query_baseline), 
                                      getGremlinQuery(d.skydive_query_canary));
                     } else if (sel == 'Stop Capturing') {
-                        stopCapture(data.angularHttp, d.service, d.interlocutor);
+                        stopCapture(data.angularHttp, 
+                                    getGremlinQuery(d.skydive_query_baseline), 
+                                    getGremlinQuery(d.skydive_query_canary));
                     }
                 });
             }, 1);
@@ -645,7 +647,9 @@ function addCommunication(data) {
                         			 getGremlinQuery(d.skydive_query_baseline), 
                                      getGremlinQuery(d.skydive_query_canary));
                     } else if (sel == 'Stop Capturing') {
-                        stopCapture(data.angularHttp, d.service, d.interlocutor);
+                        stopCapture(data.angularHttp, 
+                                    getGremlinQuery(d.skydive_query_baseline), 
+                                    getGremlinQuery(d.skydive_query_canary));
                     }
                 });
             }, 1);
@@ -1422,11 +1426,10 @@ function startCapture(angularHttp, skydiveGremlinQueryBaseline, skydiveGremlinQu
     window.parent.skydiveStartCapture(angularHttp, skydiveGremlinQueryBaseline, skydiveGremlinQueryCanary);
 }
 
-function stopCapture(angularHttp, service, interlocutor) {
+function stopCapture(angularHttp, skydiveGremlinQueryBaseline, skydiveGremlinQueryCanary) {
     // "global" Javascript is not global to code in an <iframe>
-    window.parent.skydiveStopCapture(angularHttp, getSkydiveUrl(), service, interlocutor);
+    window.parent.skydiveStopCapture(angularHttp, skydiveGremlinQueryBaseline, skydiveGremlinQueryCanary);
 }
-
 
 function skydiveFocus(skydiveQueryBaseline, skydiveQueryCanary) {
     // "global" Javascript is not global to code in an <iframe>

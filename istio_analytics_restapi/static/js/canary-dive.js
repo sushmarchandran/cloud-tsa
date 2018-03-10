@@ -30,7 +30,8 @@ function skydiveStartCapture(angularHttp, skydiveGremlinQueryBaseline, skydiveGr
         url: '/api/v1/skydive/action/capture/',
         data: { "GremlinQuery": skydiveGremlinQueryBaseline }
     }).then(function successCallback(response) {
-        alert("Start Capture Response from Skydive was " + JSON.stringify(response));
+    	captureId = response.data.capture_details.UUID;
+        alert("Successfully started Skydive capture " + captureId + " for the baseline");
     }, function errorCallback(response) {
       alert("ERROR Start Capture Response from Skydive was " + JSON.stringify(response));
     });
@@ -41,20 +42,37 @@ function skydiveStartCapture(angularHttp, skydiveGremlinQueryBaseline, skydiveGr
         url: '/api/v1/skydive/action/capture/',
         data: { "GremlinQuery": skydiveGremlinQueryCanary }
     }).then(function successCallback(response) {
-        alert("Start Capture Response from Skydive was " + JSON.stringify(response));
+    	captureId = response.data.capture_details.UUID;
+        alert("Successfully started Skydive capture " + captureId + " for the canary");
     }, function errorCallback(response) {
       alert("ERROR Start Capture Response from Skydive was " + JSON.stringify(response));
     });
-    
 }
 
-function skydiveStopCapture(angularHttp, skydiveHost, service, interlocutor) {
-    captureId = "a36d3dd5-cc80-4d5f-7973-eba06dee917c"; // TODO Am I supposed to save this from the start?  Recreate?
+function skydiveStopCapture(angularHttp, skydiveGremlinQueryBaseline, skydiveGremlinQueryCanary) {
+    console.log('Getting list of all captures to identify the ones matching the corresponding baseline and canary')
     angularHttp({
-        method: 'DELETE',
+        method: 'GET',
         url: '/api/v1/skydive/action/capture/',
     }).then(function successCallback(response) {
-        alert("Stop Capture Response from Skydive was " + JSON.stringify(response));
+    	console.log("List of ongoing captures: " + JSON.stringify(response)); 
+        console.log('Matching baseline and canary Gremlin queries against ongoing captures');
+        captureList = response.data.capture_list;
+        for (i = 0; i < captureList.length; i++) {
+        	captureId = captureList[i]['UUID']
+        	gremlinQuery = captureList[i]['GremlinQuery']
+        	if (gremlinQuery == skydiveGremlinQueryBaseline || gremlinQuery == skydiveGremlinQueryCanary) {
+        		console.log("Stopping capture " + captureId);
+        		angularHttp({
+        			method: 'DELETE',
+        			url: '/api/v1/skydive/action/capture/' + captureId,
+    			}).then(function successCallback(response) {
+					alert("Successfully stopped capture " + captureId);
+    			}, function errorCallback(response) {
+      				alert("ERROR Stop Capture Response from Skydive was " + JSON.stringify(response));
+    			});
+        	}
+        }
     }, function errorCallback(response) {
       alert("ERROR Stop Capture Response from Skydive was " + JSON.stringify(response));
     });
