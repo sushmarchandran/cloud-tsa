@@ -15,13 +15,13 @@
 <body id="canary-skydive" style="margin:0px;padding:0px;overflow:hidden">
 <iframe id="canary-analytics-frame" src="/canary/categories?{{ request.query_string.decode('ASCII') }}"
      skydive-url="{{ skydive }}"
-     style="position:fixed;overflow:hidden;height:100%;width:50%" height="100%" width="50%"></iframe> -->
+     style="position:fixed;overflow:hidden;height:100%;width:50%" height="100%" width="50%"></iframe>
 
 <iframe id="baseline-skydive-frame" src="{{ skydive }}/topology"
-     style="scroll-y:yes;position:fixed;overflow:hidden;left:50%;height:75%;width:50%" height="50%" width="50%"></iframe>
+     style="scroll-y:yes;position:fixed;overflow:hidden;left:50%;height:50%;width:50%" height="50%" width="50%"></iframe>
 
 <iframe id="canary-skydive-frame" src="{{ skydive }}/topology"
-     style="scroll-y:yes;position:fixed;overflow:hidden;left:50%;top:75%;height:75%;width:50%" height="50%" width="50%"></iframe>
+     style="scroll-y:yes;position:fixed;overflow:hidden;left:50%;top:50%;height:50%;width:50%" height="50%" width="50%"></iframe>
 
 <script>
 console.log("Hello Javascript from canary-dive.html");
