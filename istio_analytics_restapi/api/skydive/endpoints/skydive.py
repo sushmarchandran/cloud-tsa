@@ -29,6 +29,8 @@ skydive_client = SkydiveClient(os.getenv(constants.ISTIO_ANALYTICS_SKYDIVE_HOST_
 skydive_namespace = api.namespace('skydive', description='Resources to execute Skydive commands')
 
 GREMLIN_QUERY_PARAM_STR = 'GremlinQuery'
+CAPTURE_DETAILS_STR = 'capture_details'
+CAPTURE_LIST_STR = 'capture_list'
 
 capture_body_parameters = api.model('capture_params', {
     GREMLIN_QUERY_PARAM_STR: fields.String(required=True, example='G.V()',
@@ -36,9 +38,7 @@ capture_body_parameters = api.model('capture_params', {
                             'for capturing the network traffic')
 })
 
-capture_response = api.model('capture_response', {
-    dt_responses.SKYDIVE_URL_STR: fields.String(required=True, example='http://localhost:8082',
-                                  description='URL of the Skydive service monitoring the infrastructure network'),
+capture_details = api.model('capture_details', {
     'UUID': fields.String(required=True, example='a36d3dd5-cc80-4d5f-7973-eba06dee917c',
                             description='UUID'),
     'GremlinQuery': fields.String(required=True, example='G.V()',
@@ -51,6 +51,19 @@ capture_response = api.model('capture_response', {
                             description='TODO')
 })
 
+start_capture_response = api.model('start_capture_response', {
+    dt_responses.SKYDIVE_URL_STR: fields.String(required=True, example='http://localhost:8082',
+                                  description='URL of the Skydive service monitoring the infrastructure network'),
+    CAPTURE_DETAILS_STR: fields.Nested(capture_details, required=True,
+                                description='Attributes of the network-traffic capturing action')
+})
+
+list_capture_response = api.model('list_capture_response', {
+    dt_responses.SKYDIVE_URL_STR: fields.String(required=True, example='http://localhost:8082',
+                                  description='URL of the Skydive service monitoring the infrastructure network'),
+    CAPTURE_LIST_STR: fields.List(fields.Nested(capture_details), required=True,
+                                description='List of all ongoing network-traffic capturing actions')
+})
 
 ##################################
 ##################################
@@ -62,7 +75,7 @@ capture_response = api.model('capture_response', {
 class CaptureCollection(Resource):
 
     @api.expect(capture_body_parameters, validate=True)
-    @api.marshal_with(capture_response, code=201)
+    @api.marshal_with(start_capture_response, code=201)
     @api.response(201, 'Action to capture network traffic successfully started')
     def post(self):
         '''
@@ -86,7 +99,7 @@ class CaptureCollection(Resource):
             ret_val = {
                 dt_responses.SKYDIVE_URL_STR: skydive_override or skydive_host
             }
-            ret_val.update(result_payload_or_error_msg)
+            ret_val[CAPTURE_DETAILS_STR] = result_payload_or_error_msg
         else:
             log.warn(result_payload_or_error_msg)
             ret_val, http_code = build_http_error(result_payload_or_error_msg, http_code)
@@ -94,6 +107,33 @@ class CaptureCollection(Resource):
 
         log.info('Finished processing request to ask Skydive to capture network traffic')        
         return ret_val, 201
+
+    @api.marshal_with(list_capture_response)
+    def get(self):
+        '''
+        Retrieves a detailed list of all traffic-capturing actions currently active
+
+        This implementation makes a **GET** REST call to Skydive's `/api/capture` resource.
+        '''
+        log.info("Started processing request to list all ongoing Skydive's network-traffic capturing actions")
+
+        # Call Skydive
+        result_payload_or_error_msg, http_code = skydive_client.list_captures()
+
+        if http_code == 200:
+            skydive_host = os.getenv(constants.ISTIO_ANALYTICS_SKYDIVE_HOST_ENV)
+            skydive_override = os.getenv(constants.ISTIO_ANALYTICS_SKYDIVE_OVERRIDE_ENV)
+            ret_val = {
+                dt_responses.SKYDIVE_URL_STR: skydive_override or skydive_host
+            }
+            ret_val[CAPTURE_LIST_STR] = result_payload_or_error_msg
+        else:
+            log.warn(result_payload_or_error_msg)
+            ret_val, http_code = build_http_error(result_payload_or_error_msg, http_code)
+            flask_restplus.errors.abort(code=http_code, message=result_payload_or_error_msg)
+
+        log.info("Finished processing request to list all ongoing Skydive's network-traffic capturing actions")
+        return ret_val
 
 @skydive_namespace.route('/action/capture/<string:capture_uuid>')
 class CaptureItem(Resource):

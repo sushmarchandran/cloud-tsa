@@ -81,3 +81,33 @@ class SkydiveClient:
         except Exception as e:
             msg = u'Error while asking Skydive to stop capturing traffic: {0} (a {1})'.format(e, e.__class__)
             return msg, 500
+
+    def list_captures(self):
+        '''
+        Asks Skydive to list all ongoing network-traffic capturing actions
+
+        @rtype (list)
+
+        @return List of Skydive's captures, where each element contains all capture's attributes 
+        '''
+        url = u'{baseurl}/capture'.format(baseurl=self.__base_url)
+        try:
+            response = requests.get(url)
+            log.debug(u'Request made to Skydive: GET {0}'.format(response.url))
+            if response.status_code != 200:
+                msg = u'Error while asking Skydive to start capturing traffic: {0}'.format(response.text)
+                return msg, 502
+            response_object = json.loads(response.text)
+            if len(response_object) == 0:
+                ret_val = []
+            else:
+                log.debug(u'Skydive returned all captures as: {0}'.format(response_object))
+                ret_val = list(response_object.values())
+                log.debug(u'Skydive client will return all captures as: {0}'.format(ret_val))
+            return ret_val, 200
+        except requests.exceptions.ConnectionError as e:
+            msg = u'Error while asking Skydive to start capturing traffic: {0}'.format(e)
+            return msg, 502
+        except Exception as e:
+            msg = u'Error while asking Skydive to start capturing traffic: {0} (a {1})'.format(e, e.__class__)
+            return msg, 500

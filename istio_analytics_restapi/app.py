@@ -7,7 +7,7 @@ from flask import Flask, Blueprint, redirect, render_template
 from istio_analytics_restapi.api.restplus import api
 from istio_analytics_restapi.api.health.endpoints.health import health_namespace
 from istio_analytics_restapi.api.distributed_tracing.endpoints.traces import distributed_tracing_namespace
-from istio_analytics_restapi.api.skydive.skydive import skydive_namespace
+from istio_analytics_restapi.api.skydive.endpoints.skydive import skydive_namespace
 from istio_analytics_restapi.api import constants
 
 #  Create a Flask application
