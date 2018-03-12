@@ -537,7 +537,6 @@ function addCommunication(data) {
             // We can't do transition().on() so we use each() and do the on() there.
             // This is because 'data' is a closure and will be stale if we set on()
             // during enter().
-            /*
             d3.select(this)
                 .on("mouseenter", function(d2) {
                     var t = d3.select("#popups").append("text")
@@ -593,7 +592,6 @@ function addCommunication(data) {
                                 );
                     });
                 });
-                */
         })
         .attr("transform", function(d) {
             return makeSVGTransform(
