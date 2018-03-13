@@ -29,8 +29,8 @@ def shortest_path_query(source_container_name, source_pod_name,
     '''
     # ATTENTION: In query_string below, the filter MUST be the last parameter in the URL.
     # Our UI will look for the substring starting at "G.V()" to extract the Gremlin query.
-    query_string = (u"/topology?topology_legend_hide=true&pinBaseAngle=45&theme=light&"
-                    "link_label_type=latency&expand=true&"
+    query_string = (u"/topology?topology_legend_hide=true&pinBaseAngle=90&theme=light&"
+                    "link_label_type=latency&"
                     "filter=G.V().Has('Manager',NE('k8s'),"
                     "'Docker.Labels.io.kubernetes.container.name', "
                         "Regex('{source_container}.*|{target_container}.*'),"
