@@ -67,7 +67,9 @@ function skydiveStopCapture(angularHttp, skydiveGremlinQueryBaseline, skydiveGre
         			method: 'DELETE',
         			url: '/api/v1/skydive/action/capture/' + captureId,
     			}).then(function successCallback(response) {
-					alert("Successfully stopped capture " + captureId);
+    				deletedCaptureId = response.config.url;
+					alert("Successfully stopped capture " + deletedCaptureId.substring(
+							deletedCaptureId.lastIndexOf("/") + 1));
     			}, function errorCallback(response) {
       				alert("ERROR Stop Capture Response from Skydive was " + JSON.stringify(response));
     			});
