@@ -117,7 +117,7 @@ def add_skydive_query(event, service_name, cs_ann, bin_ann_dict):
                     # If we get here, all data validation succeeded.
                     # So, let's finally build the Skydive query.
                     event[constants.SKYDIVE_QUERY_STR] = \
-                        skydive_query_util.shortest_path_query(
+                        skydive_query_util.ids_from_shortest_path_query(
                             service_name, 
                             source_pod_name, 
                             event[constants.INTERLOCUTOR_STR], 

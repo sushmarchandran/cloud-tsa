@@ -111,3 +111,20 @@ class SkydiveClient:
         except Exception as e:
             msg = u'Error while asking Skydive to start capturing traffic: {0} (a {1})'.format(e, e.__class__)
             return msg, 500
+
+    def get_topology(self, gremlin_query):
+        url = u'{baseurl}/topology'.format(baseurl=self.__base_url)
+        req_params = {GREMLIN_QUERY_PARAM: gremlin_query}
+        try:
+            response = requests.post(url, json=req_params)
+            log.debug(u'Request made to Skydive: POST {0}'.format(response.url))
+            if response.status_code != 200:
+                msg = u'Error while asking Skydive to get a topology: {0}'.format(response.text)
+                return msg, 502
+            return json.loads(response.text), 200
+        except requests.exceptions.ConnectionError as e:
+            msg = u'Error while asking Skydive to get a topology: {0}'.format(e)
+            return msg, 502
+        except Exception as e:
+            msg = u'Error while asking Skydive to get a topology: {0} (a {1})'.format(e, e.__class__)
+            return msg, 500
