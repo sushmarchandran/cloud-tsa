@@ -21,5 +21,4 @@ $V_ENV_ROOT_DIR/python3.6-venv/bin/pip3.6 install wheel setuptools nose coverage
 $V_ENV_ROOT_DIR/python3.6-venv/bin/pip3.6 install -r $SCRIPTDIR/../requirements.txt
 
 export PYTHONPATH=$SCRIPTDIR/..
-export ISTIO_ANALYTICS_DEBUG=true
 $V_ENV_ROOT_DIR/python3.6-venv/bin/python3.6 $SCRIPTDIR/../istio_analytics_restapi/app.py
