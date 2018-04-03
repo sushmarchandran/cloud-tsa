@@ -172,7 +172,7 @@ class Test(unittest.TestCase):
 
     def test_timelines(self):
         '''Tests the REST endpoint /distributed_tracing/traces/timelines'''
-        
+
         # The order here needs to match the order in the array
         # cls.zipkin_trace_test_files
         istio_analytics_timelines_response_files = [

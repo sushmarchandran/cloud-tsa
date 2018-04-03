@@ -1,5 +1,6 @@
 {
 	"zipkin_url": "http://localhost:9411",
+	"skydive_url": null,
 	"traces_timelines": 
 	[
 		{
@@ -24,7 +25,8 @@
 							"response_size": 5599,
 							"response_code": 200,
 							"user_agent": "curl/7.54.0",
-							"timeout": null
+							"timeout": null,
+                            "skydive_query":null
 						}
 					]
 				},
@@ -46,7 +48,8 @@
 							"response_size": 5599,
 							"response_code": 200,
 							"user_agent": "curl/7.54.0",
-							"timeout": null
+							"timeout": null,
+                            "skydive_query":null
 						},
 
 						{
@@ -62,7 +65,8 @@
 							"response_size": 178,
 							"response_code": 200,
 							"user_agent": "python-requests/2.18.4",
-							"timeout": null
+							"timeout": null,
+                            "skydive_query":null
 						},
 
 						{
@@ -78,7 +82,8 @@
 							"response_size": 178,
 							"response_code": 200,
 							"user_agent": "python-requests/2.18.4",
-							"timeout": null
+							"timeout": null,
+                            "skydive_query":null
 						},
 
 						{
@@ -94,7 +99,8 @@
 							"response_size": 379,
 							"response_code": 200,
 							"user_agent": "python-requests/2.18.4",
-							"timeout": null
+							"timeout": null,
+                            "skydive_query":null
 						},
 
 						{
@@ -110,7 +116,8 @@
 							"response_size": 379,
 							"response_code": 200,
 							"user_agent": "python-requests/2.18.4",
-							"timeout": null
+							"timeout": null,
+                            "skydive_query":null
 						},
 
 						{
@@ -126,7 +133,8 @@
 							"response_size": 5599,
 							"response_code": 200,
 							"user_agent": "curl/7.54.0",
-							"timeout": null
+							"timeout": null,
+                            "skydive_query":null
 						}
 					]
 				},
@@ -148,7 +156,8 @@
 							"response_size": 178,
 							"response_code": 200,
 							"user_agent": "python-requests/2.18.4",
-							"timeout": null
+							"timeout": null,
+                            "skydive_query":null
 						},
 
 						{
@@ -164,7 +173,8 @@
 							"response_size": 178,
 							"response_code": 200,
 							"user_agent": "python-requests/2.18.4",
-							"timeout": null
+							"timeout": null,
+                            "skydive_query":null
 						}
 					]
 				},
@@ -186,7 +196,8 @@
 							"response_size": 379,
 							"response_code": 200,
 							"user_agent": "python-requests/2.18.4",
-							"timeout": null
+							"timeout": null,
+                            "skydive_query":null
 						},
 
 						{
@@ -202,7 +213,8 @@
 							"response_size": 48,
 							"response_code": 200,
 							"user_agent": "Apache-CXF/3.1.11",
-							"timeout": null
+							"timeout": null,
+                            "skydive_query":null
 						},
 
 						{
@@ -218,7 +230,8 @@
 							"response_size": 48,
 							"response_code": 200,
 							"user_agent": "Apache-CXF/3.1.11",
-							"timeout": null
+							"timeout": null,
+                            "skydive_query":null
 						},
 
 						{
@@ -234,7 +247,8 @@
 							"response_size": 379,
 							"response_code": 200,
 							"user_agent": "python-requests/2.18.4",
-							"timeout": null
+							"timeout": null,
+                            "skydive_query":null
 						}
 					]
 				},
@@ -256,7 +270,8 @@
 							"response_size": 48,
 							"response_code": 200,
 							"user_agent": "Apache-CXF/3.1.11",
-							"timeout": null
+							"timeout": null,
+                            "skydive_query":null
 						},
 
 						{
@@ -272,7 +287,8 @@
 							"response_size": 48,
 							"response_code": 200,
 							"user_agent": "Apache-CXF/3.1.11",
-							"timeout": null
+							"timeout": null,
+                            "skydive_query":null
 						}
 					]
 				}

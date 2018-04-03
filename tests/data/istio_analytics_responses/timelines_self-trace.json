@@ -1,5 +1,6 @@
 {
   "zipkin_url": "http://localhost:9411",
+  "skydive_url": null,
   "traces_timelines": [
     {
       "trace_id": "00007761db8f5d39",
@@ -21,7 +22,8 @@
               "response_size": 2,
               "response_code": 200,
               "user_agent": "Go-http-client/1.1",
-              "timeout": null
+              "timeout": null,
+              "skydive_query":null
             }
           ]
         }
