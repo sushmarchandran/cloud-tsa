@@ -19,5 +19,7 @@ RUN bash -c "source /python3.6-venv/bin/activate && \
        /python3.6-venv/bin/pip3.6 install wheel setuptools nose coverage && \
        /python3.6-venv/bin/pip3.6 install -r /istio_analytics/requirements.txt"
 
+RUN apt-get update && apt-get upgrade -y && apt-get dist-upgrade
+
 #Starting the server using the startServer script
 CMD ["sh", "/istio_analytics/startServer.sh"]
