@@ -49,8 +49,7 @@ def can_be_aggregated(event_1, event_2):
     if (event_1[responses.EVENT_TYPE_STR]   == event_2[responses.EVENT_TYPE_STR] and
         event_1[responses.INTERLOCUTOR_STR] == event_2[responses.INTERLOCUTOR_STR] and
         event_1[responses.REQUEST_URL_STR]  == event_2[responses.REQUEST_URL_STR] and
-        event_1[responses.PROTOCOL_STR]     == event_2[responses.PROTOCOL_STR] and
-        event_1[responses.USER_AGENT_STR]   == event_2[responses.USER_AGENT_STR]):
+        event_1[responses.PROTOCOL_STR]     == event_2[responses.PROTOCOL_STR]):
         return True
 
     return False
