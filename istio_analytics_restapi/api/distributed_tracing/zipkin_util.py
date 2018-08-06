@@ -973,7 +973,8 @@ class Zipkin_Span_Filter:
         
     def filter(self, zipkin_span):
         for name in self.service_names:
-            if zipkin_span[ZIPKIN_ANNOTATIONS_STR][0][ZIPKIN_ANNOTATIONS_ENDPOINT_STR]\
-                [ZIPKIN_ANNOTATIONS_ENDPOINT_SERVICENAME_STR] == name:
-                return False
+            if ZIPKIN_ANNOTATIONS_STR in zipkin_span: 
+                if zipkin_span[ZIPKIN_ANNOTATIONS_STR][0][ZIPKIN_ANNOTATIONS_ENDPOINT_STR]\
+                    [ZIPKIN_ANNOTATIONS_ENDPOINT_SERVICENAME_STR] == name:
+                    return False
         return True
