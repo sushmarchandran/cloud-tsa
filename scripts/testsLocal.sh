@@ -17,4 +17,4 @@ echo ""
 
 set -o xtrace
 cd $SCRIPTDIR/..
-nosetests --exe --with-coverage --cover-package=istio_analytics_restapi --cover-html --cover-html-dir=$SCRIPTDIR/../restapi_server/code_coverage
+nosetests --exe --with-coverage --cover-package=istio_analytics_restapi --cover-html --cover-html-dir=$SCRIPTDIR/../code_coverage
