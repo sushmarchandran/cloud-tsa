@@ -22,7 +22,7 @@ services:
 
   zipkin:
     image:
-      openzipkin/zipkin
+      openzipkin/zipkin:2.7
     container_name: zipkin
     networks:
       istio-analytics-mesh:
