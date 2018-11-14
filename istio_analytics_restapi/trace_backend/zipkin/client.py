@@ -1,13 +1,16 @@
 '''
 Zipkin client code
 '''
+
+from abc import ABC, abstractmethod
 import logging
 log = logging.getLogger(__name__)
 
 import requests
 import json
 
-import istio_analytics_restapi.api.distributed_tracing.zipkin_util as zipkin_util
+import istio_analytics_restapi.trace_backend.zipkin.util as zipkin_util
+import istio_analytics_restapi.trace_backend.abstract_client as abstract_client
 
 # How far back in the past to look for traces (in milliseconds)
 ZIPKIN_LOOKBACK_PARAM = 'lookback'
@@ -18,7 +21,7 @@ ZIPKIN_END_TIME_PARAM = 'endTs'
 # Maximum number of traces to retrieve
 ZIPKIN_MAX_TRACES_PARAM = 'limit'
 
-class ZipkinClient:
+class ZipkinClient(abstract_client.AbstractClient):
     '''
     Zipkin client to interact with the Zipkin server via REST
     '''
@@ -115,3 +118,9 @@ class ZipkinClient:
                 filtered_list.append(trace)
 
         return filtered_list
+
+    def trace_list_to_istio_analytics_trace_list(self, traces_or_error_msg, filter_list):
+        return zipkin_util.zipkin_trace_list_to_istio_analytics_trace_list(traces_or_error_msg, filter_list)
+    
+    def trace_list_to_timelines(self, traces_or_error_msg, filter_list):
+        return zipkin_util.zipkin_trace_list_to_timelines(traces_or_error_msg, filter_list)

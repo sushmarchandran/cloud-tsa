@@ -39,7 +39,7 @@ class Test(unittest.TestCase):
                                                'istio_analytics_responses')
 
         # Zipkin host (calls to it will actually be mocked)
-        cls.zipkin_host = os.getenv(constants.ISTIO_ANALYTICS_ZIPKIN_HOST_ENV)
+        cls.zipkin_host = os.getenv(constants.ISTIO_ANALYTICS_TRACE_SERVER_URL_ENV)
         
         # Zipkin endpoint to get traces
         cls.zipkin_traces_endpoint = '{0}/api/v1/traces/'.format(cls.zipkin_host)
@@ -141,8 +141,8 @@ class Test(unittest.TestCase):
                 
                 response_dict = json.loads(resp.data)
                 
-                msg = 'Unexpected value for zipkin_url key'
-                self.assertEqual(response_dict[responses.ZIPKIN_URL_STR],
+                msg = 'Unexpected value for trace_server_url key'
+                self.assertEqual(response_dict[responses.TRACE_SERVER_URL_STR],
                                  self.zipkin_host,
                                  msg)
                 
@@ -219,8 +219,8 @@ class Test(unittest.TestCase):
                 response_dict = json.loads(resp.data)
                 log.debug(u'Timeline data returned by Istio Analytics: {0}'.format(response_dict))
                 
-                msg = 'Unexpected value for zipkin_url key'
-                self.assertEqual(response_dict[responses.ZIPKIN_URL_STR],
+                msg = 'Unexpected value for trace_server_url key'
+                self.assertEqual(response_dict[responses.TRACE_SERVER_URL_STR],
                                  self.zipkin_host,
                                  msg)
                 

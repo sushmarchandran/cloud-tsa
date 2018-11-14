@@ -1,5 +1,6 @@
 {
-    "zipkin_url": "http://localhost:9411",
+    "trace_backend": "zipkin",
+	"trace_server_url": "http://localhost:9411",
     "skydive_url":null,
     "traces_timelines": [
         {

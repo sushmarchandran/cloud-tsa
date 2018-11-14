@@ -1,5 +1,6 @@
 {
-    "zipkin_url": "http://localhost:9411",
+    "trace_backend": "zipkin",
+	"trace_server_url": "http://localhost:9411",
     "trace_list": [
         {
             "trace_id": "000096b5c1a86cd4",

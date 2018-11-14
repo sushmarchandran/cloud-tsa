@@ -12,21 +12,20 @@ import flask_restplus.errors
 from istio_analytics_restapi.api.restplus import api
 from istio_analytics_restapi.api.restplus import build_http_error
 from istio_analytics_restapi.api import constants
-import istio_analytics_restapi.api.distributed_tracing.responses as zipkin_constants
+import istio_analytics_restapi.api.distributed_tracing.responses as client_constants
 
 import istio_analytics_restapi.util.time_util
-from istio_analytics_restapi.zipkin.zipkin_client import ZipkinClient
 
-import istio_analytics_restapi.api.distributed_tracing.zipkin_util as zipkin_util
 import istio_analytics_restapi.api.distributed_tracing.request_parameters as request_parameters
 import istio_analytics_restapi.api.distributed_tracing.responses as responses
+
+import istio_analytics_restapi.trace_backend.client_adapter as client_adapter
 
 import istio_analytics_restapi.analytics.distributed_tracing as distributed_tracing
 
 distributed_tracing_namespace = api.namespace('distributed_tracing',
                                               description='Analytics on distributed-tracing data')
-
-zipkin_client = ZipkinClient(os.getenv(constants.ISTIO_ANALYTICS_ZIPKIN_HOST_ENV))
+trace_client = client_adapter.get_trace_client()
 
 def process_common_parameters(request_body):
     '''Helper method used to process common REST parameters.
@@ -57,7 +56,7 @@ def process_common_parameters(request_body):
     else:
         log.debug(u'end_time parameter was omitted; defaulting to current time')
         end_time_milli = istio_analytics_restapi.util.time_util.current_milliseconds_epoch_time()
-
+        
     # If max is not given, default to 100
     max_traces = (request_body[request_parameters.MAX_TRACES_PARAM_STR]
                   if request_parameters.MAX_TRACES_PARAM_STR in request_body
@@ -69,7 +68,7 @@ def process_common_parameters(request_body):
     else:
         ## TODO: Remove this constant and add filter option in the analytics UI
         # This is the default service to be filtered out
-        filter_list = ["istio-mixer"]
+        filter_list = ["istio-mixer", "istio-policy"]
 
     # Check if tags and values were passed as parameters
     tags = None
@@ -79,6 +78,22 @@ def process_common_parameters(request_body):
     log.debug(u'Parameters: start_time = {0}; end_time = {1}; max = {2}; filter_list = {3}; tags = {4}'.
               format(start_time_milli, end_time_milli, max_traces, filter_list, tags))
     return start_time_milli, end_time_milli, max_traces, filter_list, tags
+
+def init_response():
+    '''Initialize a response with common information
+    '''
+    response = {}
+    trace_backend = os.getenv(constants.ISTIO_ANALYTICS_TRACE_BACKEND_ENV)
+    response[client_constants.TRACE_BACKEND_STR] = trace_backend
+
+    skydive_host = os.getenv(constants.ISTIO_ANALYTICS_SKYDIVE_HOST_ENV)
+    skydive_override = os.getenv(constants.ISTIO_ANALYTICS_SKYDIVE_OVERRIDE_ENV)
+    response[client_constants.SKYDIVE_URL_STR] = skydive_host or skydive_override
+
+    server_url = os.getenv(constants.ISTIO_ANALYTICS_TRACE_SERVER_URL_ENV)
+    server_override = os.getenv(constants.ISTIO_ANALYTICS_TRACE_SERVER_OVERRIDE_ENV)
+    response[client_constants.TRACE_SERVER_URL_STR] = server_override or server_url
+    return response
 
 ##################################
 ##################################
@@ -102,18 +117,13 @@ class Traces(Resource):
         start_time_milli, end_time_milli, max_traces, filter_list, tags = \
             process_common_parameters(request_body)
 
-        # Call Zipkin
         traces_or_error_msg, http_code = \
-            zipkin_client.get_traces(start_time_milli, end_time_milli, max_traces=max_traces, tags=tags)
+            trace_client.get_traces(start_time_milli, end_time_milli, max_traces=max_traces, tags=tags)
 
         if http_code == 200:
-            zipkin_host = os.getenv(constants.ISTIO_ANALYTICS_ZIPKIN_HOST_ENV)
-            zipkin_override = os.getenv(constants.ISTIO_ANALYTICS_ZIPKIN_OVERRIDE_ENV)
-            ret_val = {
-                zipkin_constants.ZIPKIN_URL_STR: zipkin_override or zipkin_host
-            }
-            ret_val[zipkin_constants.TRACES_STR] = \
-                zipkin_util.zipkin_trace_list_to_istio_analytics_trace_list(traces_or_error_msg, filter_list)
+            ret_val = init_response()
+            ret_val[client_constants.TRACES_STR] = \
+                    trace_client.trace_list_to_istio_analytics_trace_list(traces_or_error_msg, filter_list)
         else:
             log.warn(traces_or_error_msg)
             ret_val, http_code = build_http_error(traces_or_error_msg, http_code)
@@ -160,26 +170,18 @@ class Timelines(Resource):
         start_time_milli, end_time_milli, max_traces, filter_list, tags = \
             process_common_parameters(request_body)
 
-        # Call Zipkin
         traces_or_error_msg, http_code = \
-            zipkin_client.get_traces(start_time_milli, end_time_milli, max_traces=max_traces, tags=tags)
+            trace_client.get_traces(start_time_milli, end_time_milli, max_traces=max_traces, tags=tags)
 
         if http_code == 200:
-            zipkin_host = os.getenv(constants.ISTIO_ANALYTICS_ZIPKIN_HOST_ENV)
-            zipkin_override = os.getenv(constants.ISTIO_ANALYTICS_ZIPKIN_OVERRIDE_ENV)
-            skydive_host = os.getenv(constants.ISTIO_ANALYTICS_SKYDIVE_HOST_ENV)
-            skydive_override = os.getenv(constants.ISTIO_ANALYTICS_SKYDIVE_OVERRIDE_ENV)
-            ret_val = {
-                zipkin_constants.ZIPKIN_URL_STR: zipkin_override or zipkin_host,
-                zipkin_constants.SKYDIVE_URL_STR: skydive_host or skydive_override
-            }
-            ret_val[zipkin_constants.TRACES_TIMELINES_STR] = \
-                zipkin_util.zipkin_trace_list_to_timelines(traces_or_error_msg, filter_list)
+            ret_val = init_response()
+            ret_val[client_constants.TRACES_TIMELINES_STR] = \
+                    trace_client.trace_list_to_timelines(traces_or_error_msg, filter_list)
         else:
             log.warn(traces_or_error_msg)
             ret_val, http_code = build_http_error(traces_or_error_msg, http_code)
             flask_restplus.errors.abort(code=http_code, message=traces_or_error_msg)
-
+ 
         log.info('Finished processing request to get timelines')
         return ret_val
 
@@ -195,28 +197,20 @@ class TraceCluster(Resource):
         start_time_milli, end_time_milli, max_traces, filter_list, tags = \
             process_common_parameters(request_body)
 
-        # Call Zipkin
         traces_or_error_msg, http_code = \
-            zipkin_client.get_traces(start_time_milli, end_time_milli, max_traces=max_traces, tags=tags)
+            trace_client.get_traces(start_time_milli, end_time_milli, max_traces=max_traces, tags=tags)
 
         if http_code == 200:
-            zipkin_host = os.getenv(constants.ISTIO_ANALYTICS_ZIPKIN_HOST_ENV)
-            zipkin_override = os.getenv(constants.ISTIO_ANALYTICS_ZIPKIN_OVERRIDE_ENV)
-            skydive_host = os.getenv(constants.ISTIO_ANALYTICS_SKYDIVE_HOST_ENV)
-            skydive_override = os.getenv(constants.ISTIO_ANALYTICS_SKYDIVE_OVERRIDE_ENV)
-            ret_val = {
-                zipkin_constants.ZIPKIN_URL_STR: zipkin_override or zipkin_host,
-                zipkin_constants.SKYDIVE_URL_STR: skydive_host or skydive_override
-            }
+            ret_val = init_response()
             traces_timelines = \
-                zipkin_util.zipkin_trace_list_to_timelines(traces_or_error_msg, filter_list)
-            ret_val[zipkin_constants.CLUSTERS_STR] = \
-                distributed_tracing.cluster_traces(traces_timelines)
+                    trace_client.trace_list_to_timelines(traces_or_error_msg, filter_list)
+            ret_val[client_constants.CLUSTERS_STR] = \
+                    distributed_tracing.cluster_traces(traces_timelines)
         else:
             log.warn(traces_or_error_msg)
             ret_val, http_code = build_http_error(traces_or_error_msg, http_code)
             flask_restplus.errors.abort(code=http_code, message=traces_or_error_msg)
-
+        
         log.info('Finished processing request to get clusters of traces')
         return ret_val
 
@@ -242,52 +236,43 @@ class TraceClusterDiff(Resource):
             filter_list_canary, tags_canary = \
             process_common_parameters(request_body[request_parameters.CANARY_STR])
 
-        # Call Zipkin to get traces corresponding to the baseline period
         baseline_traces_or_error_msg, http_code = \
-            zipkin_client.get_traces(start_time_milli_baseline,
-                                     end_time_milli_baseline,
-                                     max_traces=max_traces_baseline,
-                                     tags=tags_baseline)
-
+                trace_client.get_traces(start_time_milli_baseline,
+                                        end_time_milli_baseline,
+                                        max_traces=max_traces_baseline,
+                                        tags=tags_baseline)
+        
         if http_code == 200:
-            zipkin_host = os.getenv(constants.ISTIO_ANALYTICS_ZIPKIN_HOST_ENV)
-            zipkin_override = os.getenv(constants.ISTIO_ANALYTICS_ZIPKIN_OVERRIDE_ENV)
-            skydive_host = os.getenv(constants.ISTIO_ANALYTICS_SKYDIVE_HOST_ENV)
-            skydive_override = os.getenv(constants.ISTIO_ANALYTICS_SKYDIVE_OVERRIDE_ENV)
-            ret_val = {
-                zipkin_constants.ZIPKIN_URL_STR: zipkin_override or zipkin_host,
-                zipkin_constants.SKYDIVE_URL_STR: skydive_host or skydive_override
-            }
-
-            # Call Zipkin to get traces corresponding to the canary period
+            ret_val = init_response()
             canary_traces_or_error_msg, http_code = \
-                zipkin_client.get_traces(start_time_milli_canary,
-                                     end_time_milli_canary,
-                                     max_traces=max_traces_canary,
-                                     tags=tags_canary)
+                trace_client.get_traces(start_time_milli_canary,
+                                        end_time_milli_canary,
+                                        max_traces=max_traces_canary,
+                                        tags=tags_canary)
             if http_code != 200:
-                log.warn(canary_traces_or_error_msg)
-                ret_val, http_code = build_http_error(canary_traces_or_error_msg, http_code)
-                flask_restplus.errors.abort(code=http_code, message=canary_traces_or_error_msg)
+                    log.warn(canary_traces_or_error_msg)
+                    ret_val, http_code = build_http_error(canary_traces_or_error_msg, http_code)
+                    flask_restplus.errors.abort(code=http_code, message=canary_traces_or_error_msg)
 
             # Cluster the baseline traces
             baseline_traces_timelines = \
-                zipkin_util.zipkin_trace_list_to_timelines(baseline_traces_or_error_msg, filter_list_baseline)
+                trace_client.trace_list_to_timelines(baseline_traces_or_error_msg, filter_list_baseline)
             baseline_clusters = \
                 distributed_tracing.cluster_traces(baseline_traces_timelines)
 
             # Cluster the canary traces
             canary_traces_timelines = \
-                zipkin_util.zipkin_trace_list_to_timelines(canary_traces_or_error_msg, filter_list_canary)
+                trace_client.trace_list_to_timelines(canary_traces_or_error_msg, filter_list_canary)
             canary_clusters = \
                 distributed_tracing.cluster_traces(canary_traces_timelines)
 
-            ret_val[zipkin_constants.CLUSTERS_DIFFS] = \
+            ret_val[client_constants.CLUSTERS_DIFFS] = \
                 distributed_tracing.compare_clusters(baseline_clusters, canary_clusters)
+
         else:
-            log.warn(baseline_traces_or_error_msg)
-            ret_val, http_code = build_http_error(baseline_traces_or_error_msg, http_code)
-            flask_restplus.errors.abort(code=http_code, message=baseline_traces_or_error_msg)
- 
+                log.warn(baseline_traces_or_error_msg)
+                ret_val, http_code = build_http_error(baseline_traces_or_error_msg, http_code)
+                flask_restplus.errors.abort(code=http_code, message=baseline_traces_or_error_msg)
+        
         log.info('Finished processing request to compare clusters of traces')
         return ret_val

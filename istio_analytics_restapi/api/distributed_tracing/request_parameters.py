@@ -22,7 +22,7 @@ trace_list_body_parameters = api.model('trace_list_params', {
                             'if omitted, current time is assumed'),
     MAX_TRACES_PARAM_STR: fields.Integer(required=False, min=1, example=100,
                             description='Maximum number of traces to retrieve; default=100'),
-    FILTER_LIST_PARAM_STR: fields.List(fields.String, required=False, example=['istio-mixer'],
+    FILTER_LIST_PARAM_STR: fields.List(fields.String, required=False, example=['istio-mixer','istio-policy'],
                             description='List of service names whose spans will be ignored in processing'),
     TAGS_PARAM_STR: fields.List(fields.String, required=False, example=['tag1_name:value1', 'tag2_name:value2'],
                             description="List of key-value pairs to be used to filter the query results. "

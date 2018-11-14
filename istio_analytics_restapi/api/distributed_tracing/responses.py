@@ -7,7 +7,8 @@ from istio_analytics_restapi.api.restplus import api
 ####
 # Schema of the list of traces produced by POST /distributed_tracing/traces/
 ####
-ZIPKIN_URL_STR = 'zipkin_url'
+TRACE_BACKEND_STR = 'trace_backend'
+TRACE_SERVER_URL_STR = 'trace_server_url'
 TRACES_STR = 'trace_list'
 SPANS_STR = 'spans'
 
@@ -75,8 +76,10 @@ trace = api.model('trace', {
 })
 
 trace_list_response = api.model('trace_list_response', {
-    ZIPKIN_URL_STR: fields.String(required=True, example='http://localhost:9411',
-                                  description='URL of the Zipkin service where the tracing data is stored'),
+    TRACE_BACKEND_STR: fields.String(required=True, example='jaeger',
+                                  description='Name of the backend tracing service'),
+    TRACE_SERVER_URL_STR: fields.String(required=True, example='http://localhost:16686',
+                                  description='URL of the tracing service where the tracing data is stored'),
     TRACES_STR: fields.List(fields.Nested(trace), required=True,
                             description='List of traces. Each trace is represented by a list of spans, '
                             'where each span depicts a call made from one microservice (source) '
@@ -102,6 +105,7 @@ EVENT_SEND_REQUEST = 'send_request'
 EVENT_SEND_RESPONSE = 'send_response'
 EVENT_PROCESS_REQUEST = 'process_request'
 EVENT_PROCESS_RESPONSE = 'process_response'
+EVENT_SEQUENCE_NUMBER_STR = 'global_event_sequence_number'
 
 SKYDIVE_QUERY_STR = 'skydive_query'
 
@@ -159,8 +163,10 @@ trace_timelines = api.model('trace_timelines', {
 })
 
 timelines_response = api.model('timelines_response', {
-    ZIPKIN_URL_STR: fields.String(required=True, example='http://localhost:9411',
-                                  description='URL of the Zipkin service where the tracing data is stored'),
+    TRACE_BACKEND_STR: fields.String(required=True, example='jaeger',
+                                  description='Name of the backend tracing service'),
+    TRACE_SERVER_URL_STR: fields.String(required=True, example='http://localhost:16686',
+                                  description='URL of the tracing service where the tracing data is stored'),
     SKYDIVE_URL_STR: fields.String(required=True, example='http://localhost:8082',
                                   description='URL of the Skydive service monitoring the infrastructure network'),
     TRACES_TIMELINES_STR: fields.List(fields.Nested(trace_timelines), required=True,
@@ -175,7 +181,6 @@ ROOT_REQUEST_STR = 'root_request'
 CLUSTERS_STR = 'clusters'
 CLUSTER_STATS_STR = 'cluster_stats'
 TRACE_IDS_STR = 'trace_ids'
-EVENT_SEQUENCE_NUMBER_STR = 'global_event_sequence_number'
 
 MIN_STR = 'min'
 MAX_STR = 'max'
@@ -284,8 +289,10 @@ trace_cluster = api.model('trace_cluster', {
 }) 
 
 clusters_response = api.model('clusters_response', {
-    ZIPKIN_URL_STR: fields.String(required=True, example='http://localhost:9411',
-                                  description='URL of the Zipkin service where the tracing data is stored'),
+    TRACE_BACKEND_STR: fields.String(required=True, example='jaeger',
+                                  description='Name of the backend tracing service'),
+    TRACE_SERVER_URL_STR: fields.String(required=True, example='http://localhost:16686',
+                                  description='URL of the tracing service where the tracing data is stored'),
     SKYDIVE_URL_STR: fields.String(required=True, example='http://localhost:8082',
                                   description='URL of the Skydive service monitoring the infrastructure network'),
     CLUSTERS_STR: fields.List(fields.Nested(trace_cluster), required=True,
@@ -446,8 +453,10 @@ trace_cluster_diff = api.model('trace_cluster_diff', {
 })
 
 clusters_diff_response = api.model('clusters_diff_response', {
-    ZIPKIN_URL_STR: fields.String(required=True, example='http://localhost:9411',
-                                  description='URL of the Zipkin service where the tracing data is stored'),
+    TRACE_BACKEND_STR: fields.String(required=True, example='jaeger',
+                                  description='Name of the backend tracing service'),
+    TRACE_SERVER_URL_STR: fields.String(required=True, example='http://localhost:16686',
+                                  description='URL of the tracing service where the tracing data is stored'),
     SKYDIVE_URL_STR: fields.String(required=True, example='http://localhost:8082',
                                   description='URL of the Skydive service monitoring the infrastructure network'),
     CLUSTERS_DIFFS: fields.List(fields.Nested(trace_cluster_diff), required=True,
