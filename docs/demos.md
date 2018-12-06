@@ -28,7 +28,7 @@ Then, follow these steps:
 
 ```bash
 cd scripts
-docker-compose up -d --build
+docker-compose -f scripts/docker-compose.zipkin.yaml up -d
 ```
 
 4. At this point, you should have both Istio Analytics and Zipkin running. Confirm that by running `docker-compose ps`.
