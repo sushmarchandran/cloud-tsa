@@ -12,10 +12,10 @@
 var margin = {top: 0, right: 0, bottom: 0, left: 0},    // const
     width = 1200 - margin.left - margin.right,    // const
     height = 1000 - margin.top - margin.bottom;    // const
-var processWidth = 100;        // Width of process boxes at the top of the UML diagram.
+var processWidth = 200;        // Width of process boxes at the top of the UML diagram.
 var processMargin = 10;        // Horizontal distance between process boxes.  (They are spaced (processWidth+processMargin) * N)
 
-var processHeight = 20;    // const
+var processHeight = 40;    // const
 var activationBoxWidth = 20;    // const
 var arrowheadWidth = 5;    // const
 var individualActivationRadius = 5;    // const

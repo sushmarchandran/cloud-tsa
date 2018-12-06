@@ -1,4 +1,4 @@
-# restapi_server
+# Introduction
 
 This is the REST API server of the Istio Analytics service. This code has been developed and tested
 using Python 3.6.
@@ -11,47 +11,112 @@ The following environment variables control the behavior of the Istio Analytics 
 
 * `ISTIO_ANALYTICS_DEBUG`: If set to 1 or `true`, the service will run in debug mode. Default: `false`.
 
-* `ISTIO_ANALYTICS_ZIPKIN_HOST`: URL to the Zipkin service containing tracing data. Setting this variable is required for the service to run. If Zipkin is running locally on its default port, set this variable to `http://localhost:9411`.
+* `ISTIO_ANALYTICS_TRACE_BACKEND`(required): Name of backend trace service. Currently only `zipkin` or `jaeger` is supported.
 
-* `ISTIO_ANALYTICS_ZIPKIN_OVERRIDE`: URL to the Zipkin service reported as part of the responses (in JSON) given by the Istio Analytics service. This is needed if `ISTIO_ANALYTICS_ZIPKIN_HOST` is an internal URL not visible from the user's browser where the Istio Analytics UI runs. If not set, the service will report the value of `ISTIO_ANALYTICS_ZIPKIN_HOST`.
+* `ISTIO_ANALYTICS_TRACE_SERVER_URL`(required): URL to the backend trace service containing tracing data.
 
-## Swagger UI
+* `ISTIO_ANALYTICS_TRACE_SERVER_OVERRIDE`: URL to the backend trace service reported as part of the responses (in JSON) given by the Istio Analytics service. This is needed if `ISTIO_ANALYTICS_TRACE_SERVER_URL` is an internal URL not visible from the user's browser where the Istio Analytics UI runs. If not set, the service will report the value of `ISTIO_ANALYTICS_TRACE_SERVER_URL`.
 
-The interactive Swagger documentation for the REST API is available at:
+## Running the server locally
 
-```
-http://<host>:<port>/api/v1
-```
-
-The REST API is fully documented there.
-
-## Test cases and code coverage
-
-The script `/istio-analytics/restapi_server/run_tests.sh` runs all test cases and produces a detailed code-coverage report that can be inspected by opening the HTML file `/istio-analytics/restapi_server/code_coverage/index.html` in your browser. The directory `code_coverage` is populated as part of the `run_tests.sh` script.
-
-Make sure to run the script `run_tests.sh` from inside the development VM that can be provisioned using vagrant. See the development-environment git repository [here](https://github.ibm.com/istio-analytics/dev_env).
-
-## Running the demo locally
-
-### Preferred approach: Docker
+### Approach 1: Docker on Host
 
 Prerequisite: [docker-compose](https://docs.docker.com/compose/install/)
 
-To build and run the istio-analytics server and zipkin server containers on docker platform using docker-compose:
+To build and run the istio-analytics server and backend trace server containers on docker platform using docker-compose:
+#### Option 1: Zipkin as backend
 
 ```bash
-cd scripts/
-docker-compose up -d
+docker-compose -f scripts/docker-compose.zipkin.yaml up -d
 ```
 
-After this, please follow the [instructions](https://github.ibm.com/istio-analytics/dev_env#populating-zipkin) to populate Zipkin server with trace data.
-
-### Alternative approach
-
-As an alternative, you can also run the following script to start Istio Analytics locally:
+#### Option 2: Jaeger as backend
 
 ```bash
-./scripts/localRunServer.sh
+docker-compose -f scripts/docker-compose.jaeger.yaml up -d
 ```
 
-Note, however, that before running this script you will have to make sure Python 3.6 is installed and used. That might entail creating a virtual environment and installing all dependencies declared in `requirements.txt` inside the virtual environment. For that reason, it is just simpler to build the Docker image and run Istio Analytics as a Docker container.
+If you have your own trace service running, you can bring up istio analytics server only.
+Make sure to fill in the values for environment variables `ISTIO_ANALYTICS_TRACE_BACKEND` and `ISTIO_ANALYTICS_TRACE_SERVER_URL` in the docker-compose file before running the following command:
+```bash
+docker-compose -f scripts/docker-compose.server_only.yaml up -d
+``` 
+### Approach 2: Inside a Vagrant VM
+
+Instead of running on host, you can choose to run both the contianersinside a vm.
+
+Prerequisite:
+* [vagrant](https://www.vagrantup.com)
+* [VirtualBox](https://www.virtualbox.org)
+
+Run the following command to bring up and go into the vagrant vm:
+```bash
+cd scripts
+vagrant up
+vagrant ssh
+```
+
+After going inside the vm, run the following cmds to bring up `istio-analytics` and `jaeger`
+```bash
+cd /istio-analytics/restapi_server/scripts
+sudo docker-compose -f scripts/docker-compose.jaeger.yaml up -d 
+```
+
+or `zipkin`:
+```bash
+cd /istio-analytics/restapi_server/scripts
+sudo docker-compose -f scripts/docker-compose.zipkin.yaml up -d 
+```
+
+### Approach 3: On bare host with python virtual environment
+
+Prerequisites:
+* [python3](https://www.python.org/download/releases/3.0/)
+
+As an alternative, you can also run the Istio Analytics on host machine which might be easier for debugging process. It is recommended to run the server inside a Python virtual environment as explained [here](https://docs.python.org/3/library/venv.html).
+
+After activating the virtual environment, run the following cmd to install all dependencies only for the first time of activation:
+
+```bash
+pip3 install -r requirements.txt
+```
+
+You can bring the server up later on:
+```bash
+./scripts/localRunServer.sh <backend_server> <server_url>
+```
+
+Replace `backend_server` and `server_url` with name and endpoint of the trace backend server. 
+
+## Populate the Trace Backend Server with Tracing Data
+
+Tracing data for [bookinfo example](https://istio.io/docs/examples/bookinfo/) has been collected for experimental and demonstrative purposes. You can follow the [instructions](https://github.ibm.com/istio-analytics/dev_env#populate-trace-server) to populate your trace backend with the pre-collected data.
+
+## Test and Visualize APIs from Swagger UI
+
+[Swagger UI](https://swagger.io/tools/swagger-ui/) is adopted in the server to help developers visualize and test the APIs of the server without additional efforts. 
+After bring the server up locally, you can access the UI in the browser:
+
+```
+http://localhost:<port>/api/v1
+```
+
+The port value is set by env var `ISTIO_ANALYTICS_SERVER_PORT`.
+
+## Test cases and code coverage
+** Make sure the code can pass all current test cases before submitting a PR. **
+
+If you have provisioned the vagrant environment, then simply run the following cmd to run the test inside the vm:
+```bash
+./scripts/testLocal.sh <backend_server>
+```  
+
+Otherwise, activate a python virtual environment([instructions](https://docs.python.org/3/library/venv.html)) and run the cmds:
+```bash
+pip3 install -r test-requirements.txt
+./scripts/testLocal.sh <backend_server>
+```
+
+Remember to replace <backend_server> with the name of server module you want to test. 
+ 
+The script `testLocal.sh` runs all test cases and produces a detailed code-coverage report that can be inspected by opening the HTML file `code_coverage/index.html` in your browser.

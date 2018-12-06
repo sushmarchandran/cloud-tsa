@@ -225,8 +225,7 @@ def build_and_sort_timestamps(istio_analytics_trace):
                     constants.TIMESTAMP_STR: span[ts_kind],
                     constants.SPAN_ID_STR: span_id,
                 })
-            except Exception as e:
-                log.warning(e)
+            except Exception:
                 continue
 
     return span_dict, sorted(timestamp_list, key=lambda item:item[constants.TIMESTAMP_STR])
@@ -251,6 +250,7 @@ def process_cs_timestamp(span_dict, prev_event, ts_item, trace_timelines, servic
     @param span_dict: Dictionary of spans with span id as key
     @param prev_event: Last generated event in current trace
     @param ts_item: The current timestamp to be processed
+    @param trace_timelines: The timelines dict related to current trace
     @param service_dict: A dictionary from service name to list of events
 
     @rtype: dictionary
@@ -270,15 +270,17 @@ def process_cs_timestamp(span_dict, prev_event, ts_item, trace_timelines, servic
     event[constants.INTERLOCUTOR_STR] = span[constants.TARGET_NAME_STR]
     event[constants.TIMESTAMP_STR] = span[constants.CLIENT_SEND_TIMESTAMP_STR]
     
-    log.info(u'span id: {0}, response code: {1}'.format(event[constants.SPAN_ID_STR], event[constants.RESPONSE_CODE_STR]))
     # Process timeout case
     if event[constants.RESPONSE_CODE_STR] == '0':
         event[constants.TIMEOUT_STR] = int(span[constants.CLIENT_RECEIVE_TIMESTAMP_STR]) - \
                                     int(span[constants.CLIENT_SEND_TIMESTAMP_STR])
-    else: 
+    elif constants.SERVER_RECEIVE_TIMESTAMP_STR in span: 
         event[constants.DURATION_STR] = int(span[constants.SERVER_RECEIVE_TIMESTAMP_STR]) - \
                                     int(span[constants.CLIENT_SEND_TIMESTAMP_STR])
-                        
+    else:
+        log.warning(u'sr timestamp is missing in span: {0}'.format(span[constants.SPAN_ID_STR]))
+        return None
+    
     service = span[constants.SOURCE_NAME_STR]
     # Add event to service_dict
     event_list = service_dict.get(service, [])
@@ -299,6 +301,7 @@ def process_sr_timestamp(span_dict, prev_event, ts_item, trace_timelines, servic
     @param span_dict: Dictionary of spans with span id as key
     @param prev_event: Last generated event in current trace
     @param ts_item: The current timestamp to be processed
+    @param trace_timelines: The timelines dict related to current trace
     @param service_dict: A dictionary from service name to list of events
 
     @rtype: dictionary
@@ -329,6 +332,7 @@ def process_ss_timestamp(span_dict, prev_event, ts_item, trace_timelines, servic
     @param span_dict: Dictionary of spans with span id as key
     @param prev_event: Last generated event in current trace
     @param ts_item: The current timestamp to be processed
+    @param trace_timelines: The timelines dict related to current trace
     @param service_dict: A dictionary from service name to list of events
 
     @rtype: dictionary
@@ -369,6 +373,7 @@ def process_cr_timestamp(span_dict, prev_event, ts_item, trace_timelines, servic
     @param span_dict: Dictionary of spans with span id as key
     @param prev_event: Last generated event in current trace
     @param ts_item: The current timestamp to be processed
+    @param trace_timelines: The timelines dict related to current trace
     @param service_dict: A dictionary from service name to list of events
 
     @rtype: dictionary
@@ -397,6 +402,7 @@ def process_timestamp(span_dict, prev_event, ts_item, trace_timelines, service_d
     @param span_dict: Dictionary of spans with span id as key
     @param prev_event: Last generated event in current trace
     @param ts_item: The current timestamp to be processed
+    @param trace_timelines: The timelines dict related to current trace
     @param service_dict: A dictionary from service name to list of events
 
     @rtype: dictionary
@@ -412,6 +418,34 @@ def process_timestamp(span_dict, prev_event, ts_item, trace_timelines, service_d
     func = switcher.get(ts_item[TIMESTAMP_KIND_STR], lambda: "Invalid timestamp kind")
     # Execute the function
     return func(span_dict, prev_event, ts_item, trace_timelines, service_dict)
+
+def generate_service_dictionary(trace, trace_timelines):
+    '''Process the istio analytics trace data into a collection of event list, where events
+    in each list are initialized by the same service. If the trace is not complete(might be
+    due to errors in the conversion of traces), an empty collection will be returned.
+
+    @param trace: A trace returned by endpoint /distributed_tracing/traces/
+    @param trace_timelines: The timelines dict related to current trace
+
+    @rtype: dictionary
+    @return A dictionary mapping service name to a list of events initilized by the service
+    '''
+    span_dict, sorted_ts = build_and_sort_timestamps(trace)
+            
+    prev_event = None
+    curr_event = None
+    event_seq_num = 0
+    service_dict = {}
+
+    for ts_item in sorted_ts:
+        curr_event = process_timestamp(span_dict, prev_event, ts_item, trace_timelines, service_dict)
+        if curr_event == None:
+            return None
+        curr_event[constants.EVENT_SEQUENCE_NUMBER_STR] = event_seq_num
+        prev_event = curr_event
+        event_seq_num = event_seq_num + 1
+
+    return service_dict
 
 def trace_list_to_timelines(jaeger_trace_list, filter_list):
     '''Converts each trace of a list of traces as returned by Jaeger into timelines
@@ -436,18 +470,11 @@ def trace_list_to_timelines(jaeger_trace_list, filter_list):
             constants.REQUEST_URL_STR: None,
         }
 
-        span_dict, sorted_ts = build_and_sort_timestamps(trace)
-        
-        prev_event = None
-        curr_event = None
-        event_seq_num = 0
-        service_dict = {}
+        service_dict = generate_service_dictionary(trace, trace_timelines)
 
-        for ts_item in sorted_ts:
-            curr_event = process_timestamp(span_dict, prev_event, ts_item, trace_timelines, service_dict)
-            curr_event[constants.EVENT_SEQUENCE_NUMBER_STR] = event_seq_num
-            prev_event = curr_event
-            event_seq_num = event_seq_num + 1
+        if service_dict == None or trace_timelines[constants.REQUEST_URL_STR] == None:
+            log.error(u'no root url found for trace:{0}'.format(trace_timelines[constants.TRACE_ID_STR]))
+            continue
         
         for service in service_dict:
             trace_timelines[constants.TIMELINES_STR].append({
