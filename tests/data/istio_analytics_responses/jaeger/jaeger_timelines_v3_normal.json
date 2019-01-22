@@ -1,0 +1,294 @@
+{
+    "trace_backend": "jaeger",
+    "trace_server_url": "http://localhost:16686",
+    "skydive_url": null,
+    "traces_timelines": [
+        {
+            "trace_id": "c5aa42a606813338",
+            "request": "GET http://169.61.12.58/productpage",
+            "timelines": [
+                {
+                    "service": "istio-ingressgateway",
+                    "events": [
+                        {
+                            "span_id": "c5aa42a606813338",
+                            "parent_span_id": null,
+                            "type": "send_request",
+                            "interlocutor": "productpage",
+                            "timestamp": 1539891716270564,
+                            "duration": 583,
+                            "request": "GET http://169.61.12.58/productpage",
+                            "request_size": 0,
+                            "protocol": "HTTP/1.1",
+                            "response_size": 5719,
+                            "response_code": 200,
+                            "user_agent": "curl/7.54.0",
+                            "timeout": null,
+                            "skydive_query": null
+                        },
+                        {
+                            "span_id": "c5aa42a606813338",
+                            "parent_span_id": null,
+                            "type": "process_response",
+                            "interlocutor": "productpage",
+                            "timestamp": 1539891716294366,
+                            "duration": null,
+                            "request": "GET http://169.61.12.58/productpage",
+                            "request_size": 0,
+                            "protocol": "HTTP/1.1",
+                            "response_size": 5719,
+                            "response_code": 200,
+                            "user_agent": "curl/7.54.0",
+                            "timeout": null,
+                            "skydive_query": null
+                        }
+                    ]
+                },
+                {
+                    "service": "productpage",
+                    "events": [
+                        {
+                            "span_id": "c5aa42a606813338",
+                            "parent_span_id": null,
+                            "type": "process_request",
+                            "interlocutor": "istio-ingressgateway",
+                            "timestamp": 1539891716271147,
+                            "duration": 22635,
+                            "request": "GET http://169.61.12.58/productpage",
+                            "request_size": 0,
+                            "protocol": "HTTP/1.1",
+                            "response_size": 5719,
+                            "response_code": 200,
+                            "user_agent": "curl/7.54.0",
+                            "timeout": null,
+                            "skydive_query": null
+                        },
+                        {
+                            "span_id": "b6db31ae7e502516",
+                            "parent_span_id": "1",
+                            "type": "send_request",
+                            "interlocutor": "details",
+                            "timestamp": 1539891716275207,
+                            "duration": 153,
+                            "request": "GET http://details:9080/details/0",
+                            "request_size": 0,
+                            "protocol": "HTTP/1.1",
+                            "response_size": 178,
+                            "response_code": 200,
+                            "user_agent": "python-requests/2.18.4",
+                            "timeout": null,
+                            "skydive_query": null
+                        },
+                        {
+                            "span_id": "b6db31ae7e502516",
+                            "parent_span_id": "1",
+                            "type": "process_response",
+                            "interlocutor": "details",
+                            "timestamp": 1539891716278684,
+                            "duration": 3131,
+                            "request": "GET http://details:9080/details/0",
+                            "request_size": 0,
+                            "protocol": "HTTP/1.1",
+                            "response_size": 178,
+                            "response_code": 200,
+                            "user_agent": "python-requests/2.18.4",
+                            "timeout": null,
+                            "skydive_query": null
+                        },
+                        {
+                            "span_id": "d3c3cdd5f7d704dc",
+                            "parent_span_id": "1",
+                            "type": "send_request",
+                            "interlocutor": "reviews",
+                            "timestamp": 1539891716281815,
+                            "duration": 139,
+                            "request": "GET http://reviews:9080/reviews/0",
+                            "request_size": 0,
+                            "protocol": "HTTP/1.1",
+                            "response_size": 375,
+                            "response_code": 200,
+                            "user_agent": "python-requests/2.18.4",
+                            "timeout": null,
+                            "skydive_query": null
+                        },
+                        {
+                            "span_id": "d3c3cdd5f7d704dc",
+                            "parent_span_id": "1",
+                            "type": "process_response",
+                            "interlocutor": "reviews",
+                            "timestamp": 1539891716291356,
+                            "duration": 2426,
+                            "request": "GET http://reviews:9080/reviews/0",
+                            "request_size": 0,
+                            "protocol": "HTTP/1.1",
+                            "response_size": 375,
+                            "response_code": 200,
+                            "user_agent": "python-requests/2.18.4",
+                            "timeout": null,
+                            "skydive_query": null
+                        },
+                        {
+                            "span_id": "c5aa42a606813338",
+                            "parent_span_id": null,
+                            "type": "send_response",
+                            "interlocutor": "istio-ingressgateway",
+                            "timestamp": 1539891716293782,
+                            "duration": 584,
+                            "request": "GET http://169.61.12.58/productpage",
+                            "request_size": 0,
+                            "protocol": "HTTP/1.1",
+                            "response_size": 5719,
+                            "response_code": 200,
+                            "user_agent": "curl/7.54.0",
+                            "timeout": null,
+                            "skydive_query": null
+                        }
+                    ]
+                },
+                {
+                    "service": "details",
+                    "events": [
+                        {
+                            "span_id": "b6db31ae7e502516",
+                            "parent_span_id": "1",
+                            "type": "process_request",
+                            "interlocutor": "productpage",
+                            "timestamp": 1539891716275360,
+                            "duration": 2659,
+                            "request": "GET http://details:9080/details/0",
+                            "request_size": 0,
+                            "protocol": "HTTP/1.1",
+                            "response_size": 178,
+                            "response_code": 200,
+                            "user_agent": "python-requests/2.18.4",
+                            "timeout": null,
+                            "skydive_query": null
+                        },
+                        {
+                            "span_id": "b6db31ae7e502516",
+                            "parent_span_id": "1",
+                            "type": "send_response",
+                            "interlocutor": "productpage",
+                            "timestamp": 1539891716278019,
+                            "duration": 665,
+                            "request": "GET http://details:9080/details/0",
+                            "request_size": 0,
+                            "protocol": "HTTP/1.1",
+                            "response_size": 178,
+                            "response_code": 200,
+                            "user_agent": "python-requests/2.18.4",
+                            "timeout": null,
+                            "skydive_query": null
+                        }
+                    ]
+                },
+                {
+                    "service": "reviews",
+                    "events": [
+                        {
+                            "span_id": "d3c3cdd5f7d704dc",
+                            "parent_span_id": "1",
+                            "type": "process_request",
+                            "interlocutor": "productpage",
+                            "timestamp": 1539891716281954,
+                            "duration": 8661,
+                            "request": "GET http://reviews:9080/reviews/0",
+                            "request_size": 0,
+                            "protocol": "HTTP/1.1",
+                            "response_size": 375,
+                            "response_code": 200,
+                            "user_agent": "python-requests/2.18.4",
+                            "timeout": null,
+                            "skydive_query": null
+                        },
+                        {
+                            "span_id": "cdcbebad55887f6a",
+                            "parent_span_id": "3",
+                            "type": "send_request",
+                            "interlocutor": "ratings",
+                            "timestamp": 1539891716286732,
+                            "duration": 443,
+                            "request": "GET http://ratings:9080/ratings/0",
+                            "request_size": 0,
+                            "protocol": "HTTP/1.1",
+                            "response_size": 48,
+                            "response_code": 200,
+                            "user_agent": "Apache-CXF/3.1.14",
+                            "timeout": null,
+                            "skydive_query": null
+                        },
+                        {
+                            "span_id": "cdcbebad55887f6a",
+                            "parent_span_id": "3",
+                            "type": "process_response",
+                            "interlocutor": "ratings",
+                            "timestamp": 1539891716288734,
+                            "duration": 1881,
+                            "request": "GET http://ratings:9080/ratings/0",
+                            "request_size": 0,
+                            "protocol": "HTTP/1.1",
+                            "response_size": 48,
+                            "response_code": 200,
+                            "user_agent": "Apache-CXF/3.1.14",
+                            "timeout": null,
+                            "skydive_query": null
+                        },
+                        {
+                            "span_id": "d3c3cdd5f7d704dc",
+                            "parent_span_id": "1",
+                            "type": "send_response",
+                            "interlocutor": "productpage",
+                            "timestamp": 1539891716290615,
+                            "duration": 741,
+                            "request": "GET http://reviews:9080/reviews/0",
+                            "request_size": 0,
+                            "protocol": "HTTP/1.1",
+                            "response_size": 375,
+                            "response_code": 200,
+                            "user_agent": "python-requests/2.18.4",
+                            "timeout": null,
+                            "skydive_query": null
+                        }
+                    ]
+                },
+                {
+                    "service": "ratings",
+                    "events": [
+                        {
+                            "span_id": "cdcbebad55887f6a",
+                            "parent_span_id": "3",
+                            "type": "process_request",
+                            "interlocutor": "reviews",
+                            "timestamp": 1539891716287175,
+                            "duration": 1116,
+                            "request": "GET http://ratings:9080/ratings/0",
+                            "request_size": 0,
+                            "protocol": "HTTP/1.1",
+                            "response_size": 48,
+                            "response_code": 200,
+                            "user_agent": "Apache-CXF/3.1.14",
+                            "timeout": null,
+                            "skydive_query": null
+                        },
+                        {
+                            "span_id": "cdcbebad55887f6a",
+                            "parent_span_id": "3",
+                            "type": "send_response",
+                            "interlocutor": "reviews",
+                            "timestamp": 1539891716288291,
+                            "duration": 443,
+                            "request": "GET http://ratings:9080/ratings/0",
+                            "request_size": 0,
+                            "protocol": "HTTP/1.1",
+                            "response_size": 48,
+                            "response_code": 200,
+                            "user_agent": "Apache-CXF/3.1.14",
+                            "timeout": null,
+                            "skydive_query": null
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

@@ -14,6 +14,7 @@ from istio_analytics_restapi import app as flask_app
 import istio_analytics_restapi.api.constants as constants
 import istio_analytics_restapi.api.distributed_tracing.request_parameters as req_params
 import istio_analytics_restapi.api.distributed_tracing.responses as responses
+import tests.api.distributed_tracing.endpoints.util as util
 
 class Test(unittest.TestCase):
 
@@ -28,107 +29,68 @@ class Test(unittest.TestCase):
 
         # Get an internal Flask test client
         cls.flask_test = flask_app.app.test_client()
-
-        # Location of test data files with Zipkin traces
-        cls.test_data_directory = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                               '..', '..', '..',  'data', 'zipkin')
         
         # Location of test files with expected results from the Istio Analytics REST API
-        cls.responses_directory = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                               '..', '..', '..',  'data', 
-                                               'istio_analytics_responses')
 
-        # Zipkin host (calls to it will actually be mocked)
-        cls.zipkin_host = os.getenv(constants.ISTIO_ANALYTICS_TRACE_SERVER_URL_ENV)
+        # Backend trace server name(zipkin or jaeger)
+        cls.trace_backend = os.getenv(constants.ISTIO_ANALYTICS_TRACE_BACKEND_ENV)
+
+        # Trace server url (calls to it will actually be mocked)
+        cls.server_url = os.getenv(constants.ISTIO_ANALYTICS_TRACE_SERVER_URL_ENV)
         
-        # Zipkin endpoint to get traces
-        cls.zipkin_traces_endpoint = '{0}/api/v1/traces/'.format(cls.zipkin_host)
-
-        # Parameters used to get the traces from the mock Zipkin        
-        cls.zipkin_traces_start_time = '2017-07-07T14:20:35.644Z'
+        # Set location of test data files with traces
+        # Get test files list/ Set endpoint to get traces
+        # Set Parameters used to get the traces from the mock server
+        if cls.trace_backend == constants.TRACE_BACKEND_ZIPKIN:
+            cls.test_data_directory = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                               '..', '..', '..', 'data', 'request_loads', 'zipkin')
+            cls.trace_test_files = util.zipkin_trace_test_files
+            cls.traces_endpoint = '{0}/api/v1/traces/'.format(cls.server_url)
+            cls.traces_start_time = '2017-07-07T14:20:35.644Z'
+            cls.responses_directory = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                               '..', '..', '..',  'data', 
+                                               'istio_analytics_responses', 'zipkin')
+        elif cls.trace_backend == constants.TRACE_BACKEND_JAEGER:
+            cls.test_data_directory = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                               '..', '..', '..', 'data', 'request_loads', 'jaeger')
+            cls.trace_test_files = util.jaeger_trace_test_files
+            cls.traces_endpoint = '{0}/api/traces'.format(cls.server_url)
+            cls.traces_start_time = '2017-07-07T14:20:35.644Z' 
+            cls.responses_directory = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                               '..', '..', '..',  'data', 
+                                               'istio_analytics_responses', 'jaeger')
+        
         cls.istio_analytics_req_payload = json.dumps({
-            req_params.START_TIME_PARAM_STR: cls.zipkin_traces_start_time
+            req_params.START_TIME_PARAM_STR: cls.traces_start_time
         })
-
-        # Files with traces returned by Zipkin
-        cls.zipkin_trace_test_files = [
-            # Bookinfo; 1 trace; normal trace; reviews version 2; istio 0.1.6
-            'zipkin-trace-reviews_v2-normal.json',
-            
-            # Bookinfo; 1 trace; normal trace; reviews version 3; istio 0.1.6
-            'zipkin-trace-reviews_v3-normal.json',
-            
-            # Bookinfo; 1 trace; reviews version 3; reviews times out and returns a 500 to 
-            # productpage as a result; istio 0.1.6
-            'zipkin-trace-reviews_v3-delay.json',
-            
-            # Bookinfo; 1 trace; reviews version 2; productpage times out and reviews keeps
-            # going regardless; istio 0.1.6
-            'zipkin-trace-reviews_v2-delay_7s.json',
-            
-            # Bookinfo; 1 trace; reviews version 2; productpage times out and then reviews times out; istio 0.1.6
-            'zipkin-trace-reviews_v2-delay_13s.json',
-
-            # DLaaS; 1 trace and 1 span; a service calling itself; istio 0.1.6
-            'zipkin-trace-self-call.json',
-            
-            # Bookinfo; 1 trace; normal trace; reviews version 2; istio 0.2.9
-            'zipkin-trace-reviews_V2-normal-029.json',
-            
-            # Bookinfo; 1 trace; normal trace; reviews version 3; istio 0.2.9
-            'zipkin-trace-reviews_V3-normal-029.json',
-            
-            # Bookinfo; 1 trace; reviews version 2; productpage times out and reviews keeps
-            # going regardless; istio 0.2.9
-            'zipkin-trace-reviews_V2-delay7s-029.json',
-            
-            # Bookinfo; 1 trace; reviews version 2; productpage times out and then reviews times out; istio 0.2.9
-            'zipkin-trace-reviews_V2-delay13s-029.json',
-            
-            # Bookinfo; 1 trace; reviews version 3; reviews times out and returns a 500 to 
-            # productpage as a result; istio 0.2.9
-            'zipkin-trace-reviews_V3-delay7s-029.json',
-            'zipkin-trace-reviews_V3-delay13s-029.json',
-        ]
 
         log.info('Completed initialization for testing the distributed-tracing analytics REST API')
 
     def test_traces(self):
         '''Tests the REST endpoint /distributed_tracing/traces/'''
         
-        # The order here needs to match the order in the array
-        # cls.zipkin_trace_test_files
-        istio_analytics_traces_response_files = [
-            'traces_response-reviews_v2-normal.json',
-            'traces_response-reviews_v3-normal.json',
-            'traces_response-reviews_v3-delay.json',
-            'traces_response-reviews_v2-delay_7s.json',
-            'traces_response-reviews_v2-delay_13s.json',
-            'traces_self-trace.json',
-            'traces_response-reviews_V2-normal_029.json',
-            'traces_response-reviews_V3-normal_029.json',
-            'traces_response-reviews_V2-delay_7s-029.json',
-            'traces_response-reviews_V2-delay_13s-029.json',
-            'traces_response-reviews_V3-delay_7s-029.json',
-            'traces_response-reviews_V3-delay_13s-029.json'
-        ]
-
+        if self.trace_backend == constants.TRACE_BACKEND_ZIPKIN:
+            istio_analytics_traces_response_files = util.zipkin_traces_response_files
+        elif self.trace_backend == constants.TRACE_BACKEND_JAEGER:
+            istio_analytics_traces_response_files = util.jaeger_traces_response_files
+        
         log.info('===TESTING THE ENDPOINT /distributed_tracing/traces')
         with requests_mock.mock() as m:
-            for i in range(len(self.zipkin_trace_test_files)):
+            for i in range(len(self.trace_test_files)):
                 log.info('======STARTING TEST {0}'.format(i))
                 
-                # Get the Zipkin trace from the test data file
+                # Get the trace files from the test data file path
                 test_file_fullname = os.path.abspath(os.path.join(
                                         self.test_data_directory,
-                                        self.zipkin_trace_test_files[i]))
+                                        self.trace_test_files[i]))
                 with open(test_file_fullname) as f:
-                    zipkin_trace = f.read()
+                    trace = f.read()
 
-                # Set a mock response from the mock Zipkin endpoint /api/v1/traces/
-                m.get(self.zipkin_traces_endpoint, json=json.loads(zipkin_trace))
+                log.info(u'Trace Endpoint: {0}'.format(self.traces_endpoint))
+                # Set a mock response from the mock server endpoint
+                m.get(self.traces_endpoint, json=json.loads(trace))
 
-                log.info(u'Zipkin mock response set to trace from file {0}'
+                log.info(u'Server mock response set to trace from file {0}'
                          .format(test_file_fullname))
 
                 # Call the Istio Analytics REST API via the test client
@@ -140,10 +102,14 @@ class Test(unittest.TestCase):
                 self.assertEqual(resp.status_code, 200, msg)
                 
                 response_dict = json.loads(resp.data)
+                log.debug(u'Traces data returned by Istio Analytics: {0}'.format(response_dict))
+
+#                log.info(u'***TEST FILE***: {0}'.format(test_file_fullname))
+#                log.info(u'***RESPONSE***: {0}'.format(response_dict))
                 
                 msg = 'Unexpected value for trace_server_url key'
                 self.assertEqual(response_dict[responses.TRACE_SERVER_URL_STR],
-                                 self.zipkin_host,
+                                 self.server_url,
                                  msg)
                 
                 # Check that we got only 1 Istio Analytics trace
@@ -175,37 +141,27 @@ class Test(unittest.TestCase):
 
         # The order here needs to match the order in the array
         # cls.zipkin_trace_test_files
-        istio_analytics_timelines_response_files = [
-            'timelines_v2_normal.json',
-            'timelines_v3_normal.json',
-            'timelines_v3_delay_reviews-timeout_and-return-500.json',
-            'timelines_v2_delay_7s_pp-timeout_reviews-keeps_going.json',
-            'timelines_v2_delay_13s_pp-timeout_reviews-timeout_mismatch.json',
-            'timelines_self-trace.json',
-            'timelines_V2_normal_029.json',
-            'timelines_V3_normal_029.json',
-            'timelines_V2_delay_7s_pp-timeout_reviews-keeps_going-029.json',
-            'timelines_V2_delay_13s_pp-timeout_reviews-timeout_mismatch-029.json',
-            'timelines_V3_delay_7s_reviews-timeout_and_return_500-029.json',
-            'timelines_V3_delay_13s_reviews-timeout_and_return_500-029.json'
-        ]
+        if self.trace_backend == 'zipkin':
+            istio_analytics_timelines_response_files = util.zipkin_timelines_response_files
+        elif self.trace_backend == 'jaeger':
+            istio_analytics_timelines_response_files = util.jaeger_timelines_response_files
 
         log.info('===TESTING THE ENDPOINT /distributed_tracing/traces/timelines')
         with requests_mock.mock() as m:
-            for i in range(len(self.zipkin_trace_test_files)):
+            for i in range(len(self.trace_test_files)):
                 log.info('======STARTING TEST {0}'.format(i))
                 
-                # Get the Zipkin trace from the test data file
+                # Get the trace from the test data file
                 test_file_fullname = os.path.abspath(os.path.join(
                                         self.test_data_directory,
-                                        self.zipkin_trace_test_files[i]))
+                                        self.trace_test_files[i]))
                 with open(test_file_fullname) as f:
-                    zipkin_trace = f.read()
+                    trace = f.read()
 
-                # Set a mock response from the mock Zipkin endpoint /api/v1/traces/
-                m.get(self.zipkin_traces_endpoint, json=json.loads(zipkin_trace))
+                # Set a mock response from the mock server endpoint
+                m.get(self.traces_endpoint, json=json.loads(trace))
 
-                log.info(u'Zipkin mock response set to trace from file {0}'
+                log.info(u'mock response set to trace from file {0}'
                          .format(test_file_fullname))
 
                 # Call the Istio Analytics REST API via the test client
@@ -219,9 +175,12 @@ class Test(unittest.TestCase):
                 response_dict = json.loads(resp.data)
                 log.debug(u'Timeline data returned by Istio Analytics: {0}'.format(response_dict))
                 
+#                log.info(u'***TEST FILE***: {0}'.format(test_file_fullname))
+#                log.info(u'***RESPONSE***: {0}'.format(response_dict))
+
                 msg = 'Unexpected value for trace_server_url key'
                 self.assertEqual(response_dict[responses.TRACE_SERVER_URL_STR],
-                                 self.zipkin_host,
+                                 self.server_url,
                                  msg)
                 
                 # Check that we got only 1 Istio Analytics trace timeline

@@ -171,7 +171,7 @@ def trace_list_to_istio_analytics_trace_list(jaeger_trace_list, filter_list):
                 server_span_dict[istio_analytics_span[constants.PARENT_SPAN_ID_STR]] = \
                     istio_analytics_span
 
-        log.debug(u'client_spans:{0}, server_spans:{0}'.format(client_span_dict.keys(), server_span_dict.keys()))
+        log.debug(u'client_spans:{0}, server_spans:{1}'.format(client_span_dict.keys(), server_span_dict.keys()))
         # Combine server spans and client spans together
         for parent_span_id in server_span_dict:
             if parent_span_id in client_span_dict:

@@ -26,6 +26,8 @@ fi
 echo Setting ISTIO_ANALYTICS_TRACE_BACKEND to $ISTIO_ANALYTICS_TRACE_BACKEND
 echo Setting ISTIO_ANALYTICS_TRACE_SERVER_URL to $ISTIO_ANALYTICS_TRACE_SERVER_URL
 
+export ISTIO_ANALYTICS_DEBUG=false
+
 echo ""
 echo ""
 echo "===================================="

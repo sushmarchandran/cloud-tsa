@@ -18,9 +18,9 @@ def get_trace_client():
     '''Init the trace client from env var
     '''
     trace_backend = os.getenv(constants.ISTIO_ANALYTICS_TRACE_BACKEND_ENV)
-    if trace_backend == 'zipkin':
+    if trace_backend == constants.TRACE_BACKEND_ZIPKIN:
         return zipkin_client.ZipkinClient(os.getenv(constants.ISTIO_ANALYTICS_TRACE_SERVER_URL_ENV))
-    elif trace_backend == 'jaeger':
+    elif trace_backend == constants.TRACE_BACKEND_JAEGER:
         return jaeger_client.JaegerClient(os.getenv(constants.ISTIO_ANALYTICS_TRACE_SERVER_URL_ENV))
     else:
         log.error(u'Can not recognize trace backend: {0}'.format(trace_backend))

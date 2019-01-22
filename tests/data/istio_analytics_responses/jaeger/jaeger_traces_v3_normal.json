@@ -1,0 +1,83 @@
+{
+    "trace_backend": "jaeger",
+    "trace_server_url": "http://localhost:16686",
+    "trace_list": [
+        {
+            "trace_id": "c5aa42a606813338",
+            "spans": [
+                {
+                    "span_id": "c5aa42a606813338",
+                    "parent_span_id": null,
+                    "source_ip": "172.30.41.123",
+                    "source_name": "istio-ingressgateway",
+                    "target_ip": "172.30.94.151",
+                    "target_name": "productpage",
+                    "request": "GET http://169.61.12.58/productpage",
+                    "request_size": 0,
+                    "protocol": "HTTP/1.1",
+                    "response_size": 5719,
+                    "response_code": 200,
+                    "user_agent": "curl/7.54.0",
+                    "cs": 1539891716270564,
+                    "sr": 1539891716271147,
+                    "ss": 1539891716293782,
+                    "cr": 1539891716294366
+                },
+                {
+                    "span_id": "cdcbebad55887f6a",
+                    "parent_span_id": "3",
+                    "source_ip": "172.30.41.86",
+                    "source_name": "reviews",
+                    "target_ip": "172.30.61.185",
+                    "target_name": "ratings",
+                    "request": "GET http://ratings:9080/ratings/0",
+                    "request_size": 0,
+                    "protocol": "HTTP/1.1",
+                    "response_size": 48,
+                    "response_code": 200,
+                    "user_agent": "Apache-CXF/3.1.14",
+                    "cs": 1539891716286732,
+                    "sr": 1539891716287175,
+                    "ss": 1539891716288291,
+                    "cr": 1539891716288734
+                },
+                {
+                    "span_id": "d3c3cdd5f7d704dc",
+                    "parent_span_id": "1",
+                    "source_ip": "172.30.94.151",
+                    "source_name": "productpage",
+                    "target_ip": "172.30.41.86",
+                    "target_name": "reviews",
+                    "request": "GET http://reviews:9080/reviews/0",
+                    "request_size": 0,
+                    "protocol": "HTTP/1.1",
+                    "response_size": 375,
+                    "response_code": 200,
+                    "user_agent": "python-requests/2.18.4",
+                    "cs": 1539891716281815,
+                    "sr": 1539891716281954,
+                    "ss": 1539891716290615,
+                    "cr": 1539891716291356
+                },
+                {
+                    "span_id": "b6db31ae7e502516",
+                    "parent_span_id": "1",
+                    "source_ip": "172.30.94.151",
+                    "source_name": "productpage",
+                    "target_ip": "172.30.41.118",
+                    "target_name": "details",
+                    "request": "GET http://details:9080/details/0",
+                    "request_size": 0,
+                    "protocol": "HTTP/1.1",
+                    "response_size": 178,
+                    "response_code": 200,
+                    "user_agent": "python-requests/2.18.4",
+                    "cs": 1539891716275207,
+                    "sr": 1539891716275360,
+                    "ss": 1539891716278019,
+                    "cr": 1539891716278684
+                }
+            ]
+        }
+    ]
+}
