@@ -1,10 +1,3 @@
-// Licensed Materials - Property of IBM
-// (C) Copyright IBM Corp. 2017. All Rights Reserved.
-// US Government Users Restricted Rights - Use, duplication or
-// disclosure restricted by GSA ADP Schedule Contract with IBM Corp.
-
-// See https://en.wikipedia.org/wiki/Sequence_diagram for Sequence Diagrams.
-// Also see https://www.ibm.com/developerworks/rational/library/3101.html
 
 var margin = {top: 10, right: 10, bottom: 10, left: 10},    // const
     width = 1200 - margin.left - margin.right,    // const
