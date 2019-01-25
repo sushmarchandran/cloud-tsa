@@ -57,8 +57,63 @@ cluster_body_parameters = api.inherit('cluster_params',
 ####
 BASELINE_STR = 'baseline'
 CANARY_STR = 'canary'
+METRIC_REQUIREMENTS_STR = 'metric_requirements'
+
+NAME_PARAM_STR = 'name'
+DELTA_MEAN_THRESHOLD_PARAM_STR = 'delta_mean_threshold'
+DELTA_STDDEV_THRESHOLD_PARAM_STR = 'delta_stddev_threshold'
+DELTA_RATIO_THRESHOLD_PARAM_STR = 'delta_ratio_threshold'
+DELTA_MEANABLE_METRIC_THRESHOLD_PARAM_STR = 'delta_meanable_metric_threshold'
+DELTA_COUNT_METRIC_THRESHOLD_PARAM_STR = 'delta_count_metric_threshold'
+MIN_COUNT_PARAM_STR = 'min_count'
+HIGHER_IS_BETTER_PARAM_STR = 'higher_is_better'
+METRIC_TYPE_PARAM_STR = 'metric_type'
+METRIC_TYPE_MEAN = 'mean'
+METRIC_TYPE_COUNT = 'count'
+
+# meanable_metric_requirements_parameters = api.model('metric_requirements_params', {
+#     DELTA_MEAN_THRESHOLD_PARAM_STR: fields.Float(required=True, example=0.11,
+#                                                  description='Allowable difference in means (as a ratio)'),
+#     DELTA_STDDEV_THRESHOLD_PARAM_STR: fields.Float(required=True, example=0.05,
+#                                                    description='Allowable difference in standard deviation (as a ratio)'),
+# })
+
+# count_metric_requirements_parameters = api.model('metric_requirements_params', {
+#     DELTA_RATIO_THRESHOLD_PARAM_STR: fields.Float(required=True, example=0.11,
+#                                                  description='Allowable difference in means (as a ratio)'),
+# })
+
+metric_requirements_parameters = api.model('metric_requirements_params', {
+    NAME_PARAM_STR: fields.String(required=True, example='duration', 
+                            description='Label of metric to be evaluated'),
+#     DELTA_MEANABLE_METRIC_THRESHOLD_PARAM_STR: fields.Nested(meanable_metric_requirements_parameters, required=False),
+#     DELTA_COUNT_METRIC_THRESHOLD_PARAM_STR: fields.Nested(count_metric_requirements_parameters, required=False),
+    METRIC_TYPE_PARAM_STR: fields.String(required=True, example='mean',
+                                         enum=[METRIC_TYPE_MEAN,
+                                               METRIC_TYPE_COUNT],
+                                         description='Type of metric indicating how to process it'),
+    DELTA_MEAN_THRESHOLD_PARAM_STR: fields.Float(required=False, example=0.2, min=0.0, max=1.0,
+                                                 description='Allowable delta mean (as a percentage) for '
+                                                 '"mean" metric types'),
+    DELTA_STDDEV_THRESHOLD_PARAM_STR: fields.Float(required=False, example=0.1, min=0.0, max=1.0,
+                                                   description='Allowable delta standard deviation (as a percentage) '
+                                                   'for "mean" metric types'),
+    DELTA_RATIO_THRESHOLD_PARAM_STR: fields.Float(required=False, example=0.1, min=0.0, max=1.0,
+                                                 description='Allowable delta ratio (as a percentage) for '
+                                                 '"count" metric types'),
+    MIN_COUNT_PARAM_STR: fields.Integer(required=False, example=100, min=1,
+                                         description='Required minimum number of data points needed to gain desired '
+                                         'accuracy; default=100'),
+    HIGHER_IS_BETTER_PARAM_STR: fields.Boolean(required=False, example=False,
+                                                description='Flag indicating whether a higher value (for canary) '
+                                                'is better or worse; default=False'),
+})
 
 cluster_diff_body_parameters = api.model('cluster_diff_params',{
     BASELINE_STR: fields.Nested(cluster_body_parameters, required=True),
-    CANARY_STR: fields.Nested(cluster_body_parameters, required=True)
+    CANARY_STR: fields.Nested(cluster_body_parameters, required=True),
+    METRIC_REQUIREMENTS_STR: fields.List(fields.Nested(metric_requirements_parameters,
+                                         example=[{'name': 'duration', 'metric_type': 'mean', 'min_count': 100, 'higher_is_better': False}, {'name': 'error_count', 'metric_type': 'count', 'min_count': 100, 'higher_is_better': False}],
+                                         description='List of requirements for metrics to be used to determine success of a canary version of a service.'
+    ), required=True)
 })

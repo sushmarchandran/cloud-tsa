@@ -91,6 +91,13 @@
             if (parseBoolean($location.search()['auto'])) {
                 query(true);
             }
+            
+            // MK hard coded initial values
+            $scope.deltaMeanThreshold = 0.3;
+            $scope.deltaStddevThreshold = 0.1;
+            $scope.durationMinCount = 100;
+  		    $scope.errorcountMinCount = 100;
+		    $scope.deltaRatioThreshold = 0.1;
         });
 
         function query(automatic) {
@@ -138,7 +145,24 @@
                           end_time: $scope.canaryEndTime,
                           tags: parseTags($scope.canaryTags),
                           max: $scope.canaryMaxTraces || 500
-                      }
+                      },
+                      metric_requirements: [
+                    	  {
+                    		  name: "duration",
+                    		  metric_type: "mean",
+                    		  min_count: $scope.durationMinCount || 100,
+                    		  higher_is_better: false,
+                    		  delta_mean_threshold: $scope.deltaMeanThreshold || 0.3,
+                    		  delta_stddev_threshold: $scope.deltaStddevThreshold || 0.1
+                    	  },
+                    	  {
+                    		  name: "error_count",
+                    		  metric_type: "count",
+                    		  min_count: $scope.errorcountMinCount || 100,
+                    		  higher_is_better: false,
+                    		  delta_ratio_threshold: $scope.deltaRatioThreshold || 0.1
+                    	  }
+                      ]
                   }
             }).then(function successCallback(response) {
                 // this callback will be called asynchronously
@@ -179,6 +203,17 @@
             for (var nflow in flows) {
                 flows[nflow].index = nflow;
             }
+        }
+
+        $scope.advanceBaseline = function(seconds) {
+            var d = new Date(0);
+            d.setUTCMilliseconds(Date.parse($scope.endTime)+seconds*1000);
+            $scope.endTime = d.toISOString();
+        }
+
+        $scope.advanceBaselineToNow = function() {
+            var d = new Date();
+            $scope.endTime = d.toISOString();
         }
 
         $scope.advance = function(seconds) {

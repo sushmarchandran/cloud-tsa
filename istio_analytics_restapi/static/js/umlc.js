@@ -842,14 +842,15 @@ function addDebugging(data) {
 }
 
 function colorFromDecision(canaryScore) {
-    // TODO currently we aren't getting a decision or # of points, so we can't
-    // show the case of insufficient data.
-    // return "black";
-    // Note that delta_mean_percentage isn't a percentage.  1.00 is 100%
-    if (canaryScore.delta_mean_percentage < -0.33) {
-        return "red";
-    }
-    return "green";
+	if (canaryScore.decision == "fail") {
+		return "red";
+	} else if (canaryScore.decision == "conditional_fail") {
+		return "magenta";
+	} else if (canaryScore.decision == "conditional_pass") {
+		return "yellowgreen";
+	} else {
+		return "green";
+	}
 }
 
 function getNeedleAngle(canaryScore) {

@@ -326,8 +326,10 @@ DELTA_STDDEV_PCT_STR = 'delta_stddev_percentage'
 BASELINE_DATA_POINTS_STR = 'baseline_data_points'
 CANARY_DATA_POINTS_STR = 'canary_data_points'
 
-DECISION_BETTER_STR = 'better'
-DECISION_WORSE_STR = 'worse'
+DECISION_BETTER_STR = 'pass'
+DECISION_CONDITIONALLY_BETTER_STR = 'conditional_pass'
+DECISION_WORSE_STR = 'fail'
+DECISION_CONDITIONALLY_WORSE_STR = 'conditional_fail'
 DECISION_NEEDS_MORE_DATA = 'needs_more_data'
 
 all_stats = api.model('all_stats', {
@@ -382,11 +384,14 @@ base_delta = api.model('base_delta', {
                                          description='Number of canary data points considered for '
                                          'this metric of this event'),
     DECISION_STR: fields.String(required=True, example=DECISION_NEEDS_MORE_DATA,
-                                  enum=[DECISION_BETTER_STR,
-                                        DECISION_WORSE_STR,
-                                        DECISION_NEEDS_MORE_DATA],
+                                  enum=[DECISION_CONDITIONALLY_BETTER_STR,
+                                        DECISION_BETTER_STR,
+                                        DECISION_CONDITIONALLY_WORSE_STR,
+                                        DECISION_WORSE_STR],
                                   description='Indicates whether or not the canary is better than '
                                   'the baseline with respect to this metric'),
+    DECISION_REASON_STR: fields.String(required=True, example='Not enough data points',
+                                       description='Explanation for the decision made'),
 })
 
 delta = api.model('delta', {

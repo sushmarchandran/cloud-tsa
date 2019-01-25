@@ -453,7 +453,7 @@ def get_simplified_event(agg_event):
             simplified_event[key] = agg_event[key]
     return simplified_event
 
-def compare_clusters(baseline_clusters, canary_clusters):
+def compare_clusters(baseline_clusters, canary_clusters, metric_requirements=[]):
     '''Given two lists of trace clusters, each list produced by a call to
        cluster_traces(), produce a delta comparison
        of the canary clusters with respect to the corresponding baseline clusters.
@@ -541,7 +541,8 @@ def compare_clusters(baseline_clusters, canary_clusters):
 
                         event_diff[responses.DELTA_STR] = \
                             canary_comparison.canary_simple_comparison(baseline_agg_event, 
-                                                                       canary_agg_event)
+                                                                       canary_agg_event,
+                                                                       metric_requirements)
                         cluster_stats_diff[responses.EVENTS_STR].append(event_diff)
                 else:
                     break

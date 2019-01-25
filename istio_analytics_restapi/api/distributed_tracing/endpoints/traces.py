@@ -94,6 +94,80 @@ def init_response():
     server_override = os.getenv(constants.ISTIO_ANALYTICS_TRACE_SERVER_OVERRIDE_ENV)
     response[client_constants.TRACE_SERVER_URL_STR] = server_override or server_url
     return response
+def process_metric_requirements(request_body):
+    '''Helper method used to process common REST parameters.
+
+    @param request_body (dictionary): Dictionary containing the outer key 
+    request_parameters.METRIC_REQUIREMENTS_STR and the following inner keys:
+      @see: request_parameters.NAME_PARAM_STR (string)
+      @see: request_parameters.METRIC_TYPE_PARAM_STR (string)
+      @see: request_parameters.DELTA_RATIO_THRESHOLD_PARAM_STR (float)
+      @see: request_parameters.DELTA_MEAN_THRESHOLD_PARAM_STR (float)
+      @see: request_parameters.DELTA_STDDEV_THRESHOLD_PARAM_STR (float)
+      @see: request_parameters.MIN_COUNT_PARAM_STR (integer)
+      @see: request_parameters.HIGHER_IS_BETTER_PARAM_STR (boolean)
+
+    @rtype: tuple(dict, string)
+    @return: If parameter validation is successful, it returns a tuple containing 
+        the dictionary passed as parameter with default values set if needed and None.
+        In case parameter validation indicates an error, it returns a tuple containing
+        None and a string with an appropriate error message.
+    '''
+    metric_requirements = \
+        request_body[request_parameters.METRIC_REQUIREMENTS_STR]
+
+    for metric_req in metric_requirements:
+        # name is a required parameter; so, it is validated by Swagger.
+        metric_name = metric_req[request_parameters.NAME_PARAM_STR]
+
+        # metric_type is a required parameter; so, it is validated by Swagger.
+        metric_type = metric_req[request_parameters.METRIC_TYPE_PARAM_STR]
+
+        if metric_type == request_parameters.METRIC_TYPE_MEAN:
+            # if metric_type is "mean" then expect delta_mean_threshold and delta_stddev_threshold
+            if request_parameters.DELTA_RATIO_THRESHOLD_PARAM_STR in metric_req:
+                error_msg = (u'Incorrect specification for metric {0}: '
+                              'parameter {1} does not make sense for "mean" metric type').\
+                    format(metric_name, request_parameters.DELTA_RATIO_THRESHOLD_PARAM_STR)
+                log.debug(error_msg)
+                return None, error_msg
+            elif (not request_parameters.DELTA_MEAN_THRESHOLD_PARAM_STR in metric_req or
+                  not request_parameters.DELTA_STDDEV_THRESHOLD_PARAM_STR in metric_req):
+                error_msg = (u'Incorrect specification for metric {0}: '
+                              'Parameters {1} and {2} are required for "mean" metric type').\
+                    format(metric_name, request_parameters.DELTA_MEAN_THRESHOLD_PARAM_STR,
+                           request_parameters.DELTA_STDDEV_THRESHOLD_PARAM_STR)
+                log.debug(error_msg)
+                return None, error_msg
+        else:
+            # if metric_type is "count" then expect delta_ratio_threshold
+            if (request_parameters.DELTA_MEAN_THRESHOLD_PARAM_STR in metric_req or
+                request_parameters.DELTA_STDDEV_THRESHOLD_PARAM_STR in metric_req):
+                error_msg = (u'Incorrect specification for metric {0}: '
+                              'parameters {1} and {2} do not make sense for "count" metric type').\
+                    format(metric_name, request_parameters.DELTA_MEAN_THRESHOLD_PARAM_STR,
+                           request_parameters.DELTA_STDDEV_THRESHOLD_PARAM_STR)
+                log.debug(error_msg)
+                return None, error_msg
+            elif not request_parameters.DELTA_RATIO_THRESHOLD_PARAM_STR in metric_req:
+                error_msg = (u'Incorrect specification for metric {0}: '
+                              'parameter {1} is required for "count" metric type').\
+                    format(metric_name, request_parameters.DELTA_RATIO_THRESHOLD_PARAM_STR)
+                return None, error_msg
+
+        if not request_parameters.MIN_COUNT_PARAM_STR in metric_req:
+            log.debug(u'min_count parameter was omitted for metric {0}; defaulting to 100'.\
+                format(metric_name))
+            metric_req[request_parameters.MIN_COUNT_PARAM_STR] = 100
+
+        if not request_parameters.HIGHER_IS_BETTER_PARAM_STR in metric_req:
+            log.debug(u'higher_is_better parameter was omitted for metric {0}; defaulting to False'.\
+                format(metric_name))
+            metric_req[request_parameters.HIGHER_IS_BETTER_PARAM_STR] = False
+
+        log.info(u'Metric requirement parameters: metric name: {0}; details: {1}'.\
+            format(metric_name, metric_req))
+    return metric_requirements, None
 
 ##################################
 ##################################
@@ -236,6 +310,15 @@ class TraceClusterDiff(Resource):
             filter_list_canary, tags_canary = \
             process_common_parameters(request_body[request_parameters.CANARY_STR])
 
+        metric_requirements, error_msg = \
+            process_metric_requirements(request_body)
+        
+        if error_msg:
+            # The metric-requirement parameter validation failed
+            ret_val, http_code = build_http_error(error_msg, 400)
+            log.warn(error_msg)
+            flask_restplus.errors.abort(code=http_code, message=error_msg)
+
         baseline_traces_or_error_msg, http_code = \
                 trace_client.get_traces(start_time_milli_baseline,
                                         end_time_milli_baseline,
@@ -267,8 +350,7 @@ class TraceClusterDiff(Resource):
                 distributed_tracing.cluster_traces(canary_traces_timelines)
 
             ret_val[client_constants.CLUSTERS_DIFFS] = \
-                distributed_tracing.compare_clusters(baseline_clusters, canary_clusters)
-
+                distributed_tracing.compare_clusters(baseline_clusters, canary_clusters, metric_requirements)
         else:
                 log.warn(baseline_traces_or_error_msg)
                 ret_val, http_code = build_http_error(baseline_traces_or_error_msg, http_code)

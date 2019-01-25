@@ -60,6 +60,9 @@
                 <input ng-model="maxTraces" type="number">
           </md-input-container>
 
+          <md-button class="md-raised md-accent" ng-click="advanceBaseline(30)"  data-ng-disabled="startTime=='' || endTime==''">Adv 30s</md-button>
+          <md-button class="md-raised md-accent" ng-click="advanceBaselineToNow()"  data-ng-disabled="startTime==''">Now</md-button>
+ 
         </md-content>
        </div>
 
@@ -68,32 +71,65 @@
             <md-input-container>
                 <label>Canary Start time</label>
                 <input ng-model="canaryStartTime">
-          </md-input-container>
+            </md-input-container>
 
             <md-input-container>
                 <label>Canary End time</label>
                 <input ng-model="canaryEndTime">
-          </md-input-container>
+            </md-input-container>
 
             <md-input-container>
                 <label>Canary tags</label>
                 <input ng-model="canaryTags">
-          </md-input-container>
+            </md-input-container>
 
             <md-input-container>
                 <label>Max</label>
                 <input ng-model="canaryMaxTraces" type="number">
           </md-input-container>
+          
+          <md-button class="md-raised md-accent" ng-click="advance(30)"  data-ng-disabled="startTime=='' || endTime==''">Adv 30s</md-button>
+          <md-button class="md-raised md-accent" ng-click="advanceToNow()"  data-ng-disabled="startTime==''">Now</md-button>
 
         </md-content>
        </div>
-       </div>
-          <div layout="column" layout-align="center">
+       
+        <div layout="row">
+          <md-content>
+            <md-input-container>
+              <label>Duration &Delta; mean threshold</label>
+              <input ng-model="deltaMeanThreshold" type="number" disable-arrows>
+            </md-input-container>
+            <md-input-container>
+              <label>Duration &Delta; stddev threshold</label>
+              <input ng-model="deltaStddevThreshold" type="number" disable-arrows>
+            </md-input-container>
+            <md-input-container>
+              <label>Duration min count</label>
+              <input ng-model="durationMinCount" type="number">
+            </md-input-container>
+<!--
+          </md-content>
+        </div>
 
-           <md-button class="md-raised md-primary" ng-click="query()"  data-ng-disabled="startTime==''">Query</md-button>
-           <md-button class="md-raised md-accent" ng-click="advance(30);query()"  data-ng-disabled="startTime=='' || endTime==''">Adv 30s</md-button>
-           <md-button class="md-raised md-accent" ng-click="advanceToNow(); query()"  data-ng-disabled="startTime==''">Now</md-button>
-          </div>
+        <div layout="row">
+          <md-content>
+-->
+            <md-input-container>
+              <label>Error count &Delta; ratio threshold</label>
+              <input ng-model="deltaRatioThreshold" type="number" disable-arrows>
+            </md-input-container>
+            <md-input-container>
+              <label>Error count min count</label>
+              <input ng-model="errorcountMinCount" type="number">
+            </md-input-container>
+          </md-content>
+        </div>       
+       
+       <div layout="row" layout-align="start center">
+         <md-button class="md-raised md-primary" ng-click="query()"  data-ng-disabled="startTime==''">Query</md-button>
+       </div>
+       </div>
         </div>
 
         <md-content>
@@ -112,7 +148,7 @@
             and <a href="http://zipkin.io/pages/instrumenting.html">Instrumenting a Library</a>.
         </md-content>
     </div>
-</div>
+<!--  MK </div> -->
 
 
 <script src="http://d3js.org/d3.v3.js"></script>
