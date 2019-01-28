@@ -103,9 +103,6 @@ class Test(unittest.TestCase):
                 
                 response_dict = json.loads(resp.data)
                 log.debug(u'Traces data returned by Istio Analytics: {0}'.format(response_dict))
-
-#                log.info(u'***TEST FILE***: {0}'.format(test_file_fullname))
-#                log.info(u'***RESPONSE***: {0}'.format(response_dict))
                 
                 msg = 'Unexpected value for trace_server_url key'
                 self.assertEqual(response_dict[responses.TRACE_SERVER_URL_STR],

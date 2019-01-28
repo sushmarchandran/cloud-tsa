@@ -56,6 +56,12 @@
         $scope.canaryTags = "";
         $scope.canaryMaxTraces = null;
 
+        $scope.deltaMeanThreshold = 0.3;
+        $scope.deltaStddevThreshold = 0.1;
+        $scope.durationMinCount = 100;
+        $scope.errorcountMinCount = 100;
+        $scope.deltaRatioThreshold = 0.1;
+
         $scope.query = query;
 
         $rootScope.$on('$locationChangeSuccess', function () {
@@ -82,16 +88,30 @@
             if ('canaryMax' in $location.search()) {
                 $scope.canaryMaxTraces = parseInt($location.search()['canaryMax']);
             }
+
+            if ('deltaMeanThreshold' in $location.search()) {
+                $scope.deltaMeanThreshold = parseFloat($location.search()['deltaMeanThreshold'])
+            }
+
+            if ('deltaStddevThreshold' in $location.search()) {
+                $scope.deltaStddevThreshold = parseFloat($location.search()['deltaStddevThreshold'])
+            }
+
+            if ('durationMinCount' in $location.search()) {
+                $scope.durationMinCount = parseInt($location.search()['durationMinCount'])
+            }
+
+            if ('errorcountMinCount' in $location.search()) {
+                $scope.errorcountMinCount = parseInt($location.search()['errorcountMinCount'])
+            }
+
+            if ('deltaRatioThreshold' in $location.search()) {
+                $scope.deltaRatioThreshold = parseFloat($location.search()['deltaRatioThreshold'])
+            }
+
             if (parseBoolean($location.search()['auto'])) {
                 query(true);
             }
-            
-            // MK hard coded initial values
-            $scope.deltaMeanThreshold = 0.3;
-            $scope.deltaStddevThreshold = 0.1;
-            $scope.durationMinCount = 100;
-  		    $scope.errorcountMinCount = 100;
-		    $scope.deltaRatioThreshold = 0.1;
         });
 
         function query(automatic) {
@@ -120,6 +140,11 @@
                     canaryEnd: $scope.canaryEndTime,
                     canaryTags: $scope.canaryTags,
                     canaryMax: $scope.canaryMaxTraces || 500,
+                    durationMinCount: $scope.durationMinCount,
+                    errorcountMinCount: $scope.errorcountMinCount,
+                    deltaMeanThreshold: $scope.deltaMeanThreshold,
+                    deltaStddevThreshold: $scope.deltaStddevThreshold,
+                    deltaRatioThreshold: $scope.deltaRatioThreshold,
                 });
             }
 
