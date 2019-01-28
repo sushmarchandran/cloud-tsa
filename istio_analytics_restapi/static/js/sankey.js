@@ -1,4 +1,3 @@
-// Based on http://bl.ocks.org/d3noob/5028304 , HTML/Javascript not original to IBM
 
 d3.sankey = function() {
   var sankey = {},

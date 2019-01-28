@@ -1,5 +1,3 @@
-// Based on http://bl.ocks.org/d3noob/5028304 , HTML/Javascript not original to IBM
-
 'use strict';
 
 function units(d) {
