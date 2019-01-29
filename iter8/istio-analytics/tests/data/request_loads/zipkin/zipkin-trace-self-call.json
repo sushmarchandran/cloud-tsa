@@ -1,0 +1,71 @@
+[ 
+ [
+  {
+    "traceId": "00007761db8f5d39",
+    "id": "00007761db8f5d39",
+    "name": "172.30.85.185:80",
+    "timestamp": 1501013688546471,
+    "duration": 4785,
+    "annotations": [
+      {
+        "timestamp": 1501013688546471,
+        "value": "cs",
+        "endpoint": {
+          "serviceName": "istio-proxy",
+          "ipv4": "172.30.85.185"
+        }
+      },
+      {
+        "timestamp": 1501013688551357,
+        "value": "cr",
+        "endpoint": {
+          "serviceName": "istio-proxy",
+          "ipv4": "172.30.85.185"
+        }
+      }
+    ],
+    "binaryAnnotations": [
+      {
+        "key": "downstream_cluster",
+        "value": "-"
+      },
+      {
+        "key": "guid:x-request-id",
+        "value": "e5904a3b-61aa-9233-a087-6e9b4287256b"
+      },
+      {
+        "key": "host_header",
+        "value": "172.30.85.185:80"
+      },
+      {
+        "key": "node_id",
+        "value": "172.30.85.185"
+      },
+      {
+        "key": "request_line",
+        "value": "GET /health HTTP/1.1"
+      },
+      {
+        "key": "request_size",
+        "value": "0"
+      },
+      {
+        "key": "response_code",
+        "value": "200"
+      },
+      {
+        "key": "response_flags",
+        "value": "-"
+      },
+      {
+        "key": "response_size",
+        "value": "2"
+      },
+      {
+        "key": "user_agent",
+        "value": "Go-http-client/1.1"
+      }
+    ]
+  }
+ ]
+]

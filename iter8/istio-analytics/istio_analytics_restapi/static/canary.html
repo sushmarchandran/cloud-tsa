@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Language" content="en">
+<base href="/canary/">
+<title>Canary Analytics for Istio</title>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular-route.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.1/angular-material.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-animate.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-aria.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-messages.min.js"></script>
+<!-- script src="http://ngmaterial.assets.s3.amazonaws.com/svg-assets-cache.js"></script> -->
+
+<!-- script src="/static/js/diff_testdata.js"></script> -->
+<script src="/static/js/canary.js"></script>
+<script src="/static/js/umlc.js"></script>
+
+<link rel="stylesheet" href="/static/css/uml.css">
+<link rel="stylesheet" href="https://cdn.gitcdn.link/cdn/angular/bower-material/v1.1.1/angular-material.css">
+
+</head>
+<body>
+
+
+<div ng-app="istio">
+    <div ng-controller="TraceQueryController as query" layout="column" flex layout-fill>
+        <md-toolbar md-scroll-shrink>
+          <div class="md-toolbar-tools">Canary Analytics for Istio</div>
+        </md-toolbar>
+
+        <div layout="row">
+         <div layout="column">
+          <div layout="row">
+          <md-content>
+            <md-input-container>
+                <label>Baseline Start time</label>
+                <input ng-model="startTime">
+          </md-input-container>
+
+            <md-input-container>
+                <label>Baseline End time</label>
+                <input ng-model="endTime">
+          </md-input-container>
+
+            <md-input-container>
+                <label>Baseline tags</label>
+                <input ng-model="tags">
+          </md-input-container>
+
+            <md-input-container>
+                <label>Max</label>
+                <input ng-model="maxTraces" type="number">
+          </md-input-container>
+
+          <md-button class="md-raised md-accent" ng-click="advanceBaseline(30)"  data-ng-disabled="startTime=='' || endTime==''">Adv 30s</md-button>
+          <md-button class="md-raised md-accent" ng-click="advanceBaselineToNow()"  data-ng-disabled="startTime==''">Now</md-button>
+ 
+        </md-content>
+       </div>
+
+          <div layout="row">
+          <md-content>
+            <md-input-container>
+                <label>Canary Start time</label>
+                <input ng-model="canaryStartTime">
+            </md-input-container>
+
+            <md-input-container>
+                <label>Canary End time</label>
+                <input ng-model="canaryEndTime">
+            </md-input-container>
+
+            <md-input-container>
+                <label>Canary tags</label>
+                <input ng-model="canaryTags">
+            </md-input-container>
+
+            <md-input-container>
+                <label>Max</label>
+                <input ng-model="canaryMaxTraces" type="number">
+          </md-input-container>
+          
+          <md-button class="md-raised md-accent" ng-click="advance(30)"  data-ng-disabled="startTime=='' || endTime==''">Adv 30s</md-button>
+          <md-button class="md-raised md-accent" ng-click="advanceToNow()"  data-ng-disabled="startTime==''">Now</md-button>
+
+        </md-content>
+       </div>
+       
+        <div layout="row">
+          <md-content>
+            <md-input-container>
+              <label>Duration &Delta; mean threshold</label>
+              <input ng-model="deltaMeanThreshold" type="number" disable-arrows>
+            </md-input-container>
+            <md-input-container>
+              <label>Duration &Delta; stddev threshold</label>
+              <input ng-model="deltaStddevThreshold" type="number" disable-arrows>
+            </md-input-container>
+            <md-input-container>
+              <label>Duration min count</label>
+              <input ng-model="durationMinCount" type="number">
+            </md-input-container>
+<!--
+          </md-content>
+        </div>
+
+        <div layout="row">
+          <md-content>
+-->
+            <md-input-container>
+              <label>Error count &Delta; ratio threshold</label>
+              <input ng-model="deltaRatioThreshold" type="number" disable-arrows>
+            </md-input-container>
+            <md-input-container>
+              <label>Error count min count</label>
+              <input ng-model="errorcountMinCount" type="number">
+            </md-input-container>
+          </md-content>
+        </div>       
+       
+       <div layout="row" layout-align="start center">
+         <md-button class="md-raised md-primary" ng-click="query()"  data-ng-disabled="startTime==''">Query</md-button>
+       </div>
+       </div>
+        </div>
+
+        <md-content>
+            <span ng-if="queryStatus">{{ queryStatus }}</span>
+            <span ng-if="dataOrigin">Reporting Zipkin: <a href="{{ dataOrigin }}" id="data_origin">{{ dataOrigin }}</a></span>
+
+         </md-content>
+
+         <div ng-view>
+         </div>
+
+         <md-content>
+            <p>
+            Demo of using <a href="http://zipkin.io">Zipkin</a> and <a href="https://www.jaegertracing.io">Jaeger</a> data to understand system behavior.
+        </md-content>
+    </div>
+<!--  MK </div> -->
+
+
+<script src="http://d3js.org/d3.v3.js"></script>
+
+<script>
+console.log("Hello Javascript from canary.html");
+</script>
+
+</body>
+</html>

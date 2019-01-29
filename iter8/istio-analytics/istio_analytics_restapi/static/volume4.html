@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Language" content="en">
+<base href="/volume4/">
+<title>Trace Analytics for Istio (Volume)</title>
+
+<link rel="stylesheet" href="/static/css/volume.css">
+<link rel="stylesheet" href="https://cdn.gitcdn.link/cdn/angular/bower-material/v1.1.1/angular-material.css">
+
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular-route.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.1/angular-material.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-animate.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-aria.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-messages.min.js"></script>
+<script src="http://ngmaterial.assets.s3.amazonaws.com/svg-assets-cache.js"></script>
+
+<script src="/static/js/volquery4.js"></script>
+
+<!-- script src="http://d3js.org/d3.v4.min.js"></script> -->
+<script src="http://d3js.org/d3.v4.js"></script>
+<script src="/static/js/volume4.js"></script>
+
+</head>
+<body>
+
+<div ng-app="istio">
+    <div ng-controller="VolumeQueryController as query" layout="column" flex layout-fill>
+        <md-toolbar md-scroll-shrink>
+          <div class="md-toolbar-tools">Volume Analytics for Istio</div>
+        </md-toolbar>
+
+        <md-content>
+            <md-input-container>
+                <label>Start time</label>
+                <input ng-model="startTime">
+          </md-input-container>
+
+            <md-input-container>
+                <label>End time</label>
+                <input ng-model="endTime">
+          </md-input-container>
+
+            <md-input-container>
+                <label>Max</label>
+                <input ng-model="maxTraces" type="number">
+          </md-input-container>
+
+          <md-button class="md-raised md-primary" ng-click="query()"  data-ng-disabled="startTime==''">Query</md-button>
+          <md-button class="md-raised md-accent" ng-click="advance(30);query()"  data-ng-disabled="startTime=='' || endTime==''">Adv 30s</md-button>
+          <md-button class="md-raised md-accent" ng-click="advanceToNow(); query()"  data-ng-disabled="startTime==''">Now</md-button>
+        </md-content>
+
+        <md-content>
+            <span ng-if="queryStatus">{{ queryStatus }}</span>
+            <span ng-if="dataOrigin">Reporting Zipkin: <a href="{{ dataOrigin }}" id="data_origin">{{ dataOrigin }}</a></span>
+            <svg width="960" height="500" id="volchart"></svg>
+         </md-content>
+
+
+         <!-- div ng-view>
+         </div> -->
+
+         <md-content>
+          <md-button class="md-raised md-primary"
+            ng-click="openCanary()"
+            data-ng-disabled="!baselineStart || !baselineEnd || !canaryStart || !canaryEnd"
+            >Show Detailed Canary</md-button>
+
+            <p>
+            Demo of using <a href="http://zipkin.io">Zipkin</a> data to understand system behavior.
+            For more details on Zipkin see <a href="http://zipkin.io/pages/data_model.html">Data Model</a>
+            and <a href="http://zipkin.io/pages/instrumenting.html">Instrumenting a Library</a>.
+        </md-content>
+
+    </div>
+</div>
+
+<script>
+console.log("Hello Javascript from volume4.html");
+</script>
+
+</body>
+</html>

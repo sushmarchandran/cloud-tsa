@@ -1,0 +1,17 @@
+<b>Types</b> |
+<a href="{{ location.absUrl().replace('/categories', '/sequence/flow/0/trace/0') }}">Sequence</a> |
+<a href="{{ location.absUrl().replace('/categories', '/pie/flow/0') }}">Time</a><br>
+
+<p>
+Number of clusters: {{ clusters_diffs.length }}
+<table class="traceTable">
+  <!-- TODO What about baseline length? -->
+  <tr ng-repeat="category in clusters_diffs | orderBy:'-baseline_trace_ids.length'">
+    <td><b>{{ category.root_request }}</b></td>
+    <td>
+    Baseline: {{ category.baseline_trace_ids.length }} trace(s)
+    Canary: {{ category.canary_trace_ids.length }} traces
+    <a href="/canary/sequence/flow/{{ category.index }}/trace/0{{ window.location.search }}">View Sequence</a>
+    </td>
+  </tr>
+</table>

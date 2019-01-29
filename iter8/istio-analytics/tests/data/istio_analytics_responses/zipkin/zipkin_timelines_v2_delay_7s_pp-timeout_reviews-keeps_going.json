@@ -1,0 +1,342 @@
+{
+    "trace_backend": "zipkin",
+	"trace_server_url": "http://localhost:9411",
+    "skydive_url": null,
+    "traces_timelines": [
+        {
+            "trace_id": "0000570f8c6284a9",
+            "request": "GET /productpage",
+            "timelines": [
+                {
+                    "service": "ingress",
+                    "events": [
+                        {
+                            "span_id": "0000570f8c6284a9",
+                            "parent_span_id": null,
+                            "type": "send_request",
+                            "interlocutor": "169.51.9.146",
+                            "timestamp": 1502229155303255,
+                            "duration": 2423,
+                            "request": "GET /productpage",
+                            "request_size": 0,
+                            "protocol": "HTTP/1.1",
+                            "response_size": 3815,
+                            "response_code": 200,
+                            "user_agent": "curl/7.47.0",
+                            "timeout": null,
+                            "skydive_query":null
+                        }
+                    ]
+                },
+                {
+                    "service": "169.51.9.146",
+                    "events": [
+                        {
+                            "span_id": "0000570f8c6284a9",
+                            "parent_span_id": null,
+                            "type": "process_request",
+                            "interlocutor": "ingress",
+                            "timestamp": 1502229155305678,
+                            "duration": 36557,
+                            "request": "GET /productpage",
+                            "request_size": 0,
+                            "protocol": "HTTP/1.1",
+                            "response_size": 3815,
+                            "response_code": 200,
+                            "user_agent": "curl/7.47.0",
+                            "timeout": null,
+                            "skydive_query":null
+                        },
+                        {
+                            "span_id": "00003892863a9596",
+                            "parent_span_id": "0000570f8c6284a9",
+                            "type": "send_request",
+                            "interlocutor": "details",
+                            "timestamp": 1502229155342235,
+                            "duration": 56890,
+                            "request": "GET /details",
+                            "request_size": 0,
+                            "protocol": "HTTP/1.1",
+                            "response_size": 213,
+                            "response_code": 200,
+                            "user_agent": "python-requests/2.11.1",
+                            "timeout": null,
+                            "skydive_query":null
+                        },
+                        {
+                            "span_id": "00003892863a9596",
+                            "parent_span_id": "0000570f8c6284a9",
+                            "type": "process_response",
+                            "interlocutor": "details",
+                            "timestamp": 1502229155514950,
+                            "duration": 14982,
+                            "request": "GET /details",
+                            "request_size": 0,
+                            "protocol": "HTTP/1.1",
+                            "response_size": 213,
+                            "response_code": 200,
+                            "user_agent": "python-requests/2.11.1",
+                            "timeout": null,
+                            "skydive_query":null
+                        },
+                        {
+                            "span_id": "00001545f89246df",
+                            "parent_span_id": "0000570f8c6284a9",
+                            "type": "send_request",
+                            "interlocutor": "reviews",
+                            "timestamp": 1502229155529932,
+                            "duration": 3217,
+                            "request": "GET /reviews",
+                            "request_size": 0,
+                            "protocol": "HTTP/1.1",
+                            "response_size": 0,
+                            "response_code": 0,
+                            "user_agent": "python-requests/2.11.1",
+                            "timeout": 3004118,
+                            "skydive_query":null
+                        },
+                        {
+                            "span_id": "00001545f89246df",
+                            "parent_span_id": "0000570f8c6284a9",
+                            "type": "process_response",
+                            "interlocutor": "reviews",
+                            "timestamp": 1502229158534050,
+                            "duration": 20257,
+                            "request": "GET /reviews",
+                            "request_size": 0,
+                            "protocol": "HTTP/1.1",
+                            "response_size": 0,
+                            "response_code": 0,
+                            "user_agent": "python-requests/2.11.1",
+                            "timeout": 3004118,
+                            "skydive_query":null
+                        },
+                        {
+                            "span_id": "00001e1bf1f4e05b",
+                            "parent_span_id": "0000570f8c6284a9",
+                            "type": "send_request",
+                            "interlocutor": "reviews",
+                            "timestamp": 1502229158554307,
+                            "duration": 726,
+                            "request": "GET /reviews",
+                            "request_size": 0,
+                            "protocol": "HTTP/1.1",
+                            "response_size": 0,
+                            "response_code": 0,
+                            "user_agent": "python-requests/2.11.1",
+                            "timeout": 3003932,
+                            "skydive_query":null
+                        },
+                        {
+                            "span_id": "00001e1bf1f4e05b",
+                            "parent_span_id": "0000570f8c6284a9",
+                            "type": "process_response",
+                            "interlocutor": "reviews",
+                            "timestamp": 1502229161558239,
+                            "duration": 3039,
+                            "request": "GET /reviews",
+                            "request_size": 0,
+                            "protocol": "HTTP/1.1",
+                            "response_size": 0,
+                            "response_code": 0,
+                            "user_agent": "python-requests/2.11.1",
+                            "timeout": 3003932,
+                            "skydive_query":null
+                        },
+                        {
+                            "span_id": "0000570f8c6284a9",
+                            "parent_span_id": null,
+                            "type": "send_response",
+                            "interlocutor": "ingress",
+                            "timestamp": 1502229161561278,
+                            "duration": 2424,
+                            "request": "GET /productpage",
+                            "request_size": 0,
+                            "protocol": "HTTP/1.1",
+                            "response_size": 3815,
+                            "response_code": 200,
+                            "user_agent": "curl/7.47.0",
+                            "timeout": null,
+                            "skydive_query":null
+                        }
+                    ]
+                },
+                {
+                    "service": "details",
+                    "events": [
+                        {
+                            "span_id": "00003892863a9596",
+                            "parent_span_id": "0000570f8c6284a9",
+                            "type": "process_request",
+                            "interlocutor": "169.51.9.146",
+                            "timestamp": 1502229155399125,
+                            "duration": 58935,
+                            "request": "GET /details",
+                            "request_size": 0,
+                            "protocol": "HTTP/1.1",
+                            "response_size": 213,
+                            "response_code": 200,
+                            "user_agent": "python-requests/2.11.1",
+                            "timeout": null,
+                            "skydive_query":null
+                        },
+                        {
+                            "span_id": "00003892863a9596",
+                            "parent_span_id": "0000570f8c6284a9",
+                            "type": "send_response",
+                            "interlocutor": "169.51.9.146",
+                            "timestamp": 1502229155458060,
+                            "duration": 56890,
+                            "request": "GET /details",
+                            "request_size": 0,
+                            "protocol": "HTTP/1.1",
+                            "response_size": 213,
+                            "response_code": 200,
+                            "user_agent": "python-requests/2.11.1",
+                            "timeout": null,
+                            "skydive_query":null
+                        }
+                    ]
+                },
+                {
+                    "service": "reviews",
+                    "events": [
+                        {
+                            "span_id": "00001545f89246df",
+                            "parent_span_id": "0000570f8c6284a9",
+                            "type": "process_request",
+                            "interlocutor": "169.51.9.146",
+                            "timestamp": 1502229155533149,
+                            "duration": 46528,
+                            "request": "GET /reviews",
+                            "request_size": 0,
+                            "protocol": "HTTP/1.1",
+                            "response_size": 0,
+                            "response_code": 0,
+                            "user_agent": "python-requests/2.11.1",
+                            "timeout": null,
+                            "skydive_query":null
+                        },
+                        {
+                            "span_id": "0000b246a70b17f2",
+                            "parent_span_id": "00001545f89246df",
+                            "type": "send_request",
+                            "interlocutor": "ratings",
+                            "timestamp": 1502229155579677,
+                            "duration": 3557590,
+                            "request": "GET /ratings",
+                            "request_size": 0,
+                            "protocol": "HTTP/1.1",
+                            "response_size": 29,
+                            "response_code": 200,
+                            "user_agent": "Apache CXF 3.0.3",
+                            "timeout": null,
+                            "skydive_query":null
+                        },
+                        {
+                            "span_id": "00001e1bf1f4e05b",
+                            "parent_span_id": "0000570f8c6284a9",
+                            "type": "process_request",
+                            "interlocutor": "169.51.9.146",
+                            "timestamp": 1502229158555033,
+                            "duration": 51903,
+                            "request": "GET /reviews",
+                            "request_size": 0,
+                            "protocol": "HTTP/1.1",
+                            "response_size": 0,
+                            "response_code": 0,
+                            "user_agent": "python-requests/2.11.1",
+                            "timeout": null,
+                            "skydive_query":null
+                        },
+                        {
+                            "span_id": "00009d0d25cce088",
+                            "parent_span_id": "00001e1bf1f4e05b",
+                            "type": "send_request",
+                            "interlocutor": "ratings",
+                            "timestamp": 1502229158606936,
+                            "duration": 3555322,
+                            "request": "GET /ratings",
+                            "request_size": 0,
+                            "protocol": "HTTP/1.1",
+                            "response_size": 29,
+                            "response_code": 200,
+                            "user_agent": "Apache CXF 3.0.3",
+                            "timeout": null,
+                            "skydive_query":null
+                        }
+                    ]
+                },
+                {
+                    "service": "ratings",
+                    "events": [
+                        {
+                            "span_id": "0000b246a70b17f2",
+                            "parent_span_id": "00001545f89246df",
+                            "type": "process_request",
+                            "interlocutor": "reviews",
+                            "timestamp": 1502229159137267,
+                            "duration": 23628,
+                            "request": "GET /ratings",
+                            "request_size": 0,
+                            "protocol": "HTTP/1.1",
+                            "response_size": 29,
+                            "response_code": 200,
+                            "user_agent": "Apache CXF 3.0.3",
+                            "timeout": null,
+                            "skydive_query":null
+                        },
+                        {
+                            "span_id": "0000b246a70b17f2",
+                            "parent_span_id": "00001545f89246df",
+                            "type": "send_response",
+                            "interlocutor": "reviews",
+                            "timestamp": 1502229159160895,
+                            "duration": 3557590,
+                            "request": "GET /ratings",
+                            "request_size": 0,
+                            "protocol": "HTTP/1.1",
+                            "response_size": 29,
+                            "response_code": 200,
+                            "user_agent": "Apache CXF 3.0.3",
+                            "timeout": null,
+                            "skydive_query":null
+                        },
+                        {
+                            "span_id": "00009d0d25cce088",
+                            "parent_span_id": "00001e1bf1f4e05b",
+                            "type": "process_request",
+                            "interlocutor": "reviews",
+                            "timestamp": 1502229162162258,
+                            "duration": 11477,
+                            "request": "GET /ratings",
+                            "request_size": 0,
+                            "protocol": "HTTP/1.1",
+                            "response_size": 29,
+                            "response_code": 200,
+                            "user_agent": "Apache CXF 3.0.3",
+                            "timeout": null,
+                            "skydive_query":null
+                        },
+                        {
+                            "span_id": "00009d0d25cce088",
+                            "parent_span_id": "00001e1bf1f4e05b",
+                            "type": "send_response",
+                            "interlocutor": "reviews",
+                            "timestamp": 1502229162173735,
+                            "duration": 3555323,
+                            "request": "GET /ratings",
+                            "request_size": 0,
+                            "protocol": "HTTP/1.1",
+                            "response_size": 29,
+                            "response_code": 200,
+                            "user_agent": "Apache CXF 3.0.3",
+                            "timeout": null,
+                            "skydive_query":null
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

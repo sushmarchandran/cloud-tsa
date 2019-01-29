@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Language" content="en">
+<title>Canary Analytics for Istio WITH SKYDIVE v2</title>
+<script src="/static/js/canary-dive.js"></script>
+</head>
+<body id="canary-skydive" style="margin:0px;padding:0px;overflow:hidden">
+<iframe id="canary-analytics-frame" src="/canary/categories?{{ request.query_string.decode('ASCII') }}"
+     skydive-url="{{ skydive }}"
+     style="position:fixed;overflow:hidden;height:100%;width:50%" height="100%" width="50%"></iframe>
+
+<iframe id="baseline-skydive-frame" src="{{ skydive }}/topology?theme=light"
+     style="scroll-y:yes;position:fixed;overflow:hidden;left:50%;height:50%;width:50%" height="50%" width="50%"></iframe>
+
+<iframe id="canary-skydive-frame" src="{{ skydive }}/topology?theme=light"
+     style="scroll-y:yes;position:fixed;overflow:hidden;left:50%;top:50%;height:50%;width:50%" height="50%" width="50%"></iframe>
+
+<script>
+console.log("Hello Javascript from canary-dive.html");
+</script>
+
+</body>
+</html>

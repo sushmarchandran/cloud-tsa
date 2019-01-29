@@ -1,0 +1,47 @@
+# Use kubectl create -f to deploy the server container onto Kubernetes
+
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    run: istio-analytics
+  name: istio-analytics
+  namespace: istio-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: istio-analytics
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        run: istio-analytics
+    spec:
+      containers:
+      - env:
+        - name: ISTIO_ANALYTICS_ZIPKIN_HOST
+          value: http://zipkin:9411
+        image: REGISTRY/NAMESPACE/istio-analytics
+        name: istio-analytics
+        resources: {}
+      imagePullSecrets:
+        - name: bluemix-default-secret
+status: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: istio-analytics
+  namespace: istio-system
+spec:
+  #type: NodePort
+  ports:
+  - port: 5555
+    #nodePort: 32000
+    name: http
+  selector:
+    run: istio-analytics
+---

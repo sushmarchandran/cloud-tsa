@@ -1,0 +1,65 @@
+
+<a href="{{ categoriesUrl() }}">Types</a> |
+<b>Sequence</b> |
+<a href="{{ pieUrl() }}">Time</a><br>
+
+<p>
+<button id="up" type="button" ng-click="up()" ng-disabled="start == 0">▲</button>
+<button id="down" type="button" ng-click="down()">▼</button>
+<button id="bigger" type="button" ng-click="bigger()">+</button>
+<button id="smaller" type="button" ng-click="smaller()" ng-disabled="magnification <= 1">-</button>
+Zoom: {{ magnification }}
+
+<button id="prevFlow" type="button" ng-click="prevFlow()" ng-disabled="nflow < 1">&lt;</button>
+<button id="nextFlow" type="button" ng-click="nextFlow()" ng-disabled="nflow >= clusters_diff.length-1">&gt;</button>
+Flow: {{ nflow }} of {{ clusters_diff.length }} {{ selectedFlowTitle() }}
+
+Baseline Traces: {{ (clusters_diffs && clusters_diffs[nflow]) ? clusters_diffs[nflow].baseline_trace_ids.length : 0 }}
+Canary Traces: {{ (clusters_diffs && clusters_diffs[nflow]) ? clusters_diffs[nflow].canary_trace_ids.length : 0 }}
+
+<p>
+<svg id="chart">
+  <defs>
+    <!-- This is used as a sync message call arrowhead -->
+    <marker id="SolidArrowhead" viewBox="0 0 10 10" refX="1" refY="5"
+        markerWidth="5" markerHeight="5" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" />
+    </marker>
+    <marker id="SolidErrorArrowhead" viewBox="0 0 10 10" refX="1" refY="5"
+        markerWidth="5" markerHeight="5" orient="auto" fill="red">
+      <path d="M 0 0 L 20 5 L 0 10 z" />
+    </marker>
+    <!-- This is used as an async message return arrowhead -->
+    <marker id="OpenArrowhead" viewBox="0 0 10 10" refX="1" refY="5"
+        markerWidth="5" markerHeight="5" orient="auto" fill="transparent" stroke="black">
+      <path d="M 0 0 L 10 5 L 0 10" />
+    </marker>
+    <marker id="OpenErrorArrowhead" viewBox="0 0 10 10" refX="1" refY="5"
+        markerWidth="5" markerHeight="5" orient="auto" fill="transparent" stroke="red">
+      <path d="M 0 0 L 10 5 L 0 10" />
+    </marker>
+    <marker id="SolidTimeoutArrowhead" viewBox="0 0 10 10" refX="1" refY="5"
+        markerWidth="5" markerHeight="5" orient="auto" fill="lightblue">
+      <path d="M 0 0 L 20 5 L 0 10 z" />
+    </marker>
+
+    <marker id="SolidTimeoutStartArrowhead" viewBox="0 0 10 10" refX="1" refY="5"
+        markerWidth="5" markerHeight="5" orient="auto-start-reverse" fill="lightblue">
+      <path d="M 0 0 L 20 5 L 0 10 z" />
+    </marker>
+
+    <filter x="0" y="0" width="1" height="1" id="LabelBackground">
+      <feFlood flood-color="lightgrey"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+
+    <filter x="0" y="0" width="1" height="1" id="ArrowLabelBackground">
+      <feFlood flood-color="white"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+  </defs>
+</svg>
+
+<p>
+<button id="dumpFlow" type="button" ng-click="dumpFlow()">dump</button>
+<input type="checkbox" ng-model="debugUI" ng-true-value="true" ng-false-value="false"> Debug

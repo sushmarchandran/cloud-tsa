@@ -1,0 +1,9 @@
+apiVersion: v1
+description: The REST API server of the Istio Analytics service 
+name: istio_analytics
+version: 0.1.0
+sources:
+  - https://github.ibm.com/istio-research/restapi_server
+maintainers:
+  - name: Zijun Wang
+    email: zijun.wang@ibm.com

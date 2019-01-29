@@ -1,0 +1,43 @@
+# Default values for istio_analytics.
+server:
+## Istio-Analytics server container name
+##
+  name: istio-analytics
+  replicaCount: 1
+  
+  ## Istio-Analytics server container image
+  ##
+  image:
+    repository: kimikowang/istio-analytics 
+    tag: latest
+    pullPolicy: IfNotPresent
+    expose:
+      - 5555 
+  service:
+    ports:
+    - port: 5555
+      targetPort: 5555
+      name: http
+
+traceServer:
+  name: jaeger
+  replicationCount: 1
+  url: http://jaeger:16686
+  image:
+    repository: jaegertracing/all-in-one
+    tag: 1.7
+    pullPolicy: IfNotPresent
+    zipkinCollector: 
+      enabled: true
+      port: 9411
+    expose:
+      - 16686
+      - 9411
+  service:
+    ports:
+    - port: 16686
+      targetPort: 16686
+      name: service
+    - port: 9411
+      targetPort: 9411
+      name: zipkin

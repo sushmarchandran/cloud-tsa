@@ -1,0 +1,31 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ .Values.server.name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ .Values.server.name }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.server.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.server.name }}
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: {{ .Values.server.name }}
+          image: "{{ .Values.server.image.repository }}:{{ .Values.server.image.tag }}"
+          imagePullPolicy: {{ .Values.server.image.pullPolicy }}
+          ports:
+            {{- range $key, $val := .Values.server.image.expose }}
+            - containerPort: {{ $val }}
+            {{- end }}
+          env: 
+            - name: ISTIO_ANALYTICS_TRACE_BACKEND
+              value: {{ .Values.traceServer.name }}
+            - name: ISTIO_ANALYTICS_TRACE_SERVER_URL
+              value: {{ .Values.traceServer.url }}

@@ -1,0 +1,772 @@
+{
+    "data": [
+        {
+            "traceID": "c5aa42a606813338",
+            "spans": [
+                {
+                    "traceID": "c5aa42a606813338",
+                    "spanID": "1",
+                    "operationName": "productpage.default.svc.cluster.local:9080/productpage",
+                    "references": [
+                        {
+                            "refType": "CHILD_OF",
+                            "traceID": "c5aa42a606813338",
+                            "spanID": "c5aa42a606813338"
+                        }
+                    ],
+                    "startTime": 1539891716271147,
+                    "duration": 22635,
+                    "tags": [
+                        {
+                            "key": "component",
+                            "type": "string",
+                            "value": "proxy"
+                        },
+                        {
+                            "key": "node_id",
+                            "type": "string",
+                            "value": "sidecar~172.30.94.151~productpage-v1-794db7ff85-vs4cb.default~default.svc.cluster.local"
+                        },
+                        {
+                            "key": "guid:x-request-id",
+                            "type": "string",
+                            "value": "163d3080-c56f-916d-89df-cd372d019d9c"
+                        },
+                        {
+                            "key": "http.url",
+                            "type": "string",
+                            "value": "http://169.61.12.58/productpage"
+                        },
+                        {
+                            "key": "http.method",
+                            "type": "string",
+                            "value": "GET"
+                        },
+                        {
+                            "key": "downstream_cluster",
+                            "type": "string",
+                            "value": "-"
+                        },
+                        {
+                            "key": "user_agent",
+                            "type": "string",
+                            "value": "curl/7.54.0"
+                        },
+                        {
+                            "key": "http.protocol",
+                            "type": "string",
+                            "value": "HTTP/1.1"
+                        },
+                        {
+                            "key": "request_size",
+                            "type": "string",
+                            "value": "0"
+                        },
+                        {
+                            "key": "upstream_cluster",
+                            "type": "string",
+                            "value": "inbound|9080||productpage.default.svc.cluster.local"
+                        },
+                        {
+                            "key": "http.status_code",
+                            "type": "string",
+                            "value": "200"
+                        },
+                        {
+                            "key": "response_size",
+                            "type": "string",
+                            "value": "5719"
+                        },
+                        {
+                            "key": "response_flags",
+                            "type": "string",
+                            "value": "-"
+                        },
+                        {
+                            "key": "span.kind",
+                            "type": "string",
+                            "value": "server"
+                        }
+                    ],
+                    "logs": [],
+                    "processID": "p1",
+                    "warnings": null
+                },
+                {
+                    "traceID": "c5aa42a606813338",
+                    "spanID": "c5aa42a606813338",
+                    "operationName": "productpage.default.svc.cluster.local:9080/productpage",
+                    "references": [],
+                    "startTime": 1539891716270564,
+                    "duration": 23802,
+                    "tags": [
+                        {
+                            "key": "component",
+                            "type": "string",
+                            "value": "proxy"
+                        },
+                        {
+                            "key": "node_id",
+                            "type": "string",
+                            "value": "router~172.30.41.123~istio-ingressgateway-7f4dd7d699-h6q4l.istio-system~istio-system.svc.cluster.local"
+                        },
+                        {
+                            "key": "guid:x-request-id",
+                            "type": "string",
+                            "value": "163d3080-c56f-916d-89df-cd372d019d9c"
+                        },
+                        {
+                            "key": "http.url",
+                            "type": "string",
+                            "value": "http://169.61.12.58/productpage"
+                        },
+                        {
+                            "key": "http.method",
+                            "type": "string",
+                            "value": "GET"
+                        },
+                        {
+                            "key": "downstream_cluster",
+                            "type": "string",
+                            "value": "-"
+                        },
+                        {
+                            "key": "user_agent",
+                            "type": "string",
+                            "value": "curl/7.54.0"
+                        },
+                        {
+                            "key": "http.protocol",
+                            "type": "string",
+                            "value": "HTTP/1.1"
+                        },
+                        {
+                            "key": "request_size",
+                            "type": "string",
+                            "value": "0"
+                        },
+                        {
+                            "key": "upstream_cluster",
+                            "type": "string",
+                            "value": "outbound|9080||productpage.default.svc.cluster.local"
+                        },
+                        {
+                            "key": "http.status_code",
+                            "type": "string",
+                            "value": "200"
+                        },
+                        {
+                            "key": "response_size",
+                            "type": "string",
+                            "value": "5719"
+                        },
+                        {
+                            "key": "response_flags",
+                            "type": "string",
+                            "value": "-"
+                        },
+                        {
+                            "key": "span.kind",
+                            "type": "string",
+                            "value": "client"
+                        }
+                    ],
+                    "logs": [],
+                    "processID": "p2",
+                    "warnings": null
+                },
+                {
+                    "traceID": "c5aa42a606813338",
+                    "spanID": "2",
+                    "operationName": "ratings.default.svc.cluster.local:9080/*",
+                    "references": [
+                        {
+                            "refType": "CHILD_OF",
+                            "traceID": "c5aa42a606813338",
+                            "spanID": "cdcbebad55887f6a"
+                        }
+                    ],
+                    "startTime": 1539891716287175,
+                    "duration": 1116,
+                    "tags": [
+                        {
+                            "key": "component",
+                            "type": "string",
+                            "value": "proxy"
+                        },
+                        {
+                            "key": "node_id",
+                            "type": "string",
+                            "value": "sidecar~172.30.61.185~ratings-v1-648467b449-469hl.default~default.svc.cluster.local"
+                        },
+                        {
+                            "key": "guid:x-request-id",
+                            "type": "string",
+                            "value": "163d3080-c56f-916d-89df-cd372d019d9c"
+                        },
+                        {
+                            "key": "http.url",
+                            "type": "string",
+                            "value": "http://ratings:9080/ratings/0"
+                        },
+                        {
+                            "key": "http.method",
+                            "type": "string",
+                            "value": "GET"
+                        },
+                        {
+                            "key": "downstream_cluster",
+                            "type": "string",
+                            "value": "-"
+                        },
+                        {
+                            "key": "user_agent",
+                            "type": "string",
+                            "value": "Apache-CXF/3.1.14"
+                        },
+                        {
+                            "key": "http.protocol",
+                            "type": "string",
+                            "value": "HTTP/1.1"
+                        },
+                        {
+                            "key": "request_size",
+                            "type": "string",
+                            "value": "0"
+                        },
+                        {
+                            "key": "upstream_cluster",
+                            "type": "string",
+                            "value": "inbound|9080||ratings.default.svc.cluster.local"
+                        },
+                        {
+                            "key": "http.status_code",
+                            "type": "string",
+                            "value": "200"
+                        },
+                        {
+                            "key": "response_size",
+                            "type": "string",
+                            "value": "48"
+                        },
+                        {
+                            "key": "response_flags",
+                            "type": "string",
+                            "value": "-"
+                        },
+                        {
+                            "key": "span.kind",
+                            "type": "string",
+                            "value": "server"
+                        }
+                    ],
+                    "logs": [],
+                    "processID": "p3",
+                    "warnings": null
+                },
+                {
+                    "traceID": "c5aa42a606813338",
+                    "spanID": "3",
+                    "operationName": "reviews.default.svc.cluster.local:9080/*",
+                    "references": [
+                        {
+                            "refType": "CHILD_OF",
+                            "traceID": "c5aa42a606813338",
+                            "spanID": "d3c3cdd5f7d704dc"
+                        }
+                    ],
+                    "startTime": 1539891716281954,
+                    "duration": 8661,
+                    "tags": [
+                        {
+                            "key": "component",
+                            "type": "string",
+                            "value": "proxy"
+                        },
+                        {
+                            "key": "node_id",
+                            "type": "string",
+                            "value": "sidecar~172.30.41.86~reviews-v3-995b68dcc-zt6mp.default~default.svc.cluster.local"
+                        },
+                        {
+                            "key": "guid:x-request-id",
+                            "type": "string",
+                            "value": "163d3080-c56f-916d-89df-cd372d019d9c"
+                        },
+                        {
+                            "key": "http.url",
+                            "type": "string",
+                            "value": "http://reviews:9080/reviews/0"
+                        },
+                        {
+                            "key": "http.method",
+                            "type": "string",
+                            "value": "GET"
+                        },
+                        {
+                            "key": "downstream_cluster",
+                            "type": "string",
+                            "value": "-"
+                        },
+                        {
+                            "key": "user_agent",
+                            "type": "string",
+                            "value": "python-requests/2.18.4"
+                        },
+                        {
+                            "key": "http.protocol",
+                            "type": "string",
+                            "value": "HTTP/1.1"
+                        },
+                        {
+                            "key": "request_size",
+                            "type": "string",
+                            "value": "0"
+                        },
+                        {
+                            "key": "upstream_cluster",
+                            "type": "string",
+                            "value": "inbound|9080||reviews.default.svc.cluster.local"
+                        },
+                        {
+                            "key": "http.status_code",
+                            "type": "string",
+                            "value": "200"
+                        },
+                        {
+                            "key": "response_size",
+                            "type": "string",
+                            "value": "375"
+                        },
+                        {
+                            "key": "response_flags",
+                            "type": "string",
+                            "value": "-"
+                        },
+                        {
+                            "key": "span.kind",
+                            "type": "string",
+                            "value": "server"
+                        }
+                    ],
+                    "logs": [],
+                    "processID": "p4",
+                    "warnings": null
+                },
+                {
+                    "traceID": "c5aa42a606813338",
+                    "spanID": "cdcbebad55887f6a",
+                    "operationName": "ratings.default.svc.cluster.local:9080/*",
+                    "references": [
+                        {
+                            "refType": "CHILD_OF",
+                            "traceID": "c5aa42a606813338",
+                            "spanID": "3"
+                        }
+                    ],
+                    "startTime": 1539891716286732,
+                    "duration": 2002,
+                    "tags": [
+                        {
+                            "key": "component",
+                            "type": "string",
+                            "value": "proxy"
+                        },
+                        {
+                            "key": "node_id",
+                            "type": "string",
+                            "value": "sidecar~172.30.41.86~reviews-v3-995b68dcc-zt6mp.default~default.svc.cluster.local"
+                        },
+                        {
+                            "key": "guid:x-request-id",
+                            "type": "string",
+                            "value": "163d3080-c56f-916d-89df-cd372d019d9c"
+                        },
+                        {
+                            "key": "http.url",
+                            "type": "string",
+                            "value": "http://ratings:9080/ratings/0"
+                        },
+                        {
+                            "key": "http.method",
+                            "type": "string",
+                            "value": "GET"
+                        },
+                        {
+                            "key": "downstream_cluster",
+                            "type": "string",
+                            "value": "-"
+                        },
+                        {
+                            "key": "user_agent",
+                            "type": "string",
+                            "value": "Apache-CXF/3.1.14"
+                        },
+                        {
+                            "key": "http.protocol",
+                            "type": "string",
+                            "value": "HTTP/1.1"
+                        },
+                        {
+                            "key": "request_size",
+                            "type": "string",
+                            "value": "0"
+                        },
+                        {
+                            "key": "upstream_cluster",
+                            "type": "string",
+                            "value": "outbound|9080|v1|ratings.default.svc.cluster.local"
+                        },
+                        {
+                            "key": "http.status_code",
+                            "type": "string",
+                            "value": "200"
+                        },
+                        {
+                            "key": "response_size",
+                            "type": "string",
+                            "value": "48"
+                        },
+                        {
+                            "key": "response_flags",
+                            "type": "string",
+                            "value": "-"
+                        },
+                        {
+                            "key": "span.kind",
+                            "type": "string",
+                            "value": "client"
+                        }
+                    ],
+                    "logs": [],
+                    "processID": "p4",
+                    "warnings": null
+                },
+                {
+                    "traceID": "c5aa42a606813338",
+                    "spanID": "d3c3cdd5f7d704dc",
+                    "operationName": "reviews.default.svc.cluster.local:9080/*",
+                    "references": [
+                        {
+                            "refType": "CHILD_OF",
+                            "traceID": "c5aa42a606813338",
+                            "spanID": "1"
+                        }
+                    ],
+                    "startTime": 1539891716281815,
+                    "duration": 9541,
+                    "tags": [
+                        {
+                            "key": "component",
+                            "type": "string",
+                            "value": "proxy"
+                        },
+                        {
+                            "key": "node_id",
+                            "type": "string",
+                            "value": "sidecar~172.30.94.151~productpage-v1-794db7ff85-vs4cb.default~default.svc.cluster.local"
+                        },
+                        {
+                            "key": "guid:x-request-id",
+                            "type": "string",
+                            "value": "163d3080-c56f-916d-89df-cd372d019d9c"
+                        },
+                        {
+                            "key": "http.url",
+                            "type": "string",
+                            "value": "http://reviews:9080/reviews/0"
+                        },
+                        {
+                            "key": "http.method",
+                            "type": "string",
+                            "value": "GET"
+                        },
+                        {
+                            "key": "downstream_cluster",
+                            "type": "string",
+                            "value": "-"
+                        },
+                        {
+                            "key": "user_agent",
+                            "type": "string",
+                            "value": "python-requests/2.18.4"
+                        },
+                        {
+                            "key": "http.protocol",
+                            "type": "string",
+                            "value": "HTTP/1.1"
+                        },
+                        {
+                            "key": "request_size",
+                            "type": "string",
+                            "value": "0"
+                        },
+                        {
+                            "key": "upstream_cluster",
+                            "type": "string",
+                            "value": "outbound|9080|v3|reviews.default.svc.cluster.local"
+                        },
+                        {
+                            "key": "http.status_code",
+                            "type": "string",
+                            "value": "200"
+                        },
+                        {
+                            "key": "response_size",
+                            "type": "string",
+                            "value": "375"
+                        },
+                        {
+                            "key": "response_flags",
+                            "type": "string",
+                            "value": "-"
+                        },
+                        {
+                            "key": "span.kind",
+                            "type": "string",
+                            "value": "client"
+                        }
+                    ],
+                    "logs": [],
+                    "processID": "p1",
+                    "warnings": null
+                },
+                {
+                    "traceID": "c5aa42a606813338",
+                    "spanID": "b6db31ae7e502516",
+                    "operationName": "details.default.svc.cluster.local:9080/*",
+                    "references": [
+                        {
+                            "refType": "CHILD_OF",
+                            "traceID": "c5aa42a606813338",
+                            "spanID": "1"
+                        }
+                    ],
+                    "startTime": 1539891716275207,
+                    "duration": 3477,
+                    "tags": [
+                        {
+                            "key": "component",
+                            "type": "string",
+                            "value": "proxy"
+                        },
+                        {
+                            "key": "node_id",
+                            "type": "string",
+                            "value": "sidecar~172.30.94.151~productpage-v1-794db7ff85-vs4cb.default~default.svc.cluster.local"
+                        },
+                        {
+                            "key": "guid:x-request-id",
+                            "type": "string",
+                            "value": "163d3080-c56f-916d-89df-cd372d019d9c"
+                        },
+                        {
+                            "key": "http.url",
+                            "type": "string",
+                            "value": "http://details:9080/details/0"
+                        },
+                        {
+                            "key": "http.method",
+                            "type": "string",
+                            "value": "GET"
+                        },
+                        {
+                            "key": "downstream_cluster",
+                            "type": "string",
+                            "value": "-"
+                        },
+                        {
+                            "key": "user_agent",
+                            "type": "string",
+                            "value": "python-requests/2.18.4"
+                        },
+                        {
+                            "key": "http.protocol",
+                            "type": "string",
+                            "value": "HTTP/1.1"
+                        },
+                        {
+                            "key": "request_size",
+                            "type": "string",
+                            "value": "0"
+                        },
+                        {
+                            "key": "upstream_cluster",
+                            "type": "string",
+                            "value": "outbound|9080|v1|details.default.svc.cluster.local"
+                        },
+                        {
+                            "key": "http.status_code",
+                            "type": "string",
+                            "value": "200"
+                        },
+                        {
+                            "key": "response_size",
+                            "type": "string",
+                            "value": "178"
+                        },
+                        {
+                            "key": "response_flags",
+                            "type": "string",
+                            "value": "-"
+                        },
+                        {
+                            "key": "span.kind",
+                            "type": "string",
+                            "value": "client"
+                        }
+                    ],
+                    "logs": [],
+                    "processID": "p1",
+                    "warnings": null
+                },
+                {
+                    "traceID": "c5aa42a606813338",
+                    "spanID": "4",
+                    "operationName": "details.default.svc.cluster.local:9080/*",
+                    "references": [
+                        {
+                            "refType": "CHILD_OF",
+                            "traceID": "c5aa42a606813338",
+                            "spanID": "b6db31ae7e502516"
+                        }
+                    ],
+                    "startTime": 1539891716275360,
+                    "duration": 2659,
+                    "tags": [
+                        {
+                            "key": "component",
+                            "type": "string",
+                            "value": "proxy"
+                        },
+                        {
+                            "key": "node_id",
+                            "type": "string",
+                            "value": "sidecar~172.30.41.118~details-v1-76df85799c-58xfr.default~default.svc.cluster.local"
+                        },
+                        {
+                            "key": "guid:x-request-id",
+                            "type": "string",
+                            "value": "163d3080-c56f-916d-89df-cd372d019d9c"
+                        },
+                        {
+                            "key": "http.url",
+                            "type": "string",
+                            "value": "http://details:9080/details/0"
+                        },
+                        {
+                            "key": "http.method",
+                            "type": "string",
+                            "value": "GET"
+                        },
+                        {
+                            "key": "downstream_cluster",
+                            "type": "string",
+                            "value": "-"
+                        },
+                        {
+                            "key": "user_agent",
+                            "type": "string",
+                            "value": "python-requests/2.18.4"
+                        },
+                        {
+                            "key": "http.protocol",
+                            "type": "string",
+                            "value": "HTTP/1.1"
+                        },
+                        {
+                            "key": "request_size",
+                            "type": "string",
+                            "value": "0"
+                        },
+                        {
+                            "key": "upstream_cluster",
+                            "type": "string",
+                            "value": "inbound|9080||details.default.svc.cluster.local"
+                        },
+                        {
+                            "key": "http.status_code",
+                            "type": "string",
+                            "value": "200"
+                        },
+                        {
+                            "key": "response_size",
+                            "type": "string",
+                            "value": "178"
+                        },
+                        {
+                            "key": "response_flags",
+                            "type": "string",
+                            "value": "-"
+                        },
+                        {
+                            "key": "span.kind",
+                            "type": "string",
+                            "value": "server"
+                        }
+                    ],
+                    "logs": [],
+                    "processID": "p5",
+                    "warnings": null
+                }
+            ],
+            "processes": {
+                "p1": {
+                    "serviceName": "productpage",
+                    "tags": [
+                        {
+                            "key": "ip",
+                            "type": "string",
+                            "value": "172.30.94.151"
+                        }
+                    ]
+                },
+                "p2": {
+                    "serviceName": "istio-ingressgateway",
+                    "tags": [
+                        {
+                            "key": "ip",
+                            "type": "string",
+                            "value": "172.30.41.123"
+                        }
+                    ]
+                },
+                "p3": {
+                    "serviceName": "ratings",
+                    "tags": [
+                        {
+                            "key": "ip",
+                            "type": "string",
+                            "value": "172.30.61.185"
+                        }
+                    ]
+                },
+                "p4": {
+                    "serviceName": "reviews",
+                    "tags": [
+                        {
+                            "key": "ip",
+                            "type": "string",
+                            "value": "172.30.41.86"
+                        }
+                    ]
+                },
+                "p5": {
+                    "serviceName": "details",
+                    "tags": [
+                        {
+                            "key": "ip",
+                            "type": "string",
+                            "value": "172.30.41.118"
+                        }
+                    ]
+                }
+            },
+            "warnings": null
+        }
+    ],
+    "total": 0,
+    "limit": 0,
+    "offset": 0,
+    "errors": null
+}

@@ -1,0 +1,29 @@
+{
+  "trace_backend": "zipkin",
+	"trace_server_url": "http://localhost:9411",
+  "trace_list": [
+    {
+      "trace_id": "00007761db8f5d39",
+      "spans": [
+        {
+          "span_id": "00007761db8f5d39",
+          "parent_span_id": null,
+          "source_ip": "172.30.85.185",
+          "source_name": "172.30.85.185",
+          "target_ip": null,
+          "target_name": "172.30.85.185",
+          "request": "GET /health",
+          "request_size": 0,
+          "protocol": "HTTP/1.1",
+          "response_size": 2,
+          "response_code": 200,
+          "user_agent": "Go-http-client/1.1",
+          "cs": 1501013688546471,
+          "sr": null,
+          "ss": null,
+          "cr": 1501013688551357
+        }
+      ]
+   }
+  ]
+}
