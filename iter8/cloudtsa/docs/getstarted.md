@@ -31,7 +31,7 @@ are queried by a load generator. The behavior of these services are modified by 
     helm template install/kubernetes/helm/istio --name istio --set grafana.enabled=true --namespace istio-system > $HOME/istio.yaml
   `
 * Installed istioctl
-* Downloaded iter8 (you can do so using `git clone git@github.ibm.com:istio-research/iter8.git`)
+* Downloaded iter8 (you can do so using `git clone git@github.ibm.com:istio-research/iter8-final.git`)
 * Python 3.6 or later
 * Installed python packages `requests`, `numpy` and `PyYAML` (you can do so by running `pip install requests numpy` and by following the instructions on the [PyYAML](https://pyyaml.org/wiki/PyYAML) page.)
 
