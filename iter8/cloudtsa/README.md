@@ -22,9 +22,9 @@ Service `svc0` experiences a gradual increase in mean latency from ~ 0.1 sec to 
 
   2. A 'predictive' alert (blue curve) *before* the mean latency value violates a preset threshold. CloudTSA uses the Holt-Winters triple exponential smoothing algorithm to infer the increasing trend in latency and *predicts* that latency is likely to violate a preset threshold.
 
-<p align="center">
-  <img src="./docs/gif/gradual_latency.gif">
-</p>
+  <p align="center">
+    <img src="https://raw.github.ibm.com/istio-research/iter8-docs/master/cloudtsa/gif/gradual_latency.gif?token=AAAw2O5YhTlaxwF1B9WwgtCYkD__7kHHks5cWe2TwA%3D%3D">
+  </p>
 
 ## Key Features
 
