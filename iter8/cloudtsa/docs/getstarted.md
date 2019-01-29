@@ -91,7 +91,7 @@ python3 demorun.py -dc democonfig.json -s gradual_latency
 **In your CloudTSA dashboard in Grafana,** navigate to the two charts titled *Latency for Svc0* and *CloudTSA (latency) Alerts for Svc0*; you will see these charts getting updated as in the following animation over a period of *8 min*.
 
 <p align="center">
-  <img src="https://github.ibm.com/istio-research/iter8-docs/blob/master/cloudtsa/gif/gradual_latency.gif">
+  <img src="https://raw.github.ibm.com/istio-research/iter8-docs/master/cloudtsa/gif/gradual_latency.gif?token=AAAw2O5YhTlaxwF1B9WwgtCYkD__7kHHks5cWe2TwA%3D%3D">
 </p>
 
 Service `svc0` experiences a gradual increase in mean latency from ~ 0.1 sec to ~ 8.0 sec which you can see on the chart on the left. CloudTSA learns this trend and creates two types of alerts for `svc0` which you can see on the chart on the right.
