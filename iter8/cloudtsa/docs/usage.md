@@ -4,6 +4,15 @@ The configuration for Cloud TSA includes the `Prometheus end-point`, your `appli
 
 ## Cloud TSA Component Architecture
 
+<p align="center">
+  <img src="https://raw.github.ibm.com/istio-research/iter8-docs/master/cloudtsa/img/crossproduct.png?token=AAAw2KaXBeOQmNS4hPcnyD3-fI_sYGK-ks5cWhW1wA%3D%3D">
+</p>
+
+<p align="center">
+  <img src="https://raw.github.ibm.com/istio-research/iter8-docs/master/cloudtsa/img/cloudtsaarch.png?token=AAAw2FR3IBSdLCWdO5u8EMCyjw7slkJAks5cWhYEwA%3D%3D">
+</p>
+
+
 
 Using Cloud TSA with your application involves four steps:
 
