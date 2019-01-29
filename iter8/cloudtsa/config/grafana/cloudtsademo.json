@@ -769,8 +769,8 @@
       "fill": 2,
       "gridPos": {
         "h": 17,
-        "w": 11,
-        "x": 1,
+        "w": 12,
+        "x": 0,
         "y": 68
       },
       "id": 14,
@@ -947,7 +947,7 @@
       "type": "text"
     }
   ],
-  "refresh": false,
+  "refresh": "5s",
   "schemaVersion": 16,
   "style": "dark",
   "tags": [],
