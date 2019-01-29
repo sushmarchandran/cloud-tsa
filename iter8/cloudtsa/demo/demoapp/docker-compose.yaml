@@ -1,0 +1,9 @@
+version: '2'
+services:
+  serviceunit:
+    build:
+      context: ./serviceunit
+    image: iter8/serviceunit
+    container_name: serviceunit
+    expose:
+      - "8080"

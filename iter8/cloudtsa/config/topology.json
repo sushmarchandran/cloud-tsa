@@ -1,0 +1,11 @@
+{
+  "nodes": ["ingress", "svc0", "svc1", "svc2", "svc3", "svcwithenvoy"],
+  "edges": [["ingress", "svc0"], ["ingress", "svc1"], ["ingress", "svc2"], ["ingress", "svc3"], ["ingress", "svcwithenvoy"]],
+  "apis": {
+    "/": "svc0",
+    "/": "svc1",
+    "/": "svc2",
+    "/": "svc3",
+    "/": "svcwithenvoy"
+  }
+}

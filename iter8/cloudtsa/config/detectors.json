@@ -1,0 +1,64 @@
+{
+  "predictivethresholds": {
+    "latency": {
+      "query_duration": 20,
+      "forecast_type": "holtwinters",
+      "forecast_parameters": {
+        "cycle_length": 1,
+        "initialization_length": 3,
+        "forecast_length": 10,
+        "alpha": 0.85,
+        "beta": 0.85,
+        "gamma": 0.0,
+        "phi": 0.93
+      },
+      "threshold_parameters": {
+        "min_value": -99999,
+        "max_value": 4.0
+      }
+    }
+  },
+  "changedetection": {
+    "latency": {
+      "query_duration": 40,
+      "threshold": 1,
+      "drift": 1
+    },
+    "error_rates": {
+      "query_duration": 60,
+      "threshold": 0.08,
+      "drift": 0.02
+    },
+    "error_counts": {
+      "query_duration": 60,
+      "threshold": 8,
+      "drift": 2
+    }
+  },
+  "thresholdpolicy": {
+    "latency": {
+      "query_duration": 60,
+      "min_value": -99999,
+      "max_value": 7
+    },
+    "error_rates": {
+      "query_duration": 180,
+      "min_value": 0.0,
+      "max_value": 0.12
+    },
+    "error_counts": {
+      "query_duration": 180,
+      "min_value": -99999,
+      "max_value": 15
+    }
+  },
+  "peakdetection": {
+    "load": {
+      "query_duration": 30,
+      "min_peak_height": 100,
+      "min_peak_distance": 3,
+      "threshold": 100,
+      "edge": "rising"
+    }
+  }
+}
