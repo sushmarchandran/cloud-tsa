@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: cloudtsa
+  labels:
+    app: cloudtsa
+spec:
+  ports:
+  - port: 9080
+    name: http
+  selector:
+    app: cloudtsa
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: cloudtsa-v1
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: cloudtsa
+        version: v1
+    spec:
+      containers:
+      - name: cloudtsa
+        image: iter8/cloudtsa:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 9080
+---

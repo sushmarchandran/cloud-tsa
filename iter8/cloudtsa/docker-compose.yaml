@@ -1,0 +1,9 @@
+version: '2'
+services:
+  cloudai:
+    build:
+      context: .
+    image: iter8/cloudtsa
+    container_name: cloudtsa
+    expose:
+      - "9080"
