@@ -8,12 +8,12 @@ We currently have the following sub-projects. The list below is expected to grow
 
 Service for analyzing distributed-tracing data collected by Istio. It performs statistical aggregation of inter-service calls that can be used for _fine-grain, holistic canary analysis_.
 
-Detailed information can be found [here](iter8/istio-analytics/README.md):
+Detailed information can be found [here](iter8/istio-analytics/README.md).
 
 ### CloudTSA
 
 Service for time-series analytics. Its current capabilities are trend prediction and detection of phase-changes, peaks, and threshold violations.
 
-Detailed information can be found [here](iter8/cloudtsa/README.md):
+Detailed information can be found [here](iter8/cloudtsa/README.md).
 
 
