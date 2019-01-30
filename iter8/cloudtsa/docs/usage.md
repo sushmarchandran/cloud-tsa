@@ -24,6 +24,9 @@ described below.
 4. [Starting CloudTSA](#start)
 5. [Setting up Grafana](#grafana)
 
+<a name="basicconfig"></a>
+## Basic Configuration
+
 <a name="deploy"></a>
 ## Deploying the CloudTSA service
 
@@ -33,3 +36,12 @@ cd iter8/iter8/cloudtsa/utils
 python3 deploy.py -c <path/to/your/config.json>
 ```
 This command deploys the CloudTSA service, exposes it via a [nodeport](https://kubernetes.io/docs/concepts/services-networking/service/), updates the Prometheus scrape configuration by adding CloudTSA as an end-point which will be periodically scraped by Prometheus, and restarts prometheus so that these configuration changes take effect.
+
+<a name="advancedconfig"></a>
+## Service, metric and detector configurations
+
+<a name="start"></a>
+## Starting CloudTSA
+
+<a name="grafana"></a>
+## Setting up Grafana
