@@ -5,7 +5,7 @@ import datetime
 import json
 import os
 # before this script even begins, we require cloudtsa service to be running and exposed as a node port
-parser = argparse.ArgumentParser(description='Bring up istioapp routerules, services and deployments')
+parser = argparse.ArgumentParser(description='Initializing sample app and starting CloudTSA service')
 parser.add_argument('-dc', '--democonfig', metavar = "<path/to/democonfig.json>", help='the project configuration file', required=True)
 args = parser.parse_args()
 
