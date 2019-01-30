@@ -115,8 +115,9 @@ function showTrace(traceSummary, magnification, context) {
     var sequenceData = {
             processes: processes,
             events: allEvents,
-            zipkinUrl: context.zipkinUrl,
+            serverUrl: context.serverUrl,
             debugUI: context.debugUI,
+            traceBackend: context.traceBackend,
     };
 
     setupSequenceDiagram(sequenceData, magnification);
@@ -273,7 +274,7 @@ function getServiceTimeline(trace, service) {
 
 function setupSequenceDiagram(data, magnification) {
     timeScale = 1 / (greatestTime(data.events) / height) * 0.3 * magnification;
-    console.log("timeScale is " + timeScale);
+    console.log("timeScale is " + timeScale + ", backend: " + data.trace_backend);
     if (!isFinite(timeScale)) {
         // This sometimes happens if there is null duration on every event
         timeScale = 1 * 0.3 * magnification;
@@ -758,6 +759,7 @@ function addActivations(data) {
 function addDurations(data) {
     var activations = data.events.filter(function f(evt) { return evt.type == "process_request" || evt.type == "process_response"; });
 
+    console.log("backend: %s", data.trace_backend)
     // Durations have {lifelineX:, y:}
     var durations = [];
     for (var activation of activations) {
@@ -767,13 +769,20 @@ function addDurations(data) {
 
         for (var nTraceId in activation.trace_ids) {
             var durAndCode = activation.durations_and_codes[nTraceId] || { duration: 0};
+            var serverUri = "";
+            if (data.traceBackend == "zipkin") {
+                serverUri = "/zipkin/traces/";
+            } else if(data.traceBackend == "jaeger") {
+                serverUri = "/trace/";
+            }
+            
             durations.push({
                 lifelineX: activation.lifelineX,
 
                 y: toScaledBox(activation, durAndCode.duration),
                 responseCode: durAndCode.response_code,
                 traceId: activation.trace_ids[nTraceId],
-                url: data.zipkinUrl + "/zipkin/traces/" + activation.trace_ids[nTraceId],
+                url: data.serverUrl + serverUri + activation.trace_ids[nTraceId],
                 sequenceNumber: activation.global_event_sequence_number
             });
         }

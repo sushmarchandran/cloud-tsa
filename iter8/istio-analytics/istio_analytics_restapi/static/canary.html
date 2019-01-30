@@ -11,7 +11,6 @@
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-animate.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-aria.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-messages.min.js"></script>
-<!-- script src="http://ngmaterial.assets.s3.amazonaws.com/svg-assets-cache.js"></script> -->
 
 <!-- script src="/static/js/diff_testdata.js"></script> -->
 <script src="/static/js/canary.js"></script>
@@ -102,13 +101,7 @@
               <label>Duration min count</label>
               <input ng-model="durationMinCount" type="number">
             </md-input-container>
-<!--
-          </md-content>
-        </div>
 
-        <div layout="row">
-          <md-content>
--->
             <md-input-container>
               <label>Error count &Delta; ratio threshold</label>
               <input ng-model="deltaRatioThreshold" type="number" disable-arrows>
@@ -128,7 +121,7 @@
 
         <md-content>
             <span ng-if="queryStatus">{{ queryStatus }}</span>
-            <span ng-if="dataOrigin">Reporting Zipkin: <a href="{{ dataOrigin }}" id="data_origin">{{ dataOrigin }}</a></span>
+            <span ng-if="dataOrigin">Reporting Server: <a href="{{ dataOrigin }}" id="data_origin">{{ dataOrigin }}</a></span>
 
          </md-content>
 

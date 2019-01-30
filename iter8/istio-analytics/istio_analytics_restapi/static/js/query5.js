@@ -46,6 +46,7 @@
         $scope.location = $location;
         $scope.queryStatus = "";
         $scope.dataOrigin = "";
+        $scope.traceBackend = "";
         $scope.clusters = [];    // Array of {root_request:, trace_ids:, cluster_stats: }
         $scope.startTime = "";
         $scope.endTime = "";
@@ -59,6 +60,7 @@
 
             $scope.startTime = parseTime($location.search()['start']);
             $scope.endTime = parseTime($location.search()['end']);
+
             if ('max' in $location.search()) {
                 $scope.maxTraces = parseInt($location.search()['max']);
             }
@@ -68,7 +70,6 @@
         });
 
         function query(automatic) {
-            $scope.dataOrigin = "";
             // TODO 'query' disable button?
             $scope.queryStatus = "Posting cluster query";
 
@@ -83,6 +84,7 @@
             }
 
             var requestTime = new Date();
+            console.log("startDate: %s", $scope.startDate.toISOString());
             $http({
                   method: 'POST',
                   url: '/api/v1/distributed_tracing/traces/timelines/clusters',
@@ -95,7 +97,8 @@
                 // this callback will be called asynchronously
                 // when the response is available
                 $scope.queryStatus = "";
-                $scope.dataOrigin = response.data.zipkin_url;
+                $scope.dataOrigin = response.data.trace_server_url;
+                $scope.traceBackend = response.data.trace_backend;
                 // We sort the data so that if we query again the flow # in the UI is stable
                 response.data.clusters.sort(function (a, b) { 
                     return a.root_request < b.root_request ? -1 :
@@ -105,8 +108,6 @@
 
                 // TODO remove
                 $scope.queryStatus = "Request took " + (new Date() - requestTime) + "ms";
-
-                $scope.dataOrigin = response.data.zipkin_url;
 
                 annotateFlows(response.data.clusters);
 
@@ -260,7 +261,8 @@
 
               showTrace($scope.clusters[$scope.nflow], $scope.magnification,
                   {
-                      zipkinUrl: $scope.$parent.dataOrigin,
+                      serverUrl: $scope.$parent.dataOrigin,
+                      traceBackend: $scope.$parent.traceBackend,
                       debugUI: $scope.debugUI,
                   });
         }
