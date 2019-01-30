@@ -46,6 +46,7 @@
         $scope.location = $location;
         $scope.queryStatus = "";
         $scope.dataOrigin = "";
+        $scope.traceBackend = "";
         $scope.clusters_diffs = [];    // Array of {root_request:, baseline_trace_ids:, canary_trace_ids:, cluster_stats_diff: }
         $scope.startTime = "";
         $scope.endTime = "";
@@ -70,6 +71,7 @@
 
             $scope.startTime = parseTime($location.search()['start']);
             $scope.endTime = parseTime($location.search()['end']);
+
             if ('tags' in $location.search()) {
                 $scope.tags = $location.search()['tags'];
             }
@@ -82,6 +84,7 @@
             if ('canaryEnd' in $location.search()) {
                 $scope.canaryEndTime = parseTime($location.search()['canaryEnd']);
             }
+
             if ('canaryTags' in $location.search()) {
                 $scope.canaryTags = $location.search()['canaryTags'];
             }
@@ -187,7 +190,8 @@
                 // this callback will be called asynchronously
                 // when the response is available
                 $scope.queryStatus = "";
-                $scope.dataOrigin = response.data.zipkin_url;
+                $scope.dataOrigin = response.data.trace_server_url;
+                $scope.traceBackend = response.data.trace_backend;
                 // We sort the data so that if we query again the flow # in the UI is stable
                 if (response.data.clusters_diffs) {
                     response.data.clusters_diffs.sort(function (a, b) {
@@ -199,8 +203,6 @@
 
                 // TODO remove
                 $scope.queryStatus = "Request took " + (new Date() - requestTime) + "ms";
-
-                $scope.dataOrigin = response.data.zipkin_url;
 
                 annotateFlows(response.data.clusters_diffs);
 
@@ -374,7 +376,8 @@
 
               showTrace($scope.clusters_diffs[$scope.nflow], $scope.magnification,
                   {
-                      zipkinUrl: $scope.$parent.dataOrigin,
+                      serverUrl: $scope.$parent.dataOrigin,
+                      traceBackend: $scope.$parent.traceBackend,
                       debugUI: $scope.debugUI,
                       angularHttp: $http
                   });

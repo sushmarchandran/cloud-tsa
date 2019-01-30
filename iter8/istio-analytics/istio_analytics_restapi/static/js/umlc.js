@@ -116,7 +116,8 @@ function showTrace(traceSummary, magnification, context) {
     var sequenceData = {
             processes: processes,
             events: allEvents,
-            zipkinUrl: context.zipkinUrl,
+            serverUrl: context.serverUrl,
+            traceBackend: context.traceBackend,
             debugUI: context.debugUI,
             angularHttp: context.angularHttp,
     };
@@ -989,12 +990,19 @@ function addDurations(data) {
         for (var ver of ["baseline_stats", "canary_stats"]) {
             for (var i in activation[ver].durations_and_codes) {
                 var durAndCode = activation[ver].durations_and_codes[i];
+                var serverUri = "";
+                if (data.traceBackend == "zipkin") {
+                    serverUri = "/zipkin/traces/";
+                } else if(data.traceBackend == "jaeger") {
+                    serverUri = "/trace/";
+                }
+                console.log("circle url:" );
                 durations.push({
                     lifelineX: activation.lifelineX,
                     y: toScaledBox(activation, durAndCode.duration),
                     responseCode: durAndCode.response_code,
                     traceId: activation[ver].trace_ids[i],
-                    url: data.zipkinUrl + "/zipkin/traces/" + activation[ver].trace_ids[i],
+                    url: data.serverUrl + serverUri + activation[ver].trace_ids[i],
                     sequenceNumber: activation[ver].global_event_sequence_number,
                     ver: ver
                 });
