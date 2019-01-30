@@ -2,19 +2,7 @@
 
 Use CloudTSA with your Istio application
 
-# Table of Contents
-1. [CloudTSA: Design and Architecture](#arch)
-2. [Starting the CloudTSA service](#startup)
-3. [Configuring Prometheus](#prometheus)
-4. [Configuring Grafana](#grafana)
-5. [Configuring CloudTSA](#cloudtsa)
-    - [Schema for the overall configuration](#overall)
-    - [Basic configuration](#basic)
-    - [Topology](#topology)
-    - [Defining metrics](#metrics)
-    - [Configuring detectors](#detectors)
-
-## Cloud TSA Component Architecture
+## CloudTSA: Design Overview
 
 <p align="center">
   <img src="https://raw.github.ibm.com/istio-research/iter8-docs/master/cloudtsa/img/crossproduct.png?token=AAAw2KaXBeOQmNS4hPcnyD3-fI_sYGK-ks5cWhW1wA%3D%3D">
@@ -24,9 +12,17 @@ Use CloudTSA with your Istio application
   <img src="https://raw.github.ibm.com/istio-research/iter8-docs/master/cloudtsa/img/cloudtsaarch.png?token=AAAw2FR3IBSdLCWdO5u8EMCyjw7slkJAks5cWhYEwA%3D%3D">
 </p>
 
+Connecting to your application intolves the following steps.
+1. [Starting the CloudTSA service](#startup)
+2. [Configuring Prometheus](#prometheus)
+3. [Configuring Grafana](#grafana)
+4. [Configuring CloudTSA](#cloudtsa)
+    - [Schema for the overall configuration](#overall)
+    - [Basic configuration](#basic)
+    - [Topology](#topology)
+    - [Defining metrics](#metrics)
+    - [Configuring detectors](#detectors)
 
-
-Using Cloud TSA with your application involves four steps:
 
 1. Connecting your `Cloud TSA` and `Prometheus` services with each other
 2. Telling the `Cloud TSA` service about the metrics in Prometheus which you want to analyze
