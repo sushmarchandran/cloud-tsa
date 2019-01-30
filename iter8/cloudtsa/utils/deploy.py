@@ -3,6 +3,9 @@ import requests
 import subprocess
 import os
 import argparse
+import yaml
+from yaml.representer import SafeRepresenter
+
 
 parser = argparse.ArgumentParser(description='Deploy Cloud TSA')
 parser.add_argument('-c', '--config', metavar = "<path/to/config.json>", help='the config file with overrides', required=True)
