@@ -6,13 +6,13 @@ We present an overview of CloudTSA design and architecture in the following sect
 A CloudTSA alert involves a specific combination of a service, a metric associated with this service, and a CloudTSA detector used in conjuction with this metric in order to trigger the alert. Hence, distinct combinations of services, metrics and detectors lead to distinct alerts as shown in the following figure.
 
 <p align="center">
-  <img src="https://raw.github.ibm.com/istio-research/iter8-docs/master/cloudtsa/img/crossproduct.png?token=AAAw2KaXBeOQmNS4hPcnyD3-fI_sYGK-ks5cWhW1wA%3D%3D">
+  <img src="https://raw.githubusercontent.com/istio-ecosystem/iter8-docs/master/cloudtsa/img/crossproduct.png">
 </p>
 
 The component architecture for CloudTSA service integrated with Istio infrastructure is illustrated in the following figure. The CloudTSA service executes the different detectors; the metrics analyzed by the detectors are periodically pulled by the CloudTSA service from the Prometheus service. CloudTSA alerts are written back to Prometheus service (in fact, these alerts are pulled by Prometheus periodically from a CloudTSA REST endpoint). Both the raw metrics and the CloudTSA alerts can be visualized in Grafana using appropriate Prometheus queries within the Grafana dashboards.
 
 <p align="center">
-  <img src="https://raw.github.ibm.com/istio-research/iter8-docs/master/cloudtsa/img/cloudtsaarch.png?token=AAAw2FR3IBSdLCWdO5u8EMCyjw7slkJAks5cWhYEwA%3D%3D">
+  <img src="https://raw.githubusercontent.com/istio-ecosystem/iter8-docs/master/cloudtsa/img/cloudtsaarch.png">
 </p>
 
 We can now connect the CloudTSA service to your Istio application by following the five steps
