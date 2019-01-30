@@ -33,6 +33,6 @@ all_configurations = {
 cloudtsa_port = subprocess.check_output(["kubectl get svc cloudtsa-np -o jsonpath='{.spec.ports[0].nodePort}'"], shell = True, executable = "/bin/bash")
 cloudtsa_port = cloudtsa_port.decode('UTF-8')
 cloudtsa_url = config["external_ip"] + ":" + cloudtsa_port
-post_url = cloudtsa_url + "/restart"
+post_url = cloudtsa_url + "/start"
 r = requests.post(post_url, data = json.dumps(all_configurations))
 print("Status: " + str(r.status_code))

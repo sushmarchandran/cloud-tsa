@@ -49,7 +49,6 @@ elif scenario == "abrupt_errors":
 elif scenario == "peak":
     topology = {
     "nodes": ["ingress", "svc3"],
-    "edges": [["ingress", "svc3"]],
     "apis": {
         "/": "svc3"
         }
