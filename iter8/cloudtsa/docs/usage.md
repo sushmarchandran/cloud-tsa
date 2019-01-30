@@ -15,9 +15,11 @@ The component architecture for CloudTSA service integrated with Istio infrastruc
   <img src="https://raw.github.ibm.com/istio-research/iter8-docs/master/cloudtsa/img/cloudtsaarch.png?token=AAAw2FR3IBSdLCWdO5u8EMCyjw7slkJAks5cWhYEwA%3D%3D">
 </p>
 
-Connecting to your application intolves the following steps.
+We can now connect the CloudTSA service to your Istio application by following the five steps
+described below.
+
 1. [Basic configuration](#basicconfig)
-2. [Deploy the CloudTSA service and update Prometheus](#startup) (includes nodeport creation for cloudtsa; we have to persist this somewhere...)
-3. [Update topology, detector and metric configurations](#advancedconfig)
-4. [Start CloudTSA](#start)
-5. [Set up Grafana](#grafana)
+2. [Deploying the CloudTSA service](#startup) (includes nodeport creation for cloudtsa; we have to persist this somewhere...)
+3. [Service, metric and detector configurations](#advancedconfig)
+4. [Starting CloudTSA](#start)
+5. [Setting up Grafana](#grafana)
