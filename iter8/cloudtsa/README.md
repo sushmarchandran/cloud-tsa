@@ -42,10 +42,10 @@ Service `svc0` experiences a gradual increase in mean latency from ~ 0.1 sec to 
 5. Run the CloudTSA service within a [Docker container](https://www.docker.com)
 
 ## Get Started
-[Run](./docs/getstarted.md) the various Cloud TSA demos in your Kubernetes environment.
+[Run](./docs/getstarted.md) the various CloudTSA demos in your Kubernetes environment.
 
 ## Usage
-[Use](./docs/yourapp.md) Cloud TSA with your own cloud application.
+[Use](./docs/usage.md) CloudTSA with your Istio application.
 
 ## Related
 1. [Exponential Smoothing](https://en.wikipedia.org/wiki/Exponential_smoothing)
