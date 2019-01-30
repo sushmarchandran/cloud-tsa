@@ -19,7 +19,18 @@ We can now connect the CloudTSA service to your Istio application by following t
 described below.
 
 1. [Basic configuration](#basicconfig)
-2. [Deploying the CloudTSA service](#startup) (includes nodeport creation for cloudtsa; we have to persist this somewhere...)
+2. [Deploying the CloudTSA service](#deploy) (includes nodeport creation for cloudtsa; we have to persist this somewhere...)
 3. [Service, metric and detector configurations](#advancedconfig)
 4. [Starting CloudTSA](#start)
 5. [Setting up Grafana](#grafana)
+
+<a name="deploy"></a>
+## Deploying the CloudTSA service
+
+To deploy the cloud TSA service, run the following command.
+```
+cd iter8/iter8/cloudtsa/utils
+python3 deploy.py -c <your config.json file>
+```
+This command exposes the CloudTSA service via a [nodeport](https://kubernetes.io/docs/concepts/services-networking/service/), updates the Prometheus scrape configuration by adding CloudTSA as an end-point
+which will be periodically scraped by Prometheus, and restarts prometheus so that these configuration changes take effect.
