@@ -14,6 +14,7 @@ services:
     environment:
       - ISTIO_ANALYTICS_TRACE_BACKEND=jaeger
       - ISTIO_ANALYTICS_TRACE_SERVER_URL=http://jaeger:16686
+      - ISTIO_ANALYTICS_TRACE_SERVER_OVERRIDE=http://localhost:16686
       - ISTIO_ANALYTICS_SERVER_PORT=5555
       - ISTIO_ANALYTICS_DEBUG="false"
     expose:
