@@ -84,7 +84,6 @@
             }
 
             var requestTime = new Date();
-            console.log("startDate: %s", $scope.startDate.toISOString());
             $http({
                   method: 'POST',
                   url: '/api/v1/distributed_tracing/traces/timelines/clusters',
