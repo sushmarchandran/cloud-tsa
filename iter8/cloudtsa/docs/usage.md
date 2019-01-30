@@ -19,7 +19,7 @@ We can now connect the CloudTSA service to your Istio application by following t
 described below.
 
 1. [Basic configuration](#basicconfig)
-2. [Deploying the CloudTSA service](#deploy) (includes nodeport creation for cloudtsa; we have to persist this somewhere...)
+2. [Deploying the CloudTSA service](#deploy)
 3. [Service, metric and detector configurations](#advancedconfig)
 4. [Starting CloudTSA](#start)
 5. [Setting up Grafana](#grafana)
