@@ -3,7 +3,7 @@
 We present an overview of CloudTSA design and architecture in the following section. This will facilitate a better understanding of the steps needed to use CloudTSA with your own Istio application.
 
 ## CloudTSA: Design Overview
-A CloudTSA alert involves a specific combination of an Istio service, a metric associated with this service, and a CloudTSA detector used in conjuction with this metric in order to trigger the alert. Hence, distinct combinations of services, metrics and detectors lead to distinct alerts as shown in the following figure.
+A CloudTSA alert involves a specific combination of a service, a metric associated with this service, and a CloudTSA detector used in conjuction with this metric in order to trigger the alert. Hence, distinct combinations of services, metrics and detectors lead to distinct alerts as shown in the following figure.
 
 <p align="center">
   <img src="https://raw.github.ibm.com/istio-research/iter8-docs/master/cloudtsa/img/crossproduct.png?token=AAAw2KaXBeOQmNS4hPcnyD3-fI_sYGK-ks5cWhW1wA%3D%3D">
@@ -27,10 +27,9 @@ described below.
 <a name="deploy"></a>
 ## Deploying the CloudTSA service
 
-To deploy the cloud TSA service, run the following command.
+To deploy the Cloud TSA service, run the following command.
 ```
 cd iter8/iter8/cloudtsa/utils
-python3 deploy.py -c <your config.json file>
+python3 deploy.py -c <path/to/your/config.json>
 ```
-This command exposes the CloudTSA service via a [nodeport](https://kubernetes.io/docs/concepts/services-networking/service/), updates the Prometheus scrape configuration by adding CloudTSA as an end-point
-which will be periodically scraped by Prometheus, and restarts prometheus so that these configuration changes take effect.
+This command deploys the CloudTSA service, exposes it via a [nodeport](https://kubernetes.io/docs/concepts/services-networking/service/), updates the Prometheus scrape configuration by adding CloudTSA as an end-point which will be periodically scraped by Prometheus, and restarts prometheus so that these configuration changes take effect.
