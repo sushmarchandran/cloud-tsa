@@ -1,6 +1,18 @@
-# Using Cloud TSA with your application
+# Usage
 
-The configuration for Cloud TSA includes the `Prometheus end-point`, your `application metrics` which will be pulled from the Prometheus end-point, and the `time series detectors` which will analyze them.
+Use CloudTSA with your Istio application
+
+# Table of Contents
+1. [CloudTSA: Design and Architecture](#arch)
+2. [Starting the CloudTSA service](#startup)
+3. [Configuring Prometheus](#prometheus)
+4. [Configuring Grafana](#grafana)
+5. [Configuring CloudTSA](#cloudtsa)
+    - [Schema for the overall configuration](#overall)
+    - [Basic configuration](#basic)
+    - [Topology](#topology)
+    - [Defining metrics](#metrics)
+    - [Configuring detectors](#detectors)
 
 ## Cloud TSA Component Architecture
 
