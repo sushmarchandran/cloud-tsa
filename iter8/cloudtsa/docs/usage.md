@@ -54,4 +54,4 @@ python3 startandfire.py -d <path/to/your/detectors.json> -m <path/to/your/metric
 
 <a name="grafana"></a>
 ## Setting up Grafana
-CloudTSA metrics can be visualized like any other Prometheus Metric. For sample Grafana templates please refer to the [Dashboard](https://github.ibm.com/istio-research/iter8-final/blob/master/iter8/cloudtsa/docs/getstarted.md) used in the demo.
+CloudTSA metrics can be visualized like any other Prometheus Metric. For sample Grafana panel templates refer to [this](https://raw.githubusercontent.com/istio-ecosystem/iter8-docs/master/cloudtsa/gif/gradual_latency.gif) panel used in the demo.
