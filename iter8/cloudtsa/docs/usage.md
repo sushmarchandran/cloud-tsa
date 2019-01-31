@@ -91,6 +91,59 @@ Make a copy of `iter8/iter8/cloudtsa/config/metrics.json` which we will hencefor
 ```
 
 ### Detector specifications
+Make a copy of `iter8/iter8/cloudtsa/config/detectors.json` which we will henceforth refer to as your
+`detectors.json` file. Below is an example. In this example, we are using all the four detectors available in CloudTSA.
+```json
+{
+  "predictivethresholds": {
+    "latency": {
+      "query_duration": 20,
+      "forecast_type": "holtwinters",
+      "forecast_parameters": {
+        "cycle_length": 1,
+        "initialization_length": 3,
+        "forecast_length": 10,
+        "alpha": 0.85,
+        "beta": 0.85,
+        "gamma": 0.0,
+        "phi": 0.93
+      },
+      "threshold_parameters": {
+        "min_value": -99999,
+        "max_value": 4.0
+      }
+    }
+  },
+  "changedetection": {
+    "latency": {
+      "query_duration": 40,
+      "threshold": 1,
+      "drift": 1
+    },
+    "error_counts": {
+      "query_duration": 60,
+      "threshold": 8,
+      "drift": 2
+    }
+  },
+  "thresholdpolicy": {
+    "latency": {
+      "query_duration": 60,
+      "min_value": -99999,
+      "max_value": 7
+    }
+  },
+  "peakdetection": {
+    "load": {
+      "query_duration": 30,
+      "min_peak_height": 100,
+      "min_peak_distance": 3,
+      "threshold": 100,
+      "edge": "rising"
+    }
+  }
+}
+```
 
 <a name="start"></a>
 ## Starting CloudTSA
