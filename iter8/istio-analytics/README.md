@@ -23,8 +23,7 @@ The next screenshots show how _Istio Analytics_ performs a statistical compariso
 
 Overview            |  Zoom
 :-------------------------:|:-------------------------:
-![Result Part I]
-(https://raw.githubusercontent.com/istio-ecosystem/iter8-docs/master/istio-analytics/img/canary-analysis-result-part1.png) | ![Result Part II](https://raw.githubusercontent.com/istio-ecosystem/iter8-docs/master/istio-analytics/img/canary-analysis-result-part2.png)
+![Result Part I](https://raw.githubusercontent.com/istio-ecosystem/iter8-docs/master/istio-analytics/img/canary-analysis-result-part1.png) | ![Result Part II](https://raw.githubusercontent.com/istio-ecosystem/iter8-docs/master/istio-analytics/img/canary-analysis-result-part2.png)
 
 A quick inspection of the results reveals that the canary version of reviews is much slower in processing results returned by _ratings_.
 
