@@ -111,7 +111,7 @@ an alert is triggered.
 3. **thresholdpolicy**: An alert is triggered if the metric value lies outside the interval
 *[min_value, max_value]*.
 
-4. **peakdetection**:
+4. **peakdetection**: An alert is triggered for every peak detected in the data. A peak in the metric value is a local maxima based on the property that its value must be greater than its immediate neighbors. Note that these alerts are not generated *as soon as* the metric value reaches its peak value but is generated *after* the metric value reaches a peak and drops back below a threshold thereby *creating* a peak in the data. The *min_peak_height*, *min_peak_distance*, *threshold* and *edge* parameters below correspond to *mph*, *mpd*, *threshold* and *edge* in the function `detect_peaks.py` on [this](https://nbviewer.jupyter.org/github/demotu/BMC/blob/master/notebooks/DetectPeaks.ipynb) Jupiter Notebook.
 
 ```json
 {
