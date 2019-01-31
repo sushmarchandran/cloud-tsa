@@ -9,9 +9,9 @@ At the heart of _Istio Analytics_ is a REST API implementing different operation
 
 ## Fine-grain, holistic canary analysis
 
-Inputs                     |  Result
-:-------------------------:|:-------------------------:
-![Canary Analysis Inputs](https://raw.githubusercontent.com/istio-ecosystem/iter8-docs/master/istio-analytics/img/canary-analysis-input.png) | ![Result](https://raw.githubusercontent.com/istio-ecosystem/iter8-docs/master/istio-analytics/img/canary-analysis-input.png)
+*Inputs:*
+
+![Canary Analysis Inputs](https://raw.githubusercontent.com/istio-ecosystem/iter8-docs/master/istio-analytics/img/canary-analysis-input.png)
 
 ## Getting started
 
