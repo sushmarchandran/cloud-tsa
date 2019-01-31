@@ -1,5 +1,5 @@
 {
-  "services": ["svc0", "svc1", "svc2", "svc3", "svcwithenvoy"],
+  "services": ["*"],
   "latency": {
     "query_template": "(sum(increase(istio_request_duration_seconds_sum{destination_service_name='$service_name'}[$durationsec])) by (destination_service_name)) / (sum(increase(istio_request_duration_seconds_count{destination_service_name='$service_name'}[$durationsec])) by (destination_service_name))",
     "post_process": {
