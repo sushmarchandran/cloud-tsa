@@ -51,6 +51,14 @@ python3 deploy.py -c <path/to/your/config.json>
 ## Service, metric and detector specifications
 
 ### Service specifications
+Make a copy of `iter8/iter8/cloudtsa/config/topology.json` which we will henceforth refer to as your
+`topology.json` file. Edit its contents to include the names of the services you wish to monitor. Here is an example.
+```json
+{
+  "nodes": ["svc0", "svc1", "svc2", "svc3", "svcwithenvoy"]
+}
+```
+In this example, we are monitoring five services. There could be additional services in the Istio application, but they are ignored by CloudTSA.
 
 ### Metric specifications
 
