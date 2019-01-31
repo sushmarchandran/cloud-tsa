@@ -1,6 +1,6 @@
 # Usage
 
-We present an overview of CloudTSA design and architecture in the following section. This will facilitate a better understanding of the steps needed to use CloudTSA with your own Istio application.
+The following design overview of CloudTSA will facilitate a better understanding of the steps needed to use CloudTSA with your own Istio application.
 
 ## CloudTSA: Design Overview
 A CloudTSA alert involves a specific combination of an Istio service, a metric associated with this service, and a CloudTSA detector used in conjuction with this metric in order to trigger the alert. Hence, distinct combinations of services, metrics and detectors lead to distinct alerts as shown in the following figure.
