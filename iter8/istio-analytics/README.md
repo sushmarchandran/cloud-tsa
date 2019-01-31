@@ -68,7 +68,9 @@ docker-compose -f scripts/docker-compose.zipkin.yaml up -d --build
 
 ```bash
 curl https://raw.githubusercontent.com/istio-ecosystem/iter8-docs/master/istio-analytics/traces/zipkin/bookinfo/baseline_canary_demo/zipkin_traces_500_v2_v3spans.json -o ./demo_traces.json
+
 curl -i -X POST http://localhost:9411/api/v1/spans -d @./demo_traces.json --header "Content-Type:application/json"
+
 rm ./demo_traces.json
 ```
 
