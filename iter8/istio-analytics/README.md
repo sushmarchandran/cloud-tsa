@@ -80,6 +80,12 @@ rm ./demo_traces.json
 http://localhost:5555/canary/sequence/flow/0/trace/0?start=2019-01-31T00:55:01.0Z&end=2019-01-31T01:26:24.0Z&tags=node_id:reviews-v2&max=4300&canaryStart=2019-01-31T00:55:01.0Z&canaryEnd=2019-01-31T01:26:24.0Z&canaryTags=node_id:reviews-v3&canaryMax=4300&durationMinCount=100&errorcountMinCount=100&deltaMeanThreshold=0.3&deltaStddevThreshold=0.55&deltaRatioThreshold=0.1
 ```
 
+*5).* To clean up after you are done, run the following command:
+
+```bash
+docker-compose -f scripts/docker-compose.zipkin.yaml down
+```
+
 ## Development
 
 Below is some important information for developers.
