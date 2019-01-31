@@ -33,7 +33,7 @@ Statistics are also summarized for communication times. One can see two sets of 
 
 ## Getting started
 
-The instructions below enable you to quickly run _Istio Analytics_ locally. They assume you have Docker running on your computer and that you have [docker-compose](https://docs.docker.com/compose/install/) installed.
+The instructions below enable you to quickly run _Istio Analytics_ locally and to see it in action for the fine-grain, holistic canary analysis illustrated above. The instructions assume you have Docker running on your computer and that you have [docker-compose](https://docs.docker.com/compose/install/) installed.
 
 To follow the instructions, make sure you are on the `iter8/istio-analytics` directory.
 
@@ -62,16 +62,20 @@ docker-compose -f scripts/docker-compose.jaeger.yaml up -d --build
 docker-compose -f scripts/docker-compose.zipkin.yaml up -d --build
 ```
 
-*2).* Populate Zipkin with demo traces we have already collected:
+*2).* Make sure Zipkin is ready by pointing your browser to its UI at `http://localhost:9411`.
+
+*3).* Populate Zipkin with demo traces we have already collected:
 
 ```bash
+curl https://raw.githubusercontent.com/istio-ecosystem/iter8-docs/master/istio-analytics/traces/zipkin/bookinfo/baseline_canary_demo/zipkin_traces_500_v2_v3spans.json -o ./demo_traces.json
+curl -i -X POST http://localhost:9411/api/v1/spans -d @./demo_traces.json --header "Content-Type:application/json"
+rm ./demo_traces.json
 ```
 
-### Pointing _Istio Analytics_ to an existing tracing backend
+*4).* Point your browser to the _Istio Analytics_ UI at the following URL and click on the `Query` button.
 
-If you already have either Jaeger or Zipkin (version 2.7) running, you can point _Istio Analytics_ to it as follows:
-
-```bash
+```url
+http://localhost:5555/canary/sequence/flow/0/trace/0?start=2019-01-31T00:55:01.0Z&end=2019-01-31T01:26:24.0Z&tags=node_id:reviews-v2&max=4300&canaryStart=2019-01-31T00:55:01.0Z&canaryEnd=2019-01-31T01:26:24.0Z&canaryTags=node_id:reviews-v3&canaryMax=4300&durationMinCount=100&errorcountMinCount=100&deltaMeanThreshold=0.3&deltaStddevThreshold=0.55&deltaRatioThreshold=0.1
 ```
 
 ## Development
