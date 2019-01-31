@@ -25,7 +25,17 @@ The following five steps described below will help integrate the CloudTSA servic
 
 <a name="basicconfig"></a>
 ## Basic Configuration
-Copy `iter8/iter8/cloudtsa/config/config.json` file that was used for the demo. Edit its contents as follows to include external IP of your Kubernetes Cluster under `config['external_ip']` and the Absolute Path of the CloudTSA project folder till the `iter8/iter8/cloudtsa` folder under `config['project_home']`.
+Make a copy of `iter8/iter8/cloudtsa/config/config.json` which we will henceforth refer to as your
+`config.json` file. Edit its contents to include the external IP of your Kubernetes cluster
+and the absolute path of the CloudTSA project folder. Here is an example.
+```json
+{
+  "prometheus_url": "http://prometheus.istio-system.svc.cluster.local:9090",
+  "external_ip": "http://169.47.97.150",
+  "project_home": "/home/istio/iter8-final/iter8/cloudtsa",
+  "test_connection_query": "istio_requests_total"
+}
+```
 
 
 <a name="deploy"></a>
