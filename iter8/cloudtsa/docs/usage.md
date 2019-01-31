@@ -103,9 +103,13 @@ the detector triggers an alarm. The parameters *cycle_length*, *forecast_length*
 &alpha;, &beta;, &gamma;, and &phi; in [Table 7.6 of the book](https://otexts.com/fpp2/taxonomy.html#tab:pegels). The forecast and hence any alerting itself will begin only after
 *initialization_length* time steps.
 
-2. **changedetection**:
+2. **changedetection**: Our change detector uses the [CUSUM](https://en.wikipedia.org/wiki/CUSUM)
+algorithm. The drift parameter corresponds to weights &omega;<sub>n</sub> or the likelihood function
+&omega;. If the cumulative sum exceeds the threshold in the positive or negative direction then
+an alert is triggered.
 
-3. **thresholdpolicy**:
+3. **thresholdpolicy**: An alert is triggered if the metric value lies outside the interval
+*[min_value, max_value]*.
 
 4. **peakdetection**:
 
