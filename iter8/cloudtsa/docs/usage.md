@@ -19,7 +19,7 @@ The following five steps described below will help integrate the CloudTSA servic
 
 1. [Basic configuration](#basicconfig)
 2. [Deploying the CloudTSA service](#deploy)
-3. [Service, metric and detector configurations](#advancedconfig)
+3. [Service, metric and detector specifications](#advancedconfig)
 4. [Starting CloudTSA](#start)
 5. [Setting up Grafana](#grafana)
 
@@ -48,7 +48,47 @@ python3 deploy.py -c <path/to/your/config.json>
 **The above command** deploys the CloudTSA service, exposes it via a [nodeport](https://kubernetes.io/docs/concepts/services-networking/service/), updates the Prometheus scrape configuration by adding CloudTSA as an end-point which will be periodically scraped by Prometheus, and restarts prometheus so that these configuration changes take effect.
 
 <a name="advancedconfig"></a>
-## Service, metric and detector configurations
+## Service, metric and detector specifications
+
+### Service specifications
+Make a copy of `iter8/iter8/cloudtsa/config/topology.json` which we will henceforth refer to as your
+`topology.json` file. Edit its contents to include the names of the services you wish to monitor. Here is an example.
+```json
+{
+  "nodes": ["svc0", "svc1", "svc2", "svc3", "svcwithenvoy"]
+}
+```
+In this example, we are monitoring five services. There could be additional services in the Istio application, but they are ignored by CloudTSA.
+
+### Metric specifications
+```
+{
+  "services": ["*"],
+  "latency": {
+    "query_template": "(sum(increase(istio_request_duration_seconds_sum{destination_service_name='$service_name'}[$durationsec])) by (destination_service_name)) / (sum(increase(istio_request_duration_seconds_count{destination_service_name='$service_name'}[$durationsec])) by (destination_service_name))",
+    "post_process": {
+      "type": "identity",
+      "null_data_handler": "zero"
+    }
+  },
+  "error_counts": {
+    "query_template": "sum(increase(istio_requests_total{response_code=~'5..', source_app='istio-ingressgateway', reporter='source', destination_service_name='$service_name', source_app='istio-ingressgateway'}[$durationsec])) by (destination_service_name)",
+    "post_process": {
+      "type": "identity",
+      "null_data_handler": "zero"
+    }
+  },
+  "load": {
+    "query_template": "sum(increase(istio_requests_total{source_app='istio-ingressgateway', reporter='source', destination_service_name='$service_name'}[$durationsec])) by (destination_service_name)",
+    "post_process": {
+      "type": "identity",
+      "null_data_handler": "zero"
+    }
+  }
+}
+```
+
+### Detector specifications
 
 <a name="start"></a>
 ## Starting CloudTSA

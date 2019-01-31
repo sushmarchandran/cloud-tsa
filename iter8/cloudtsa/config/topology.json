@@ -1,5 +1,5 @@
 {
-  "nodes": ["ingress", "svc0", "svc1", "svc2", "svc3", "svcwithenvoy"],
+  "nodes": ["svc0", "svc1", "svc2", "svc3", "svcwithenvoy"],
   "apis": {
     "/": "svc0",
     "/": "svc1",
