@@ -95,7 +95,12 @@ Make a copy of `iter8/iter8/cloudtsa/config/detectors.json` which we will hencef
 `detectors.json` file. Below is an example. In this example, we are using all the four detectors available in CloudTSA. Each detector has a set of parameters which require specification. Note that a specific detector can be used with different metrics with distinct parameter values. For e.g., the **changedetection** detector is used with the *latency* and *error_counts* metrics with distinct parameter values. Also note that the *query_duration* parameter is part of every one of these parameter sets: for instance, the latency metric is queried every 20 sec for the sake of the *predictivethresholds* detector, while it is queried every 40 sec for the sake of *changedetection*.
 
 We now describe the configuration fields for each of these detectors below.
-1. **predictivethresholds**:
+1. **predictivethresholds**: This detector works by forecasting the value of the metric
+using the [Holt-Winters triple exponential smoothing with additive damped trend and additive seasonality](https://otexts.com/fpp2/taxonomy.html) technique for *forecast_length* time steps
+into the future. If any of these forecasts lie outside the interval *[min_value, max_value]*, then
+the detector triggers an alarm. The parameters *cycle_length*, *forecast_length*,
+*alpha*, *beta*, *gamma*, and *phi* correspond to parameters *m*, *h*,
+<font face="Symbol">&alpha</font>, <font face="Symbol">&beta</font>, <font face="Symbol">&gamma</font>, and <font face="Symbol">&phi</font> in [Table 7.6 of the book](https://otexts.com/fpp2/taxonomy.html#tab:pegels).
 
 2. **changedetection**:
 
