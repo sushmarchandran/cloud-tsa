@@ -61,6 +61,43 @@ Make a copy of `iter8/iter8/cloudtsa/config/topology.json` which we will hencefo
 In this example, we are monitoring five services. There could be additional services in the Istio application, but they are ignored by CloudTSA.
 
 ### Metric specifications
+```
+{
+  "services": ["*"],
+  "latency": {
+    "query_template": "(sum(increase(istio_request_duration_seconds_sum{destination_service_name='$service_name'}[$durationsec])) by (destination_service_name)) / (sum(increase(istio_request_duration_seconds_count{destination_service_name='$service_name'}[$durationsec])) by (destination_service_name))",
+    "post_process": {
+      "type": "identity",
+      "null_data_handler": "zero"
+    }
+  },
+  "error_counts": {
+    "query_template": "sum(increase(istio_requests_total{response_code=~'5..', source_app='istio-ingressgateway', reporter='source', destination_service_name='$service_name', source_app='istio-ingressgateway'}[$durationsec])) by (destination_service_name)",
+    "post_process": {
+      "type": "identity",
+      "null_data_handler": "zero"
+    }
+  },
+  "error_rates": {
+    "query_template": "sum(increase(istio_requests_total{source_app='istio-ingressgateway', reporter='source', destination_service_name='$service_name'}[$durationsec])) by (destination_service_name, response_code)",
+    "post_process": {
+      "type": "rate",
+      "null_data_handler": "null",
+      "aggregate": {
+        "label": "response_code",
+        "regex": "5.."
+      }
+    }
+  },
+  "load": {
+    "query_template": "sum(increase(istio_requests_total{source_app='istio-ingressgateway', reporter='source', destination_service_name='$service_name'}[$durationsec])) by (destination_service_name)",
+    "post_process": {
+      "type": "identity",
+      "null_data_handler": "zero"
+    }
+  }
+}
+```
 
 ### Detector specifications
 
