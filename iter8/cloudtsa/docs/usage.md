@@ -100,7 +100,7 @@ using the [Holt-Winters triple exponential smoothing with additive damped trend 
 into the future. If any of these forecasts lie outside the interval *[min_value, max_value]*, then
 the detector triggers an alarm. The parameters *cycle_length*, *forecast_length*,
 *alpha*, *beta*, *gamma*, and *phi* correspond to parameters *m*, *h*,
-<sub>&alpha;</sub>, <font face="Symbol">&beta</font>, <font face="Symbol">&gamma</font>, and <font face="Symbol">&phi</font> in [Table 7.6 of the book](https://otexts.com/fpp2/taxonomy.html#tab:pegels).
+&alpha;, &beta;, &gamma;, and &phi; in [Table 7.6 of the book](https://otexts.com/fpp2/taxonomy.html#tab:pegels).
 
 2. **changedetection**:
 
