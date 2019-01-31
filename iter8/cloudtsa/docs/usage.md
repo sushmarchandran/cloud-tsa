@@ -59,7 +59,6 @@ python3 startandfire.py -d <path/to/your/detectors.json> -m <path/to/your/metric
 ```
 **The above command** POSTs all the configuration files to a CloudTSA REST Endpoint. This means that the CloudTSA service now starts observing the user application and reports to Prometheus in accordance with the configuration files.
 
-
 <a name="grafana"></a>
 ## Setting up Grafana
-CloudTSA metrics can be visualized like any other Prometheus Metric. For sample Grafana panel templates refer to [this](https://raw.githubusercontent.com/istio-ecosystem/iter8-docs/master/cloudtsa/gif/gradual_latency.gif) panel used in the demo.
+CloudTSA alerts can be visualized like other Prometheus metrics on Grafana. Refer to [this](https://raw.githubusercontent.com/istio-ecosystem/iter8-docs/master/cloudtsa/gif/gradual_latency.gif) panel used in the CloudTSA demo as an example.
