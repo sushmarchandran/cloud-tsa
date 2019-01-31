@@ -9,7 +9,7 @@ At the heart of _Istio Analytics_ is a REST API implementing different operation
 
 ## Fine-grain, holistic canary analysis
 
-When a new version of a microservice (the _canary_) is rolled out, a _canary analysis_ is performed to verify how the new version compares to the previous one with respect to performance and errors. A _fine-grain analysis_ further identifies which parts of the new code might be slower. The _holistic_ aspect enables one to analyze how the canary might affect the entire application, considering all its constituting microservices. Distributed-tracing data collected by Istio enables all of the above.
+When a new version of a microservice (the _canary_) is rolled out, a _canary analysis_ is performed to verify how the new version compares to the previous one with respect to performance and errors. A _fine-grain analysis_ further identifies which parts of the new code might be slower. The _holistic_ aspect enables one to understand how the canary affects the entire application, considering all its constituting microservices. Distributed-tracing data collected by Istio enables all of the above.
 
 The following screenshots show the fine-grain, holistic canary analysis for a modified version of Istio's _bookinfo_ sample application. In this scenario, the _reviews_ microservice is undergoing a canary rollout where version 2 is the baseline and version 3 is the canary (see the inputs below).
 
