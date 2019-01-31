@@ -78,17 +78,6 @@ In this example, we are monitoring five services. There could be additional serv
       "null_data_handler": "zero"
     }
   },
-  "error_rates": {
-    "query_template": "sum(increase(istio_requests_total{source_app='istio-ingressgateway', reporter='source', destination_service_name='$service_name'}[$durationsec])) by (destination_service_name, response_code)",
-    "post_process": {
-      "type": "rate",
-      "null_data_handler": "null",
-      "aggregate": {
-        "label": "response_code",
-        "regex": "5.."
-      }
-    }
-  },
   "load": {
     "query_template": "sum(increase(istio_requests_total{source_app='istio-ingressgateway', reporter='source', destination_service_name='$service_name'}[$durationsec])) by (destination_service_name)",
     "post_process": {
