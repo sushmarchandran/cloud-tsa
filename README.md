@@ -12,7 +12,7 @@ Detailed information can be found [here](iter8/istio-analytics/README.md).
 
 ### 2. CloudTSA
 
-Service for time-series analytics. Its current capabilities are trend prediction and detection of phase changes, peaks, and threshold violations.
+Service for time-series analytics. Its current capabilities are **trend prediction** and detection of **phase changes**, **peaks**, and **threshold violations**.
 
 Detailed information can be found [here](iter8/cloudtsa/README.md).
 
