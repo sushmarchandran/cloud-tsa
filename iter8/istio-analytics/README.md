@@ -1,6 +1,6 @@
 # Istio Analytics
 
-The vision behind _Istio_Analytics_ is to gain insights from Istio telemetry. Currently, it can
+The vision behind _Istio Analytics_ is to gain insights from Istio telemetry. Currently, it can
 analyze distributed-tracing data collected by Istio, supporting both [Jaeger](https://www.jaegertracing.io/) and [Zipkin](https://zipkin.io/) (version 2.7, v1 API).
 
 To showcase some of the service capabilities, we provide a **rudimentary UI**. **Note that this project is NOT about the UI**; rather, it is about the analytics capabilities provided by the service, which are still evolving.
