@@ -92,7 +92,17 @@ Make a copy of `iter8/iter8/cloudtsa/config/metrics.json` which we will hencefor
 
 ### Detector specifications
 Make a copy of `iter8/iter8/cloudtsa/config/detectors.json` which we will henceforth refer to as your
-`detectors.json` file. Below is an example. In this example, we are using all the four detectors available in CloudTSA.
+`detectors.json` file. Below is an example. In this example, we are using all the four detectors available in CloudTSA. Each detector has a set of parameters which require specification. Note that a specific detector can be used with different metrics with distinct parameter values. For e.g., the **changedetection** detector is used with the *latency* and *error_counts* metrics with distinct parameter values. Also note that the *query_duration* parameter is part of every one of these parameter sets: for instance, the latency metric is queried every 20 sec for the sake of the *predictivethresholds* detector, while it is queried every 40 sec for the sake of *changedetection*.
+
+We now describe the configuration fields for each of these detectors below.
+1. **predictivethresholds**:
+
+2. **changedetection**:
+
+3. **thresholdpolicy**:
+
+4. **peakdetection**:
+
 ```json
 {
   "predictivethresholds": {
