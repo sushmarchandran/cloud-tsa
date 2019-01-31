@@ -40,7 +40,7 @@ and the absolute path of the CloudTSA project folder. Here is an example.
 <a name="deploy"></a>
 ## Deploying the CloudTSA service
 
-To deploy the Cloud TSA service, run the following command.
+To deploy the Cloud TSA service, run the following commands.
 ```
 cd iter8/iter8/cloudtsa/utils
 python3 deploy.py -c <path/to/your/config.json>
@@ -52,12 +52,12 @@ python3 deploy.py -c <path/to/your/config.json>
 
 <a name="start"></a>
 ## Starting CloudTSA
-Once all the files have been set to user defined configurations, we are ready to start the CloudTSA service with these new configuration files. To do so navigate to the correct folder and run:
+To start the CloudTSA service, run the following commands.
 ```
 cd iter8/iter8/cloudtsa/utils
 python3 startandfire.py -d <path/to/your/detectors.json> -m <path/to/your/metrics.json> -t <path/to/your/topology.json> -c <path/to/your/config.json>
 ```
-**The above command** POSTS all the configuration files to the CloudTSA REST Endpoint. This means that the CloudTSA service now starts observing the user application and reports to Prometheus in accordance to the posted configuration files.
+**The above command** POSTs all the configuration files to a CloudTSA REST Endpoint. This means that the CloudTSA service now starts observing the user application and reports to Prometheus in accordance with the configuration files.
 
 
 <a name="grafana"></a>
