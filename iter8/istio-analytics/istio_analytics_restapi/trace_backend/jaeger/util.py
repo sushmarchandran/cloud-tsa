@@ -287,7 +287,7 @@ def process_cs_timestamp(span_dict, prev_event, ts_item, trace_timelines, servic
     event_list.append(event)
     service_dict[service] = event_list
             
-    # Process a possible PROCESS_RESPONSE event
+    # Process a PROCESS_REQEUST or PROCESS_RESPONSE event
     if prev_event and prev_event.get(constants.DURATION_STR, None) == None:
         log.debug(u'prev event: {0}'.format(prev_event))
         prev_event[constants.DURATION_STR] = \
@@ -314,9 +314,7 @@ def process_sr_timestamp(span_dict, prev_event, ts_item, trace_timelines, servic
     event[constants.EVENT_TYPE_STR] = constants.EVENT_PROCESS_REQUEST
     event[constants.INTERLOCUTOR_STR] = span[constants.SOURCE_NAME_STR]
     event[constants.TIMESTAMP_STR] = span[constants.SERVER_RECEIVE_TIMESTAMP_STR]
-    event[constants.DURATION_STR] = int(span[constants.SERVER_SEND_TIMESTAMP_STR]) - \
-                                    int(span[constants.SERVER_RECEIVE_TIMESTAMP_STR])
-                        
+
     service = span[constants.TARGET_NAME_STR]
     # Add event to service_dict
     event_list = service_dict.get(service, [])
@@ -344,10 +342,6 @@ def process_ss_timestamp(span_dict, prev_event, ts_item, trace_timelines, servic
     # Generate a SEND_RESPONSE event
     event = init_event(span)
 
-    # Process timeout case
-    #if event[constants.RESPONSE_CODE_STR] == 0:
-    #    return None
-
     event[constants.EVENT_TYPE_STR] = constants.EVENT_SEND_RESPONSE
     event[constants.INTERLOCUTOR_STR] = span[constants.SOURCE_NAME_STR]
     event[constants.TIMESTAMP_STR] = span[constants.SERVER_SEND_TIMESTAMP_STR]
@@ -360,7 +354,7 @@ def process_ss_timestamp(span_dict, prev_event, ts_item, trace_timelines, servic
     event_list.append(event)
     service_dict[service] = event_list
             
-    # Process a possible PROCESS_RESPONSE event
+    # Process a PROCESS_REQUEST or PROCESS_RESPONSE event
     if prev_event and prev_event.get(constants.DURATION_STR, None) == None:
         prev_event[constants.DURATION_STR] = \
             int(event[constants.TIMESTAMP_STR]) - int(prev_event[constants.TIMESTAMP_STR])
