@@ -23,13 +23,14 @@ The next screenshots show how _Istio Analytics_ performs a statistical compariso
 
 Overview            |  Zoom
 :-------------------------:|:-------------------------:
-![Result Part I](canary-analysis-result-part1.png) | ![Result Part II](canary-analysis-result-part2.png)
+![Result Part I]
+(https://raw.githubusercontent.com/istio-ecosystem/iter8-docs/master/istio-analytics/img/canary-analysis-result-part1.png) | ![Result Part II](https://raw.githubusercontent.com/istio-ecosystem/iter8-docs/master/istio-analytics/img/canary-analysis-result-part2.png)
 
 A quick inspection of the results reveals that the canary version of reviews is much slower in processing results returned by _ratings_.
 
 Statistics are also summarized for communication times. One can see two sets of these for baseline traces and canary traces by hovering over each arrow corresponding to an inter-service call, as shown below for calls from _productpage_ to _details_.
 
-![Result Part III](canary-analysis-result-part3.png)
+![Result Part III](https://raw.githubusercontent.com/istio-ecosystem/iter8-docs/master/istio-analytics/img/canary-analysis-result-part3.png)
 
 ## Getting started
 
