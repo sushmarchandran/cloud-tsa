@@ -52,7 +52,7 @@ python3 deploy.py -c <path/to/your/config.json>
 
 ### Service specifications
 Make a copy of `iter8/iter8/cloudtsa/config/topology.json` which we will henceforth refer to as your
-`topology.json` file. Edit its contents to include the names of the services you wish to monitor. Here is an example.
+`topology.json` file. Edit its contents to include the names of the services you wish to monitor. Below is an example.
 ```json
 {
   "nodes": ["svc0", "svc1", "svc2", "svc3", "svcwithenvoy"]
@@ -61,7 +61,9 @@ Make a copy of `iter8/iter8/cloudtsa/config/topology.json` which we will hencefo
 In this example, we are monitoring five services. There could be additional services in the Istio application, but they are ignored by CloudTSA.
 
 ### Metric specifications
-```
+Make a copy of `iter8/iter8/cloudtsa/config/metrics.json` which we will henceforth refer to as your
+`metrics.json` file. Below is an example. In this example, we have defined three metrics namely, `latency`, `error_counts`, and `load`. The `services` field and the `post_process` subfield are both reserved for future use and may be left as they are with their default values. Focus on the `query_template` subfield. This intended to be a template of a Prometheus aggregation query pertaining to a specific service. The time period of aggregation, `$durationsec` and the service for which this query is targeted `service_name` are both variables whose values will be substituted by CloudTSA. Notice that results are grouped by `destination_service_name` even though each query is targeted only for a specific service. This group by clause is importance since it guarantees that results returned by Prometheus are in a format which is parseable by CloudTSA.
+```json
 {
   "services": ["*"],
   "latency": {
