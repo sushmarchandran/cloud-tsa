@@ -76,8 +76,7 @@ If you already have either Jaeger or Zipkin (version 2.7) running, you can point
 
 ## Development
 
-This is the REST API server of the Istio Analytics service. This code has been developed and tested
-using Python 3.7.
+Below is some important information for developers.
 
 ### Environment variables
 
@@ -93,28 +92,23 @@ The following environment variables control the behavior of the Istio Analytics 
 
 * `ISTIO_ANALYTICS_TRACE_SERVER_OVERRIDE`: URL to the backend trace service reported as part of the responses (in JSON) given by the Istio Analytics service. This is needed if `ISTIO_ANALYTICS_TRACE_SERVER_URL` is an internal URL not visible from the user's browser where the Istio Analytics UI runs. If not set, the service will report the value of `ISTIO_ANALYTICS_TRACE_SERVER_URL`.
 
-### Test and Visualize APIs from Swagger UI
+### REST API documentation
 
-[Swagger UI](https://swagger.io/tools/swagger-ui/) is adopted in the server to help developers visualize and test the APIs of the server without additional efforts.
-After bring the server up locally, you can access the UI in the browser: `http://localhost:<port>/api/v1`.
+We document our REST API using Swagger. After bringing up the server up locally, you can see the REST API documentation in the browser at `http://localhost:<port>/api/v1`.
 
-The port value is set by env var `ISTIO_ANALYTICS_SERVER_PORT`.
+The port should match the value of the environment variable `ISTIO_ANALYTICS_SERVER_PORT`, defaulting to 5555.
 
 ### Test cases and code coverage
 
-If you have provisioned the vagrant environment, then simply run the following cmd to run the test inside the vm:
-
-```bash
-./scripts/testLocal.sh <backend_server>
-```  
-
-Otherwise, activate a python virtual environment([instructions](https://docs.python.org/3/library/venv.html)) and run the commands:
+To run the test cases, the _Istio Analytics_ server does NOT need to be running. You will need Python 3.7 and to execute the following commands:
 
 ```bash
 pip3 install -r test-requirements.txt
-./scripts/testLocal.sh <backend_server>
+scripts/testsLocal.sh <backend_server>
 ```
 
-Remember to replace <backend_server> with the name of server module you want to test.
+As shown above, the script `testsLocal` takes one parameter, whose value can be either `zipkin` or `jaeger`. In the former case, the code for manipulating Zipkin traces is exercised; in the latter, the Jaeger-related code is executed.
 
-The script `testLocal.sh` runs all test cases and produces a detailed code-coverage report that can be inspected by opening the HTML file `code_coverage/index.html` in your browser.
+The script `testsLocal.sh` produces a detailed code-coverage report that can be inspected by opening the HTML file `code_coverage/index.html` in your browser.
+
+For your development activities, you might want to consider setting up a Python virtual environment ([instructions](https://docs.python.org/3/library/venv.html)).
