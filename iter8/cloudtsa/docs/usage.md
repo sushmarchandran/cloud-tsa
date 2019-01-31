@@ -19,7 +19,7 @@ The following five steps described below will help integrate the CloudTSA servic
 
 1. [Basic configuration](#basicconfig)
 2. [Deploying the CloudTSA service](#deploy)
-3. [Service, metric and detector configurations](#advancedconfig)
+3. [Service, metric and detector specifications](#advancedconfig)
 4. [Starting CloudTSA](#start)
 5. [Setting up Grafana](#grafana)
 
@@ -48,7 +48,13 @@ python3 deploy.py -c <path/to/your/config.json>
 **The above command** deploys the CloudTSA service, exposes it via a [nodeport](https://kubernetes.io/docs/concepts/services-networking/service/), updates the Prometheus scrape configuration by adding CloudTSA as an end-point which will be periodically scraped by Prometheus, and restarts prometheus so that these configuration changes take effect.
 
 <a name="advancedconfig"></a>
-## Service, metric and detector configurations
+## Service, metric and detector specifications
+
+### Service specifications
+
+### Metric specifications
+
+### Detector specifications
 
 <a name="start"></a>
 ## Starting CloudTSA
