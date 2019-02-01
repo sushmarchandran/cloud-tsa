@@ -129,7 +129,7 @@ The following environment variables control the behavior of the Istio Analytics 
 
 ### REST API documentation
 
-We document our REST API using Swagger. After bringing up the server up locally, you can see the REST API documentation in the browser at `http://localhost:<port>/api/v1`.
+We document our REST API using Swagger. After bringing up the server locally, you can see the REST API documentation in the browser at `http://localhost:<port>/api/v1`.
 
 The port should match the value of the environment variable `ISTIO_ANALYTICS_SERVER_PORT`, defaulting to 5555.
 
