@@ -133,9 +133,15 @@ We document our REST API using Swagger. After bringing up the server up locally,
 
 The port should match the value of the environment variable `ISTIO_ANALYTICS_SERVER_PORT`, defaulting to 5555.
 
-### Test cases and code coverage
+### Testing and running
 
-To run the test cases, the _Istio Analytics_ server does NOT need to be running. You will need Python 3.7 and to execute the following commands:
+To test and run the code locally (not as a Docker container), you will need Python 3.7.
+
+For your development activities, you might want to consider setting up a Python virtual environment ([instructions](https://docs.python.org/3/library/venv.html)) in order to isolate all Python packages required by _Istio Analytics_ from other Python installations you might have.
+
+#### Tests and code-coverage report
+
+To run the test cases, the _Istio Analytics_ server does NOT need to be started. All you have to do is to execute the following commands from the `iter8/istio-analytics` directory:
 
 ```bash
 pip3 install -r test-requirements.txt
@@ -146,4 +152,11 @@ As shown above, the script `testsLocal` takes one parameter, whose value can be 
 
 The script `testsLocal.sh` produces a detailed code-coverage report that can be inspected by opening the HTML file `code_coverage/index.html` in your browser.
 
-For your development activities, you might want to consider setting up a Python virtual environment ([instructions](https://docs.python.org/3/library/venv.html)).
+#### Running the code directly on your computer
+
+In case you want to run _Istio Analytics_ natively (not as a Docker container), you need to set the environment variables `ISTIO_ANALYTICS_TRACE_BACKEND` and `ISTIO_ANALYTICS_TRACE_SERVER_URL` to specify the tracing backend type (either `jaeger` or `zipkin`) and the URL to the tracing backend (e.g., `http://localhost:16686`), respectively. Then, you can run the following commands from the `iter8/istio-analytics` directory:
+
+```bash
+pip3 install -r requirements.txt
+scripts/localRunServer.sh
+```
