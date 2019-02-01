@@ -32,7 +32,7 @@ and the absolute path of the CloudTSA project folder. Here is an example.
 {
   "prometheus_url": "http://prometheus.istio-system.svc.cluster.local:9090",
   "external_ip": "http://169.47.97.150",
-  "project_home": "/home/istio/iter8-final/iter8/cloudtsa",
+  "project_home": "/home/istio/iter8/iter8/cloudtsa",
   "test_connection_query": "istio_requests_total"
 }
 ```
