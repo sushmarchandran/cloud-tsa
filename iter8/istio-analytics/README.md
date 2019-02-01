@@ -49,9 +49,28 @@ You can use these instructions to run both _Istio Analytics_ and your distribute
 docker-compose -f scripts/docker-compose.jaeger.yaml up -d --build
 ```
 
-*2).* Populate Jaeger with demo traces we have already collected:
+*2).* Make sure Jaeger is ready by pointing your browser to its UI at `http://localhost:16686`.
+
+*3).* Populate Jaeger with demo traces we have already collected:
 
 ```bash
+curl https://raw.githubusercontent.com/istio-ecosystem/iter8-docs/master/istio-analytics/traces/jaeger/bookinfo/baseline_canary_demo/jaeger_traces_500_v2_v3spans.json -o ./demo_traces.json
+
+curl -i -X POST http://localhost:9411/api/v2/spans -d @./demo_traces.json --header "Content-Type:application/json"
+
+rm ./demo_traces.json
+```
+
+*4).* Point your browser to the _Istio Analytics_ UI at the following URL and click on the `Query` button.
+
+```url
+http://localhost:5555/canary/sequence/flow/0/trace/0?start=2019-01-31T16:56:15.0Z&end=2019-01-31T17:26:23.0Z&tags=node_id:reviews-v2&max=500&canaryStart=2019-01-31T16:56:15.0Z&canaryEnd=2019-01-31T17:26:23.0Z&canaryTags=node_id:reviews-v3&canaryMax=500&durationMinCount=100&errorcountMinCount=100&deltaMeanThreshold=0.3&deltaStddevThreshold=0.59&deltaRatioThreshold=0.1
+```
+
+*5).* To clean up after you are done, run the following command:
+
+```bash
+docker-compose -f scripts/docker-compose.jaeger.yaml down
 ```
 
 #### Option 2: using Zipkin (version: 2.7)
@@ -85,6 +104,10 @@ http://localhost:5555/canary/sequence/flow/0/trace/0?start=2019-01-31T00:55:01.0
 ```bash
 docker-compose -f scripts/docker-compose.zipkin.yaml down
 ```
+
+### Pointing _Istio Analytics_ to your Istio installation
+
+_**Coming soon...**_
 
 ## Development
 
