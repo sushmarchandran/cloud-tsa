@@ -2,7 +2,7 @@
 
 SCRIPTDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
-if [ ! -z "${1}" ]; then
+if [ -n "${1}" ]; then
    trace_backend="${1}" 
 
    case ${trace_backend} in 
@@ -12,15 +12,23 @@ if [ ! -z "${1}" ]; then
       zipkin) 
 	   server_url="http://localhost:9411" 
          ;; 
-      *)  
-         echo "Input trace backend can not be recognized." 
-         echo "`basename ${0}`:usage: [trace_backend]" 
+      *)
+         echo ""
+         echo "Invalid tracing backend."
+         echo "Usage: `basename ${0}` <'zipkin' | 'jaeger'>"
+         echo ""
          exit 1
          ;; 
    esac 
 
    export ISTIO_ANALYTICS_TRACE_BACKEND=${trace_backend}
    export ISTIO_ANALYTICS_TRACE_SERVER_URL=${server_url}
+else
+   echo ""
+   echo "Please, specify the target tracing backend ('zipkin' or 'jaeger') for tests."
+   echo "Usage: `basename ${0}` <'zipkin' | 'jaeger'>"
+   echo ""
+   exit 1
 fi
 
 echo Setting ISTIO_ANALYTICS_TRACE_BACKEND to $ISTIO_ANALYTICS_TRACE_BACKEND
