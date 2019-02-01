@@ -11,7 +11,7 @@ RUN apt-get install -y build-essential python3.6 python3.6-venv
 RUN mkdir istio_analytics
 ADD istio_analytics_restapi /istio_analytics/istio_analytics_restapi
 ADD requirements.txt /istio_analytics/requirements.txt
-ADD startServer.sh /istio_analytics/startServer.sh
+ADD startServerForDocker.sh /istio_analytics/startServerForDocker.sh
 
 #Set up Python virtual environment
 RUN python3.6 -m venv /python3.6-venv
@@ -22,4 +22,4 @@ RUN bash -c "source /python3.6-venv/bin/activate && \
 RUN apt-get update && apt-get upgrade -y && apt-get dist-upgrade
 
 #Starting the server using the startServer script
-CMD ["sh", "/istio_analytics/startServer.sh"]
+CMD ["sh", "/istio_analytics/startServerForDocker.sh"]
