@@ -11,12 +11,12 @@ import requests
 from prometheus_client import start_http_server, Summary, Counter, CollectorRegistry
 from prometheus_client.exposition import choose_encoder
 
-from iter8.cloudtsa.prometheus.prometheusquery import IdentityQuery, RateQuery
-from iter8.cloudtsa.tsa.changedetection import ChangeDetection
-from iter8.cloudtsa.tsa.thresholdpolicy import ThresholdPolicy
-from iter8.cloudtsa.tsa.peakdetection import PeakDetection
-from iter8.cloudtsa.tsa.predictivethresholddetection import PredictiveThresholdDetection
-from iter8.cloudtsa.prometheus.connectedtoprometheus import connected_to_prometheus
+from cloudtsa.prometheus.prometheusquery import IdentityQuery, RateQuery
+from cloudtsa.tsa.changedetection import ChangeDetection
+from cloudtsa.tsa.thresholdpolicy import ThresholdPolicy
+from cloudtsa.tsa.peakdetection import PeakDetection
+from cloudtsa.tsa.predictivethresholddetection import PredictiveThresholdDetection
+from cloudtsa.prometheus.connectedtoprometheus import connected_to_prometheus
 
 logger = logging.getLogger()
 

@@ -1,6 +1,6 @@
 import logging
 import numpy as np
-from iter8.cloudtsa.tsa.timeseries import TimeSeries
+from cloudtsa.tsa.timeseries import TimeSeries
 
 logger = logging.getLogger()
 

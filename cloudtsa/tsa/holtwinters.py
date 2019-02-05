@@ -3,7 +3,7 @@ import numpy as np
 import math
 logger = logging.getLogger()
 from statsmodels.tsa.api import ExponentialSmoothing
-from iter8.cloudtsa.tsa.timeseries import TimeSeries
+from cloudtsa.tsa.timeseries import TimeSeries
 
 class HoltWinters():
     def __init__(self, parameters):
