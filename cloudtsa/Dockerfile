@@ -9,39 +9,38 @@ RUN apt-get update
 RUN apt-get update && apt-get install -y curl
 RUN apt-get install -y build-essential python3.6 python3.6-venv
 
-RUN mkdir iter8/
-RUN mkdir iter8/cloudtsa
-RUN mkdir iter8/cloudtsa/config
-ADD config /iter8/cloudtsa/config
+RUN mkdir cloudtsa
+RUN mkdir cloudtsa/config
+ADD config /cloudtsa/config
 
-RUN mkdir iter8/cloudtsa/demo
-ADD demo /iter8/cloudtsa/demo
+RUN mkdir cloudtsa/demo
+ADD demo /cloudtsa/demo
 
-RUN mkdir iter8/cloudtsa/docs
-ADD docs /iter8/cloudtsa/docs
+RUN mkdir cloudtsa/docs
+ADD docs /cloudtsa/docs
 
-RUN mkdir iter8/cloudtsa/orchestration
-ADD orchestration /iter8/cloudtsa/orchestration
+RUN mkdir cloudtsa/orchestration
+ADD orchestration /cloudtsa/orchestration
 
-RUN mkdir iter8/cloudtsa/prometheus
-ADD prometheus /iter8/cloudtsa/prometheus
+RUN mkdir cloudtsa/prometheus
+ADD prometheus /cloudtsa/prometheus
 
-RUN mkdir iter8/cloudtsa/tests
-ADD tests /iter8/cloudtsa/tests
+RUN mkdir cloudtsa/tests
+ADD tests /cloudtsa/tests
 
-RUN mkdir iter8/cloudtsa/tsa
-ADD tsa /iter8/cloudtsa/tsa
+RUN mkdir cloudtsa/tsa
+ADD tsa /cloudtsa/tsa
 
-RUN mkdir iter8/cloudtsa/utils
-ADD utils /iter8/cloudtsa/utils
+RUN mkdir cloudtsa/utils
+ADD utils /cloudtsa/utils
 
-ADD requirements.txt /iter8/cloudtsa/requirements.txt
-ADD start.sh /iter8/cloudtsa/start.sh
+ADD requirements.txt /cloudtsa/requirements.txt
+ADD start.sh /cloudtsa/start.sh
 
 #Set up Python virtual environment
 RUN python3.6 -m venv /python3.6-venv
 RUN bash -c "source /python3.6-venv/bin/activate && \
        /python3.6-venv/bin/pip3.6 install setuptools nose coverage prometheus_client && \
-       /python3.6-venv/bin/pip3.6 install -r /iter8/cloudtsa/requirements.txt"
+       /python3.6-venv/bin/pip3.6 install -r /cloudtsa/requirements.txt"
 
-CMD ["sh", "/iter8/cloudtsa/start.sh" ]
+CMD ["sh", "/cloudtsa/start.sh" ]
