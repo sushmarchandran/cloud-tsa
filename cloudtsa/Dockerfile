@@ -35,12 +35,14 @@ RUN mkdir cloudtsa/utils
 ADD utils /cloudtsa/utils
 
 ADD requirements.txt /cloudtsa/requirements.txt
+ADD setup.py /cloudtsa/setup.py
 ADD start.sh /cloudtsa/start.sh
 
 #Set up Python virtual environment
 RUN python3.6 -m venv /python3.6-venv
 RUN bash -c "source /python3.6-venv/bin/activate && \
        /python3.6-venv/bin/pip3.6 install setuptools nose coverage prometheus_client && \
-       /python3.6-venv/bin/pip3.6 install -r /cloudtsa/requirements.txt"
+       /python3.6-venv/bin/pip3.6 install -r /cloudtsa/requirements.txt && \
+       /python3.6-venv/bin/pip3.6 install -e /cloudtsa"
 
 CMD ["sh", "/cloudtsa/start.sh" ]

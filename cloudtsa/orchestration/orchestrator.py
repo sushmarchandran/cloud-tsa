@@ -96,7 +96,7 @@ class TimeSeriesAnalysis():
     def start(self):
         # some of the initialization / extraction from all_configurations will now be shifted to __init
         if "*" in self.metric_defaults["services"]:
-            services = list(filter(lambda x: x != "ingress", topology["nodes"]))
+            services = list(filter(lambda x: x != "ingress", self.topology["nodes"]))
         else:
             services = self.metric_defaults["services"]
 
