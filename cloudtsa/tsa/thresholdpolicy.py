@@ -2,7 +2,7 @@ import logging
 import numpy as np
 
 logger = logging.getLogger()
-from iter8.cloudtsa.tsa.basedetector import BaseDetector
+from cloudtsa.tsa.basedetector import BaseDetector
 
 class ThresholdPolicy(BaseDetector):
     #config should only point to parameters for this particular object

@@ -1,16 +1,16 @@
 import pytest
 import json
-from iter8.cloudtsa.tsa.holtwinters import HoltWinters
-from iter8.cloudtsa.tsa.predictivethresholddetection import PredictiveThresholdDetection
-from iter8.cloudtsa.tsa.changedetection import ChangeDetection
-from iter8.cloudtsa.tsa.thresholdpolicy import ThresholdPolicy
-from iter8.cloudtsa.tsa.peakdetection import PeakDetection
-from iter8.cloudtsa.orchestration.orchestrator import TimeSeriesAnalysis
+from cloudtsa.tsa.holtwinters import HoltWinters
+from cloudtsa.tsa.predictivethresholddetection import PredictiveThresholdDetection
+from cloudtsa.tsa.changedetection import ChangeDetection
+from cloudtsa.tsa.thresholdpolicy import ThresholdPolicy
+from cloudtsa.tsa.peakdetection import PeakDetection
+from cloudtsa.orchestration.orchestrator import TimeSeriesAnalysis
 
-detectors = json.load(open("iter8/cloudtsa/config/detectors.json"))
-config = json.load(open("iter8/cloudtsa/config/config.json"))
-metric = json.load(open("iter8/cloudtsa/config/metrics.json"))
-topology = json.load(open("iter8/cloudtsa/config/topology.json"))
+detectors = json.load(open("config/detectors.json"))
+config = json.load(open("config/config.json"))
+metric = json.load(open("config/metrics.json"))
+topology = json.load(open("config/topology.json"))
 
 def test_overrides():
     all_configurations = {
@@ -401,13 +401,13 @@ def test_peak_scenario():
     pd.update(2,110)
     assert not pd.alarm_set
 
-    pd.update(3,160)
+    pd.update(3,260)
     assert not pd.alarm_set
 
     pd.update(4,110)
     assert pd.alarm_set
 
-    pd.update(5,160)
+    pd.update(5,260)
     assert not pd.alarm_set
 
     pd.update(6,110)

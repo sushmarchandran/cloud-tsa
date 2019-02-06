@@ -12,7 +12,7 @@ import requests
 from prometheus_client import start_http_server, Summary, Counter, CollectorRegistry
 from prometheus_client.exposition import choose_encoder
 
-from iter8.cloudtsa.orchestration.orchestrator import TimeSeriesAnalysis
+from cloudtsa.orchestration.orchestrator import TimeSeriesAnalysis
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
 logging.getLogger("requests").setLevel(logging.WARNING)

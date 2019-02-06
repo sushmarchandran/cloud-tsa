@@ -1,6 +1,0 @@
-Flask
-requests
-flask_restful
-numpy
-statsmodels
-scipy

@@ -34,7 +34,7 @@ are queried by a load generator. The behavior of these services are modified by 
 * Downloaded iter8 (you can do so using `git clone https://github.com/istio-ecosystem/iter8.git`)
 * Python 3.6 or later
 * Installed python packages `requests`, `numpy` and `PyYAML` (you can do so by running `pip install requests numpy` and by following the instructions on the [PyYAML](https://pyyaml.org/wiki/PyYAML) page.)
-* Enter the Absolute Path of the CloudTSA project till `iter8/cloudtsa` folder under `config['project_home']` in `iter8/iter8/cloudtsa/config/config.json`
+* Enter the Absolute Path of the CloudTSA project till `iter8/cloudtsa` folder under `config['project_home']` in `iter8/cloudtsa/config/config.json`
 
 <a name="initialization"></a>
 ## Initialize
@@ -53,7 +53,7 @@ kubectl -n istio-system port-forward $(kubectl -n istio-system get pod -l app=gr
 In terminal 1, navigate to the correct folder
 and run the following command.
 ```
-cd iter8/iter8/cloudtsa/demo
+cd iter8/cloudtsa/demo
 python3 democonfigure.py -dc democonfig.json
 ```
 
@@ -64,7 +64,7 @@ reconfigures Prometheus in your demo environment so that it can pull the insight
 In terminal 2, navigate to the correct folder
 and run the following command.
 ```
-cd iter8/iter8/cloudtsa/demo
+cd iter8/cloudtsa/demo
 python3 ping.py -dc democonfig.json -t ../config/topology.json -p 20
 ```
 
