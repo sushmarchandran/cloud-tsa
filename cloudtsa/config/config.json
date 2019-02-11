@@ -1,5 +1,6 @@
 {
-  "prometheus_url": "http://prometheus.istio-system.svc.cluster.local:9090",
+  "prometheus_url": "http://169.47.97.150:30270",
+  "prometheus_url1": "http://prometheus.istio-system.svc.cluster.local:9090",
   "external_ip": "http://169.47.97.150",
   "project_home": "/home/istio/iter8/cloudtsa",
   "test_connection_query": "istio_requests_total"
