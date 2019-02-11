@@ -42,20 +42,20 @@
 
     function TraceQueryController($scope, $timeout, $q, $log, $http, $location, $rootScope) {
         console.log("Hello from Canary TraceQueryController");
-
+        var curTime = new Date().toISOString();
         $scope.location = $location;
         $scope.queryStatus = "";
         $scope.dataOrigin = "";
         $scope.traceBackend = "";
         $scope.clusters_diffs = [];    // Array of {root_request:, baseline_trace_ids:, canary_trace_ids:, cluster_stats_diff: }
-        $scope.startTime = "";
-        $scope.endTime = "";
+        $scope.startTime = curTime;
+        $scope.endTime = curTime;
         $scope.tags = "";
         $scope.maxTraces = 500;
-        $scope.canaryStartTime = "";
-        $scope.canaryEndTime = "";
+        $scope.canaryStartTime = curTime;
+        $scope.canaryEndTime = curTime;
         $scope.canaryTags = "";
-        $scope.canaryMaxTraces = null;
+        $scope.canaryMaxTraces = 500;
 
         $scope.deltaMeanThreshold = 0.3;
         $scope.deltaStddevThreshold = 0.1;
@@ -69,8 +69,12 @@
             // I had trouble listening for $scope.$on('$routeUpdate',...) and losing trace #
             console.log("TraceQueryController $locationChangeSuccess triggered, $location.path()=" + $location.path());
 
-            $scope.startTime = parseTime($location.search()['start']);
-            $scope.endTime = parseTime($location.search()['end']);
+            if ('start' in $location.search()) {
+                $scope.startTime = parseTime($location.search()['start']);
+            }
+            if ('end' in $location.search()) {
+                $scope.endTime = parseTime($location.search()['end']);
+            }
 
             if ('tags' in $location.search()) {
                 $scope.tags = $location.search()['tags'];
@@ -142,7 +146,7 @@
                     canaryStart: $scope.canaryStartTime,
                     canaryEnd: $scope.canaryEndTime,
                     canaryTags: $scope.canaryTags,
-                    canaryMax: $scope.canaryMaxTraces || 500,
+                    canaryMax: $scope.canaryMaxTraces,
                     durationMinCount: $scope.durationMinCount,
                     errorcountMinCount: $scope.errorcountMinCount,
                     deltaMeanThreshold: $scope.deltaMeanThreshold,
@@ -166,7 +170,7 @@
                           start_time: $scope.canaryStartTime,
                           end_time: $scope.canaryEndTime,
                           tags: parseTags($scope.canaryTags),
-                          max: $scope.canaryMaxTraces || 500
+                          max: $scope.canaryMaxTraces
                       },
                       metric_requirements: [
                     	  {
