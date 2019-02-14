@@ -11,10 +11,10 @@ import re
 logger = logging.getLogger()
 
 class PrometheusQuery():
-    def __init__(self, prometheus_url, duration, query_definition):
+    def __init__(self, prometheus_url, query_definition):
         self.prometheus_url = prometheus_url +  "/api/v1/query"
-        self.duration = duration
-        self.query_definition = query_definition
+        self.duration = query_definition["duration"]
+        self.query_definition = query_definition["query_template"]
         self.prom_result = {"timestamp": 0, "entity_keys": [],"data": []}
 
     def query(self):
