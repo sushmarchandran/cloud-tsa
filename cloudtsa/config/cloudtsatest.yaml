@@ -1,26 +1,26 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: cloudtsatest
+  name: cloudtsa
   labels:
-    app: cloudtsatest
+    app: cloudtsa
 spec:
   ports:
   - port: 9080
     name: http
   selector:
-    app: cloudtsatest
+    app: cloudtsa
 ---
 apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
-  name: cloudtsatest-v1
+  name: cloudtsa-v1
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        app: cloudtsatest
+        app: cloudtsa
         version: v1
     spec:
       containers:
