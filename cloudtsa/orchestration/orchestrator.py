@@ -51,7 +51,7 @@ class TimeSeriesAnalysis():
     def create_detector_config(self, detectors):
         for each_detector in detectors.keys():
             for each_metric in detectors[each_detector]:
-                self.metric_detector_reverse_dict["metric"]["detectors"].append(each_detector)
+                self.metric_detector_reverse_dict[each_metric]["detectors"].append(each_detector)
         return detectors
 
     def initialize_and_start(self, all_configurations):
