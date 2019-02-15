@@ -60,8 +60,8 @@ class TimeSeriesAnalysis():
         self.start()
 
     def execute_query(self, index):
-        query_object = self.query[index][0]
-        metric_name = self.query[index][1]
+        query_object = self.queries[index][0]
+        metric_name = self.queries[index][1]
         tsm = query_object.query() # get time series metric
         metric_data = self.metric_detector_reverse_dict[metric_name]
         if tsm is not None:
@@ -71,6 +71,7 @@ class TimeSeriesAnalysis():
                 for each_entity in tsm["data"]:
                     if each_entity["entity"] not in metric_data["entity_details"].keys():
                         self.metric_detector_reverse_dict[metric_name]["entity_details"][each_entity["entity"]] = {each_detector: self.get_detector_object(each_detector, metric_name)}
+                        logger.info(f'Created object for Detector: {each_detector}, Entity: {each_entity["entity"]} and Metric: {metric_name}')
                     detector_obj = self.metric_detector_reverse_dict[metric_name]["entity_details"][each_entity["entity"]][each_detector]
                     detector_obj.update(tsm["timestamp"], each_entity["value"])
                     if detector_obj.is_alarm_set(): # after each update, alarm will be set or unset
