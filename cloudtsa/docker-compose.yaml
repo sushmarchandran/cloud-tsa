@@ -3,7 +3,7 @@ services:
   cloudai:
     build:
       context: .
-    image: iter8/cloudtsa
-    container_name: cloudtsa
+    image: iter8/cloudtsatest
+    container_name: cloudtsatest
     expose:
-      - "9080"
+      - "9060"

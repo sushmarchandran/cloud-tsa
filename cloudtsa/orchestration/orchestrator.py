@@ -11,7 +11,6 @@ import requests
 from prometheus_client import start_http_server, Summary, Counter, CollectorRegistry
 from prometheus_client.exposition import choose_encoder
 
-from cloudtsa.prometheus.prometheusquery import IdentityQuery, RateQuery
 from cloudtsa.tsa.changedetection import ChangeDetection
 from cloudtsa.tsa.thresholdpolicy import ThresholdPolicy
 from cloudtsa.tsa.peakdetection import PeakDetection
@@ -22,48 +21,79 @@ logger = logging.getLogger()
 
 class TimeSeriesAnalysis():
     def __init__(self):
-        self.detectors = []
-        self.detector_scheduler = sched.scheduler(time.time, time.sleep)
+        self.queries = []
+        self.query_scheduler = sched.scheduler(time.time, time.sleep)
         self.set_configurations = False
         self.reg = CollectorRegistry()
-        self.alarm_counter = Counter(name = 'cloudtsa_alarm_count', documentation = 'Cloud TSA Alarms', labelnames = ['detector_type', 'metric_name', 'source', 'destination'], registry = self.reg)
+        self.alarm_counter = Counter(name = 'cloudtsa_alarm_count', documentation = 'Cloud TSA Alarms', labelnames = ['detector_type', 'metric_name', 'entity'], registry = self.reg)
         self.lock = threading.RLock()
         self.shut_down_initiated = False
+        self.metric_detector_reverse_dict = {}
 
     def initialize(self, all_configurations):
-        self.detector_defaults = all_configurations["detectors"]
-        self.metric_defaults = all_configurations["metrics"]
-        self.topology = all_configurations["topology"]
         self.config = all_configurations["config"]
+        self.metric_defaults = self.create_metric_config(all_configurations["metrics"])
+        self.detector_defaults = self.create_detector_config(all_configurations["detectors"])
 
+    def create_metric_config(self, metrics):
+        metric_defaults = metrics["metrics"]
+        for each_metric in metric_defaults.keys():
+            if "duration" not in each_metric.keys():
+                metric_defaults["duration"] = metrics["duration"]
+            self.metric_detector_reverse_dict["each_metric"] = {
+                "detectors": [],
+                "entity_keys": [],
+                "entity_details": {}
+            }
+        return metric_defaults
+
+
+    def create_detector_config(self, detectors):
+        for each_detector in detectors.keys():
+            for each_metric in detectors["each_detector"]:
+                self.metric_detector_reverse_dict["metric"]["detectors"].append(each_detector)
+        return detectors
 
     def initialize_and_start(self, all_configurations):
         self.initialize(all_configurations)
         self.start()
 
-    def execute_detector(self, index):
-        prom = self.detectors[index][0]
-        detector_type = self.detectors[index][2]
-        metric_name = self.detectors[index][3]
-        logger.info("Executing Query for Service:" + str(prom.service))
-        tsm = prom.query() # get time series metric
+    def execute_query(self, index):
+        query_object = self.query[index][0]
+        metric_name = self.query[index][1]
+        tsm = query_object.query() # get time series metric
+        metric_data = self.metric_detector_reverse_dict[metric_name]
         if tsm is not None:
-            detector = self.detectors[index][1]
-            logger.info(f"Metric: {metric_name}")
-            (timestamp, metric) = tsm
-            if np.isnan(metric):
-                logger.info(f"Service {prom.service} returned NaN. Scheduling this after {prom.duration} sec")
-                if not self.shut_down_initiated:
-                    self.detector_scheduler.enter(prom.duration, 1, self.execute_detector, kwargs={'index': index})
-                return
-            detector.update(timestamp, metric)
-            if detector.is_alarm_set(): # after each update, alarm will be set or unset
-                with self.lock:
-                    self.alarm_counter.labels(detector_type=detector_type, metric_name=metric_name, source = 'ingress-gateway', destination = prom.service).inc()
+            if not len(metric_data["entity_keys"]):
+                metric_data["entity_keys"] = tsm["entity_keys"]
+            for each_detector in metric_data["detectors"]:
+                for each_entity in tsm["data"]:
+                    if each_entity["entity"] not in metric_data["entity_details"].keys():
+                        self.metric_detector_reverse_dict[metric_name]["entity_details"][each_entity["entity"]] = {each_detector: self.get_detector_object(each_detector, metric_name)}
+                    detector_obj = self.metric_detector_reverse_dict[metric_name]["entity_details"][each_entity["entity"]][each_detector]
+                    detector_obj.update(tsm["timestamp"], each_entity["value"])
+                    if detector_obj.is_alarm_set(): # after each update, alarm will be set or unset
+                        with self.lock:
+                            self.alarm_counter.labels(detector_type=each_detector, metric_name=metric_name, entity=each_entity["entity"]).inc()
             if not self.shut_down_initiated:
-                self.detector_scheduler.enter(prom.duration, 1, self.execute_detector, kwargs={'index': index})
+                self.query_scheduler.enter(prom.duration, 1, self.execute_detector, kwargs={'index': index})
+                self.query_scheduler.enter(self.metric_defaults[metric_name]["duration"], 1, self.execute_query, kwargs={'index': index})
         else:
-            logger.error(f"Service {prom.service} returned None. Will not schedule this query again.")
+            logger.error(f"TSM Returned None. Will not schedule this query again.")
+
+    def get_detector_object(self, detector_type, metric_name):
+        if detector_type == "changedetection":
+            detector_object = ChangeDetection(self.detector_defaults[detector_type][metric_name])
+        elif detector_type == "thresholdpolicy":
+            detector_object = ThresholdPolicy(self.detector_defaults[detector_type][metric_name])
+        elif detector_type == "peakdetection":
+            detector_object = PeakDetection(self.detector_defaults[detector_type][metric_name])
+        elif detector_type == "predictivethresholds":
+            detector_object = PredictiveThresholdDetection(self.detector_defaults[detector_type][metric_name])
+        else:
+            raise ValueError("Unsupported detector_type in detector definition")
+        return detector_object
+
 
     def fire(self):
         if not self.set_configurations:
@@ -74,78 +104,17 @@ class TimeSeriesAnalysis():
             connected_to_prometheus(self.config["prometheus_url"], self.config["test_connection_query"])
             self.detector_scheduler.run()
 
-    def create_detector_config(self):
-        detector_config = {}
-        for detector_type in self.detector_defaults.keys():
-            detector_config[detector_type] = {}
-            if "metrics_subset" in self.metric_defaults.keys():
-                metrics = self.metric_defaults["metrics_subset"]
-            else:
-                metrics = list(self.metric_defaults.keys())
-                metrics.remove("services")
-            for metric_name in metrics:
-                if ("overrides" in self.config.keys()) and (detector_type in self.config["overrides"]) and (metric_name in self.config["overrides"][detector_type].keys()):
-                    detector_config[detector_type][metric_name] = {
-                    **self.detector_defaults[detector_type][metric_name],
-                    **self.config["overrides"][detector_type][metric_name]}
-                else:
-                    if (metric_name in self.detector_defaults[detector_type].keys()):
-                        detector_config[detector_type][metric_name] = self.detector_defaults[detector_type][metric_name]
-        return detector_config
-
     def start(self):
-        # some of the initialization / extraction from all_configurations will now be shifted to __init
-        if "*" in self.metric_defaults["services"]:
-            services = list(filter(lambda x: x != "ingress", self.topology["nodes"]))
-        else:
-            services = self.metric_defaults["services"]
-
+        prom_url = self.config["prometheus_url"]
         index = 0
-
-        detector_config = self.create_detector_config()
-        #this function will use the logic from lines 87 to 96
-        for detector_type in self.detector_defaults.keys():
-            # detector_config[detector_type] = {}
-            if "metrics_subset" in self.metric_defaults.keys():
-                metrics = self.metric_defaults["metrics_subset"]
-            else:
-                metrics = list(self.metric_defaults.keys())
-                metrics.remove("services")
-            for metric_name in metrics:
-                if (metric_name in detector_config[detector_type].keys()):
-                    for service in services:
-                        if self.metric_defaults[metric_name]["post_process"]["type"] == "identity":
-                            query = IdentityQuery(self.config["prometheus_url"],
-                            detector_config[detector_type][metric_name]["query_duration"],
-                            self.metric_defaults[metric_name],
-                            service)
-                        elif self.metric_defaults[metric_name]["post_process"]["type"] == "rate":
-                            query = RateQuery(self.config["prometheus_url"],
-                            detector_config[detector_type][metric_name]["query_duration"],
-                            self.metric_defaults[metric_name],
-                            service)
-                        else:
-                            raise ValueError("Unsupported post_process type in metrics definition")
-
-                        if detector_type == "changedetection":
-                            detector = ChangeDetection(detector_config[detector_type][metric_name])
-                        elif detector_type == "thresholdpolicy":
-                            detector = ThresholdPolicy(detector_config[detector_type][metric_name])
-                        elif detector_type == "peakdetection":
-                            detector = PeakDetection(detector_config[detector_type][metric_name])
-                        elif detector_type == "predictivethresholds":
-                            detector = PredictiveThresholdDetection(detector_config[detector_type][metric_name])
-                        else:
-                            raise ValueError("Unsupported detector_type in detector definition")
-
-                        self.detectors.append([query, detector, detector_type, metric_name])
-                        self.detector_scheduler.enter(query.duration, 1, self.execute_detector, kwargs={'index': index})
-                        index += 1
-                        logger.info(f"Created {detector_type} object for Service: {service} and metric: {metric_name}")
+        for each_metric in self.metric_defaults.keys():
+            q = PrometheusQuery(prom_url, self.metric_defaults[each_metric])
+            self.queries.append([q, each_metric])
+            self.query_scheduler.enter(self.metric_defaults[each_metric]["duration"], 1, self.execute_query, kwargs={'index': index})
+            logger.info(f"Created {each_metric} object")
         self.set_configurations = True
         self.fire_thread = threading.Thread(target=self.fire)
         self.fire_thread.start()
-
 
     def metrics(self, encoder):
         logger.info(f"Metrics API called")
