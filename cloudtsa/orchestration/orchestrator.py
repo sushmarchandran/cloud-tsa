@@ -39,7 +39,7 @@ class TimeSeriesAnalysis():
         metric_defaults = metrics["metrics"]
         for each_metric in metric_defaults.keys():
             if "duration" not in metric_defaults[each_metric].keys():
-                metric_defaults["duration"] = metrics["duration"]
+                metric_defaults[each_metric]["duration"] = metrics["duration"]
             self.metric_detector_reverse_dict["each_metric"] = {
                 "detectors": [],
                 "entity_keys": [],
