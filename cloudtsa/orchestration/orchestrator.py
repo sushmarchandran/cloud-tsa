@@ -102,7 +102,7 @@ class TimeSeriesAnalysis():
             logger.info("Starting Time Series Analysis")
             #checking if connection to prometheus is running
             connected_to_prometheus(self.config["prometheus_url"], self.config["test_connection_query"])
-            self.detector_scheduler.run()
+            self.query_scheduler.run()
 
     def start(self):
         prom_url = self.config["prometheus_url"]
@@ -126,6 +126,6 @@ class TimeSeriesAnalysis():
     def shut_down(self):
         logger.info("Shutting down...")
         self.shut_down_initiated = True
-        list(map(self.detector_scheduler.cancel, self.detector_scheduler.queue))
-        while not self.detector_scheduler.empty():
+        list(map(self.query_scheduler.cancel, self.query_scheduler.queue))
+        while not self.query_scheduler.empty():
             time.sleep(10)
