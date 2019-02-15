@@ -11,6 +11,7 @@ import requests
 from prometheus_client import start_http_server, Summary, Counter, CollectorRegistry
 from prometheus_client.exposition import choose_encoder
 
+from cloudtsa.prometheus.prometheusquery import PrometheusQuery
 from cloudtsa.tsa.changedetection import ChangeDetection
 from cloudtsa.tsa.thresholdpolicy import ThresholdPolicy
 from cloudtsa.tsa.peakdetection import PeakDetection
