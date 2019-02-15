@@ -40,7 +40,7 @@ class TimeSeriesAnalysis():
         for each_metric in metric_defaults.keys():
             if "duration" not in metric_defaults[each_metric].keys():
                 metric_defaults[each_metric]["duration"] = metrics["duration"]
-            self.metric_detector_reverse_dict["each_metric"] = {
+            self.metric_detector_reverse_dict[each_metric] = {
                 "detectors": [],
                 "entity_keys": [],
                 "entity_details": {}
@@ -50,7 +50,7 @@ class TimeSeriesAnalysis():
 
     def create_detector_config(self, detectors):
         for each_detector in detectors.keys():
-            for each_metric in detectors["each_detector"]:
+            for each_metric in detectors[each_detector]:
                 self.metric_detector_reverse_dict["metric"]["detectors"].append(each_detector)
         return detectors
 
