@@ -51,8 +51,9 @@ class TimeSeriesAnalysis():
 
     def create_detector_config(self, detectors):
         for each_detector in detectors.keys():
-            for each_metric in detectors[each_detector]:
+            for each_metric in detectors[each_detector].keys():
                 self.metric_detector_reverse_dict[each_metric]["detectors"].append(each_detector)
+        logger.info(f"Reverse dictionary created: {self.metric_detector_reverse_dict}")
         return detectors
 
     def initialize_and_start(self, all_configurations):
@@ -63,13 +64,12 @@ class TimeSeriesAnalysis():
         query_object = self.queries[index][0]
         metric_name = self.queries[index][1]
         tsm = query_object.query() # get time series metric
-        metric_data = self.metric_detector_reverse_dict[metric_name]
         if tsm is not None:
-            if not len(metric_data["entity_keys"]):
-                metric_data["entity_keys"] = tsm["entity_keys"]
-            for each_detector in metric_data["detectors"]:
+            if not len(self.metric_detector_reverse_dict[metric_name]["entity_keys"]):
+                self.metric_detector_reverse_dict[metric_name]["entity_keys"] = tsm["entity_keys"]
+            for each_detector in self.metric_detector_reverse_dict[metric_name]["detectors"]:
                 for each_entity in tsm["data"]:
-                    if each_entity["entity"] not in metric_data["entity_details"].keys():
+                    if each_entity["entity"] not in self.metric_detector_reverse_dict[metric_name]["entity_details"].keys():
                         self.metric_detector_reverse_dict[metric_name]["entity_details"][each_entity["entity"]] = {each_detector: self.get_detector_object(each_detector, metric_name)}
                         logger.info(f'Created object for Detector: {each_detector}, Entity: {each_entity["entity"]} and Metric: {metric_name}')
                     detector_obj = self.metric_detector_reverse_dict[metric_name]["entity_details"][each_entity["entity"]][each_detector]
@@ -113,6 +113,7 @@ class TimeSeriesAnalysis():
             q = PrometheusQuery(prom_url, self.metric_defaults[each_metric])
             self.queries.append([q, each_metric])
             self.query_scheduler.enter(self.metric_defaults[each_metric]["duration"], 1, self.execute_query, kwargs={'index': index})
+            index += 1
             logger.info(f"Created {each_metric} object")
         self.set_configurations = True
         self.fire_thread = threading.Thread(target=self.fire)
