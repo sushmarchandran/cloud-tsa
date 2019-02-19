@@ -32,7 +32,7 @@ class PrometheusQuery():
             return self.prom_result if self.query_definition["post_process"]["null_data_handler"] == "zero" else None
         data = []
         self.prom_result["timestamp"] = float(results[0]['value'][0])
-        self.prom_result["entity_keys"] = list(results[0]['metric'].keys())
+        self.prom_result["entity_keys"] = tuple(results[0]['metric'].keys())
         for entity_result in results:
             for entity_key in self.prom_result["entity_keys"]:
                 entity = entity_result["metric"][entity_key]
