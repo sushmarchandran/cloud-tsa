@@ -19,7 +19,7 @@ class PrometheusQuery():
 
     def query(self):
         logger.debug("Querying Prometheus..")
-        prom_query = self.query_definition["query_template"]
+        prom_query = self.query_definition
         query_str = Template(prom_query)
         params = {'query': query_str.substitute(durationsec = str(self.duration) + 's')}
         prom_result = requests.get(self.prometheus_url, params=params).json()
