@@ -81,28 +81,9 @@ class TimeSeriesAnalysis():
                         with self.lock:
                             self.alarm_counter.labels(detector_type=each_detector, metric_name=metric_name, entity=each_entity["entity"]).inc()
             if not self.shut_down_initiated:
-                self.query_scheduler.enter(prom.duration, 1, self.execute_detector, kwargs={'index': index})
                 self.query_scheduler.enter(self.metric_defaults[metric_name]["duration"], 1, self.execute_query, kwargs={'index': index})
         else:
             logger.error(f"TSM Returned None. Will not schedule this query again.")
-
-        #
-        #
-        #     for each_detector in self.metric_detector_reverse_dict[metric_name]["detectors"]:
-        #         for each_entity in tsm["data"]:
-        #             if each_entity["entity"] not in self.metric_detector_reverse_dict[metric_name]["entity_details"].keys():
-        #                 self.metric_detector_reverse_dict[metric_name]["entity_details"][each_entity["entity"]] = {each_detector: self.get_detector_object(each_detector, metric_name)}
-        #                 logger.info(f'Created object for Detector: {each_detector}, Entity: {each_entity["entity"]} and Metric: {metric_name}')
-        #             detector_obj = self.metric_detector_reverse_dict[metric_name]["entity_details"][each_entity["entity"]][each_detector]
-        #             detector_obj.update(tsm["timestamp"], each_entity["value"])
-        #             if detector_obj.is_alarm_set(): # after each update, alarm will be set or unset
-        #                 with self.lock:
-        #                     self.alarm_counter.labels(detector_type=each_detector, metric_name=metric_name, entity=each_entity["entity"]).inc()
-        #     if not self.shut_down_initiated:
-        #         self.query_scheduler.enter(prom.duration, 1, self.execute_detector, kwargs={'index': index})
-        #         self.query_scheduler.enter(self.metric_defaults[metric_name]["duration"], 1, self.execute_query, kwargs={'index': index})
-        # else:
-        #     logger.error(f"TSM Returned None. Will not schedule this query again.")
 
     def get_detector_object(self, detector_type, metric_name):
         if detector_type == "changedetection":
