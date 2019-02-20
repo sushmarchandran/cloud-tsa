@@ -107,7 +107,9 @@ docker-compose -f scripts/docker-compose.zipkin.yaml down
 
 ### Pointing _Istio Analytics_ to your Istio installation
 
-Follow [these instructions](docs/istio-analtyics-istio.md) to run _Istio Analytics_ locally and point it to your Istio's mesh tracing backend.
+* Follow [these instructions](docs/kube-istio-analytics.md) to run _Istio Analytics_ in the same Kubernetes environment where Istio is running and point it to Istio's Jaeger.
+
+* Follow [these instructions](docs/istio-analytics-istio.md) to run _Istio Analytics_ locally and point it to your Istio's mesh tracing backend.
 
 ## Development
 
