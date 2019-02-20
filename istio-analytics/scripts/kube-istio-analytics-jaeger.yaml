@@ -1,0 +1,42 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    name: istio-analytics
+  name: istio-analytics
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: istio-analytics
+  template:
+    metadata:
+      labels:
+        name: istio-analytics
+    spec:
+      containers:
+      - env:
+        - name: ISTIO_ANALYTICS_TRACE_BACKEND
+          value: "jaeger"
+        - name: ISTIO_ANALYTICS_TRACE_SERVER_URL
+          value: "http://jaeger-query:16686"
+        - name: ISTIO_ANALYTICS_TRACE_SERVER_OVERRIDE
+          value: "http://localhost:16686"
+        - name: ISTIO_ANALYTICS_SERVER_PORT
+          value: "5555"
+        image: docker.io/iter8/istio-analytics
+        name: istio-analytics
+        ports:
+        - containerPort: 5555
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: istio-analytics
+spec:
+  ports:
+  - port: 5555
+    name: http
+  selector:
+    name: istio-analytics
+---
