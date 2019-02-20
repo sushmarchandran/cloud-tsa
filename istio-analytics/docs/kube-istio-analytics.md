@@ -77,8 +77,7 @@ Given that all above steps succeeded, you are ready to play with Istio's _Bookin
 To uninstall _Istio Analytics_ from your Kubernetes environment and stop the port-forwarding, just run the following command from the `iter8/istio-analytics` directory:
 
 ```bash
-kubectl delete -f scripts/kube-istio-analytics-jaeger.yaml  
--n istio-system
+kubectl delete -f scripts/kube-istio-analytics-jaeger.yaml  -n istio-system
 
 pkill -f port-forward
 ```
