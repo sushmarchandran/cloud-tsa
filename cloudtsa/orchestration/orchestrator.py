@@ -69,11 +69,15 @@ class TimeSeriesAnalysis():
         if tsm is not None:
             if not len(self.metric_detector_reverse_dict[metric_name]["entity_keys"]):
                 self.metric_detector_reverse_dict[metric_name]["entity_keys"] = tsm["entity_keys"]
+                logger.info(f"Updated Reverse Dict with a new entity key for metric {metric_name}: {tsm['entity_keys']}")
             for each_entity in tsm["data"]:
                 if each_entity["entity"] not in self.metric_detector_reverse_dict[metric_name]["entity_details"].keys():
                     self.metric_detector_reverse_dict[metric_name]["entity_details"][each_entity["entity"]] = {}
+                    logger.info(f"Created empty dictionary for entity {each_entity['entity'] Metric {metric_name}}")
+                    logger.info(f"Reverse Dictionary: {self.metric_detector_reverse_dict[metric_name]['entity_details']}")
                 for each_detector in self.metric_detector_reverse_dict[metric_name]["detectors"]:
                     if each_detector not in self.metric_detector_reverse_dict[metric_name]["entity_details"][each_entity["entity"]].keys():
+                        logger.info(f"Created {each_detector} object for {metric_name}")
                         self.metric_detector_reverse_dict[metric_name]["entity_details"][each_entity["entity"]] = {each_detector: self.get_detector_object(each_detector, metric_name)}
                     detector_obj = self.metric_detector_reverse_dict[metric_name]["entity_details"][each_entity["entity"]][each_detector]
                     detector_obj.update(tsm["timestamp"], each_entity["value"])
@@ -84,6 +88,7 @@ class TimeSeriesAnalysis():
                 self.query_scheduler.enter(self.metric_defaults[metric_name]["duration"], 1, self.execute_query, kwargs={'index': index})
         else:
             logger.error(f"TSM Returned None. Will not schedule this query again.")
+        logger.info(f"Updated Reverse Dictionary: {self.metric_detector_reverse_dict}")
 
     def get_detector_object(self, detector_type, metric_name):
         if detector_type == "changedetection":
