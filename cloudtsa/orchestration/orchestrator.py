@@ -34,7 +34,8 @@ class TimeSeriesAnalysis():
     def initialize(self, all_configurations):
         self.config = all_configurations["config"]
         self.metric_defaults = self.create_metric_config(all_configurations["metrics"])
-        self.detector_defaults = self.create_detector_config(all_configurations["detectors"])
+        self.detector_defaults = all_configurations["detectors"]
+        self.create_detector_config()
 
     def create_metric_config(self, metrics):
         metric_defaults = metrics["metrics"]
@@ -49,12 +50,11 @@ class TimeSeriesAnalysis():
         return metric_defaults
 
 
-    def create_detector_config(self, detectors):
-        for each_detector in detectors.keys():
-            for each_metric in detectors[each_detector].keys():
+    def create_detector_config(self):
+        for each_detector in self.detector_defaults.keys():
+            for each_metric in self.detector_defaults[each_detector].keys():
                 self.metric_detector_reverse_dict[each_metric]["detectors"].append(each_detector)
         logger.info(f"Reverse dictionary created: {self.metric_detector_reverse_dict}")
-        return detectors
 
     def initialize_and_start(self, all_configurations):
         self.initialize(all_configurations)
@@ -114,7 +114,8 @@ class TimeSeriesAnalysis():
         for each_metric in self.metric_defaults.keys():
             q = PrometheusQuery(prom_url, self.metric_defaults[each_metric])
             self.queries.append([q, each_metric])
-            self.query_scheduler.enter(self.metric_defaults[each_metric]["duration"], 1, self.execute_query, kwargs={'index': index})
+            #duration is 0.01s
+            self.query_scheduler.enter(0.01, 1, self.execute_query, kwargs={'index': index})
             index += 1
             logger.info(f"Created {each_metric} object")
         self.set_configurations = True
