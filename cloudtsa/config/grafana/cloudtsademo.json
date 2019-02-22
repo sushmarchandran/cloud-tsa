@@ -94,7 +94,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "(sum(increase(istio_request_duration_seconds_sum{destination_service_name='svc0'}[30s])) by (destination_service_name)) / (sum(increase(istio_request_duration_seconds_count{destination_service_name='svc0'}[30s])) by (destination_service_name))",
+          "expr": "(sum(increase(istio_request_duration_seconds_sum{destination_service_name='$service'}[30s])) by (destination_service_name)) / (sum(increase(istio_request_duration_seconds_count{destination_service_name='svc0'}[30s])) by (destination_service_name))",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "{{destination_service_name}}",
@@ -181,11 +181,18 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "cloudtsa_alarm_count_total{destination=\"svc0\", metric_name=\"latency\",source=\"ingress-gateway\"}",
+          "expr": "cloudtsa_alarm_count_total{detector_type=\"thresholdpolicy\",entity=\"svc0\",metric_name=\"latency\"}\t",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "{{detector_type}}",
           "refId": "A"
+        },
+        {
+          "expr": "cloudtsa_alarm_count_total{detector_type=\"predictivethresholds\",entity=\"svc0\",metric_name=\"latency\"}\t",
+          "format": "time_series",
+          "intervalFactor": 1,
+          "legendFormat": "{{predictivethresholds}}",
+          "refId": "B"
         }
       ],
       "thresholds": [],
@@ -356,14 +363,14 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "cloudtsa_alarm_count_total{destination=\"svc1\",detector_type=\"changedetection\",metric_name=\"latency\",source=\"ingress-gateway\"} ",
+          "expr": "cloudtsa_alarm_count_total{detector_type=\"changedetection\",entity=\"svc1\",job=\"cloudtsa\",metric_name=\"latency\"}",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "{{detector_type}}",
           "refId": "A"
         },
         {
-          "expr": "cloudtsa_alarm_count_total{destination=\"svc1\", detector_type=\"thresholdpolicy\", metric_name=\"latency\", source=\"ingress-gateway\"}",
+          "expr": "cloudtsa_alarm_count_total{entity=\"svc1\",detector_type=\"thresholdpolicy\",metric_name=\"latency\", job=\"cloudtsa\"}",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "{{detector_type}}",
@@ -536,7 +543,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "cloudtsa_alarm_count_total{destination=\"svc2\", metric_name=\"error_counts\", source=\"ingress-gateway\"}",
+          "expr": "cloudtsa_alarm_count_total{entity=\"svc2\", metric_name=\"error_counts\", job=\"cloudtsa\"}",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "{{detector_type}}",
@@ -709,7 +716,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "cloudtsa_alarm_count_total{destination=\"svc2\", metric_name=\"error_rates\", source=\"ingress-gateway\"}",
+          "expr": "cloudtsa_alarm_count_total{entity=\"svc2\", metric_name=\"error_rates\", job=\"cloudtsa\"}",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "{{detector_type}}",
@@ -883,7 +890,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "cloudtsa_alarm_count_total{destination=\"svc3\",detector_type=\"peakdetection\"}",
+          "expr": "cloudtsa_alarm_count_total{entity=\"svc3\",detector_type=\"peakdetection\"}",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "{{detector_type}}",
@@ -986,5 +993,5 @@
   "timezone": "",
   "title": "cloudtsa demo",
   "uid": "PBENCzQmk",
-  "version": 5
+  "version": 3
 }
