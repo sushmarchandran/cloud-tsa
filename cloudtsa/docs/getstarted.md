@@ -79,6 +79,11 @@ python demoinitialize.py -dc democonfig.json
 
 **The above command** initializes the sample application by setting the mean processing delay of all its services to 0.1 sec and their failure rates (i.e., the probability of them aborting with a 500 HTTP status code) to 0.0. It also starts the CloudTSA service.
 
+### The Grafana Dashboard
+The CloudTSA Demo Dashboard contains one large CloudTSA Alert panel and a few smaller panels below which show different demo application metrics reported to Prometheus. In addition to this, there are three variables i.e *entity*, *detector_type* and *metric_name* on the top left corner that need to be selected for each demo scenario as specified in the descriptions below.
+
+Do note that for the purpose of screen recording, we changed the position and size of the panels in our videos below. While following the demo scenarios, look at the panel titles mentioned in the scenario descriptions.
+
 <a name="run"></a>
 ## Run the demos
 
@@ -89,7 +94,7 @@ This demo illustrates how the predictive monitoring capabilities of CloudTSA can
 python demorun.py -dc democonfig.json -s gradual_latency
 ```
 
-**In your CloudTSA dashboard in Grafana,** navigate to the two charts titled *Latency for Svc0* and *CloudTSA (latency) Alerts for Svc0*; you will see these charts getting updated as in the following animation over a period of *8 min*.
+**In your CloudTSA dashboard in Grafana,** select `svc0` as *entity*, `predictivethresholds` and `thresholdpolicy` as *detector_type*, and `latency` as *metric_name*.  Then, navigate to the two charts titled *Average Latency* and *CloudTSA Alerts*; you will see these charts getting updated as in the following animation over a period of *8 min*.
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/istio-ecosystem/iter8-docs/master/cloudtsa/gif/gradual_latency.gif">
@@ -111,7 +116,7 @@ comparison of mean latency to a preset threshold.
 python demorun.py -dc democonfig.json -s abrupt_latency_part1
 ```
 
-**In your CloudTSA dashboard in Grafana,** navigate to the two charts titled *Latency for Svc1* and *CloudTSA (latency) Alerts for Svc1*; you will see these charts getting updated as in the following animation over a period of 4 min.
+**In your CloudTSA dashboard in Grafana,** select `svc1` as *entity*, `changedetection` and `thresholdpolicy` as *detector_type*, and `latency` as *metric_name*.  Then, continue looking at the two charts titled to the two charts titled *Average Latency* and *CloudTSA Alerts*; you will see these charts getting updated as in the following animation over a period of *2 min*.
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/istio-ecosystem/iter8-docs/master/cloudtsa/gif/abrupt_latency_part1.gif">
@@ -124,7 +129,7 @@ The mean processing delay of `svc1` is abruptly increased from 0.1 sec to 5.0 se
 ```
 python demorun.py -dc democonfig.json -s abrupt_latency_part2
 ```
-**In your CloudTSA dashboard in Grafana,** you will see the charts from part 1 getting updated as in the following animation over a period of 4 min.
+**In your CloudTSA dashboard in Grafana,** continue with the same variable specifications and you will see the charts from part 1 getting updated as in the following animation over a period of *3 min*.
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/istio-ecosystem/iter8-docs/master/cloudtsa/gif/abrupt_latency_part2.gif">
@@ -133,12 +138,13 @@ python demorun.py -dc democonfig.json -s abrupt_latency_part2
 In this part of the demo, the mean processing delay of `svc1` is increased evey further from 5.0 sec to 10.0 sec. The change detection algorithm observes this second abrupt change in the service latency and fires another alarm. The service latency has now breached a preset threshold which triggers a `thresholdpolicy` alarm as well.
 
 <a name="abrupterror"></a>
+
 ### Demo 3: Detect abrupt increase in errors
 This demo illustrates how the change detection capabilities of CloudTSA can be combined with the error count or error rate metric of a service in order to detect abrupt increases in errors. **Start this demo by running**:
 ```
 python demorun.py -dc democonfig.json -s abrupt_errors
 ```
-**In your CloudTSA dashboard in Grafana,** navigate to the two charts titled *Error Count for Svc2* and *CloudTSA (Errorcount) Alerts for Svc2*. The error rate related charts are titled *Error Rate for Svc2* and *CloudTSA (Error Rate) Alerts for Svc2*; you will see these charts getting updated as in the following animation over a period of 5-7 min.
+**In your CloudTSA dashboard in Grafana,** select `svc2` as *entity*, `changedetection` and `thresholdpolicy` as *detector_type*, and `error_count` as *metric_name*.  Then, navigate to the charts titled *Error Count* and *CloudTSA Alerts*. The error rate related charts are titled *Error Rate* and will require the selection of `error_rate` as a *metric_name*; you will see these charts getting updated as in the following animation over a period of *3 min*.
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/istio-ecosystem/iter8-docs/master/cloudtsa/gif/abrupt_error_count.gif">
@@ -160,7 +166,7 @@ python demorun.py -dc democonfig.json -s peak
 **The above command** creates fluctuations in the rate at which service `svc3`
 is queried thereby creating peaks in its load metric.
 
-**In your CloudTSA dashboard in Grafana,** navigate to the two charts titled *Total Load on Svc3* and *CloudTSA (Load) Alerts for Svc3*; you will see these charts getting updated as in the following animation over a period of 4 min.
+**In your CloudTSA dashboard in Grafana,** select `svc3` as *entity*, `peakdetection` as *detector_type*, and `load` as *metric_name*.  Then, navigate to the two charts titled *Total Load* and *CloudTSA Alerts*; you will see these charts getting updated as in the following animation over a period of *5 min*.
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/istio-ecosystem/iter8-docs/master/cloudtsa/gif/peak.gif">
