@@ -43,7 +43,7 @@ and the absolute path of the CloudTSA project folder. Here is an example.
 To deploy the Cloud TSA service, run the following commands.
 ```
 cd iter8/cloudtsa/utils
-python3 deploy.py -c <path/to/your/config.json>
+python deploy.py -c <path/to/your/config.json>
 ```
 **The above command** deploys the CloudTSA service, exposes it via a [nodeport](https://kubernetes.io/docs/concepts/services-networking/service/), updates the Prometheus scrape configuration by adding CloudTSA as an end-point which will be periodically scraped by Prometheus, and restarts prometheus so that these configuration changes take effect.
 
@@ -170,7 +170,7 @@ an alert is triggered.
 To start the CloudTSA service, run the following commands.
 ```
 cd iter8/cloudtsa/utils
-python3 startandfire.py -d <path/to/your/detectors.json> -m <path/to/your/metrics.json> -t <path/to/your/topology.json> -c <path/to/your/config.json>
+python startandfire.py -d <path/to/your/detectors.json> -m <path/to/your/metrics.json> -t <path/to/your/topology.json> -c <path/to/your/config.json>
 ```
 **The above command** POSTs all the configuration files to a CloudTSA REST Endpoint. This means that the CloudTSA service now starts observing the user application and reports to Prometheus in accordance with the configuration files.
 

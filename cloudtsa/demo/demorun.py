@@ -33,18 +33,18 @@ if ((current_time - demo_initialization_timestamp).total_seconds()) <= 40:
 
 if scenario == "gradual_latency":
     for i in np.arange(0.125, 8.0, 0.125): # increase from 0.125 to 8.0 in steps of 0.125
-        subprocess.check_call(["python3.6", "set_behavior.py", "-d", str(i), "-f", "0.0", "-p", "svc0"])
+        subprocess.check_call(["python", "set_behavior.py", "-d", str(i), "-f", "0.0", "-p", "svc0"])
         print("Delay: "+ str(i) + ", Failure Probability: 0.0 for Svc0")
         time.sleep(5)
 
 elif scenario == "abrupt_latency_part1":
-    subprocess.check_call(["python3.6", "set_behavior.py", "-d", "5.0", "-f", "0.0", "-p", "svc1"])
+    subprocess.check_call(["python", "set_behavior.py", "-d", "5.0", "-f", "0.0", "-p", "svc1"])
 
 elif scenario == "abrupt_latency_part2":
-    subprocess.check_call(["python3.6", "set_behavior.py", "-d", "10.0", "-f", "0.0", "-p", "svc1"])
+    subprocess.check_call(["python", "set_behavior.py", "-d", "10.0", "-f", "0.0", "-p", "svc1"])
 
 elif scenario == "abrupt_errors":
-    subprocess.check_call(["python3.6", "set_behavior.py", "-d", "0.1", "-f", "0.2", "-p", "svc2"])
+    subprocess.check_call(["python", "set_behavior.py", "-d", "0.1", "-f", "0.2", "-p", "svc2"])
 
 elif scenario == "peak":
     topology = {
