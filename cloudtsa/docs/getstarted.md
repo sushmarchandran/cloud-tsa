@@ -65,7 +65,7 @@ In terminal 2, navigate to the correct folder
 and run the following command.
 ```
 cd iter8/cloudtsa/demo
-python ping.py -dc democonfig.json -t ../config/topology.json -p 20
+python ping.py -dc democonfig.json -t topology.json -p 20
 ```
 
 **The above command** queries each service in the sample application at random at a total
