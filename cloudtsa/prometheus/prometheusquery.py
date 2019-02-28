@@ -28,6 +28,7 @@ class PrometheusQuery():
 
     def post_process(self, prom_result):
         results = prom_result["data"]["result"]
+        ##clean up line 30-33
         if results == []:
             return self.prom_result if self.query_definition["post_process"]["null_data_handler"] == "zero" else None
         data = []

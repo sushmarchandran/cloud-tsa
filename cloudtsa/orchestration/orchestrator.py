@@ -35,22 +35,24 @@ class TimeSeriesAnalysis():
         self.config = all_configurations["config"]
         self.metric_defaults = self.create_metric_config(all_configurations["metrics"])
         self.detector_defaults = all_configurations["detectors"]
-        self.create_detector_config()
+        self.create_reverse_dict()
 
     def create_metric_config(self, metrics):
         metric_defaults = metrics["metrics"]
         for each_metric in metric_defaults.keys():
             if "duration" not in metric_defaults[each_metric].keys():
                 metric_defaults[each_metric]["duration"] = metrics["duration"]
+        return metric_defaults
+
+
+    def create_reverse_dict(self):
+        ##initialize reverse dict here
+        for each_metric in self.metric_defaults.keys():
             self.metric_detector_reverse_dict[each_metric] = {
                 "detectors": [],
                 "entity_keys": [],
                 "entity_details": {}
             }
-        return metric_defaults
-
-
-    def create_detector_config(self):
         for each_detector in self.detector_defaults.keys():
             for each_metric in self.detector_defaults[each_detector].keys():
                 self.metric_detector_reverse_dict[each_metric]["detectors"].append(each_detector)

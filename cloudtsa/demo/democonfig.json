@@ -2,7 +2,7 @@
   "demo_initialization_timestamp": "2018-12-28 15:39:54",
   "gateway_url": "http://169.47.114.66:31380",
   "config_file_path": "../config/config.json",
-  "topology_file_path": "../config/topology.json",
+  "topology_file_path": "topology.json",
   "detectors_file_path": "../config/detectors.json",
   "metrics_file_path": "../config/metrics.json"
 }
