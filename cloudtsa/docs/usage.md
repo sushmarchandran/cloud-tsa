@@ -5,7 +5,7 @@ The following design overview of CloudTSA will facilitate a better understanding
 ## CloudTSA: Design Overview
 A CloudTSA alert involves a specific combination of an entity, a metric associated with this entity, and a CloudTSA detector used in conjuction with this metric in order to trigger the alert. Hence, distinct combinations of entities, metrics and detectors lead to distinct alerts as shown in the following figure.
 
-An entity, in this context is determined by the response  obtained from Prometheus to user defined queries. Prometheus supports aggregation operations on its queries over all label dimensions using a *by* clause. In CloudTSA, the labels defined under this clause in the query forms the *entity keys*, each element of the label returned in the response is an *entity* and the value returned corresponding to each entity is value we use to analyze changes for that entity. Although in all our demo examples, we group the query responses by the label *destination_service_name*, both Prometheus and CloudTSA allow aggregation over multiple label names.
+An entity, in this context is determined by the response  obtained from Prometheus to user defined queries. Prometheus supports aggregation operations on its queries over all label dimensions using a *by* clause. In CloudTSA, the labels defined under this clause in the query forms the *entity keys*, each element of the label returned in the response is an *entity* and the value returned corresponding to each entity is the value we use to analyze changes for that entity. If a *by* clause is not specified and a single value is returned for the whole query, we use a daulft entity called *your_application*. Although in all our demo examples, we group the query responses by the label *destination_service_name*, both Prometheus and CloudTSA allow aggregation over multiple label names.
 
 
 <p align="center">
@@ -55,7 +55,9 @@ python deploy.py -c <path/to/your/config.json>
 
 ### Metric specifications
 Make a copy of `iter8/cloudtsa/config/metrics.json` which we will henceforth refer to as your
-`metrics.json` file. Below is an example. In this example, we have defined three metrics namely, `latency`, `error_counts`, and `load`. The `query_template` field for each metric is the template of a Prometheus aggregation query pertaining to a specific entity (in this case notice that results are grouped by `destination_service_name`). The `duration` field for each metric determines how often each metric is queried. The unit for this field is seconds. Each metric can have a specific duration as in the case of the `load` metric below. If this is not specified, the globally specified `duration` (which is 30 seconds in the example below) is used for each metric. In the query template, the time period of aggregation, `$durationsec` is a variable whose values will be substituted by CloudTSA with the `duration` value of that metric.
+`metrics.json` file. Below is an example. In this example, we have defined three metrics namely, `latency`, `error_counts`, and `load`. The `query_template` field for each metric is the template of a Prometheus aggregation query pertaining to a specific entity (in this case notice that results are grouped by `destination_service_name`). CloudTSA requires each Prometheus query to return an [instant vector](https://prometheus.io/docs/prometheus/latest/querying/basics/). In the query template, the time period of aggregation, `$durationsec` is a variable whose values will be substituted by CloudTSA with the `duration` value of that metric.
+
+The `duration` field determines how often each metric is queried. The unit for this field is seconds. Each metric can have its own field for `duration` as in the case of the `load` metric below. If this is not specified, the globally specified `duration` (which is 30 seconds in the example below) is used for each metric.
 
 ```json
 {
