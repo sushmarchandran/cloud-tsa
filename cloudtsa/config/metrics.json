@@ -8,7 +8,7 @@
     "query_template": "sum(increase(istio_requests_total{response_code=~'5..', source_app='istio-ingressgateway', reporter='source', source_app='istio-ingressgateway', destination_service_namespace='default'}[$durationsec])) by (destination_service_name)"
   },
   "error_rates": {
-    "query_template": "(sum(increase(istio_requests_total{response_code=~'5..', source_app='istio-ingressgateway', reporter='source', source_app='istio-ingressgateway', destination_service_namespace='default'}[$durationsec])) by (destination_service_name, response_code)) / (sum(increase(istio_requests_total{source_app='istio-ingressgateway', reporter='source', source_app='istio-ingressgateway'}[$durationsec])) by (destination_service_name, response_code))"
+    "query_template": "(sum(increase(istio_requests_total{response_code=~'5..', source_app='istio-ingressgateway', reporter='source', source_app='istio-ingressgateway', destination_service_namespace='default'}[$durationsec])) by (destination_service_name)) / (sum(increase(istio_requests_total{source_app='istio-ingressgateway', reporter='source', source_app='istio-ingressgateway'}[$durationsec])) by (destination_service_name))"
   },
   "load": {
     "duration": 45,
