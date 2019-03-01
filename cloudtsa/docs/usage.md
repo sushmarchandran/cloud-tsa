@@ -3,7 +3,10 @@
 The following design overview of CloudTSA will facilitate a better understanding of the steps needed to use CloudTSA with your own Istio application.
 
 ## CloudTSA: Design Overview
-A CloudTSA alert involves a specific combination of a service, a metric associated with this service, and a CloudTSA detector used in conjuction with this metric in order to trigger the alert. Hence, distinct combinations of services, metrics and detectors lead to distinct alerts as shown in the following figure.
+A CloudTSA alert involves a specific combination of an entity, a metric associated with this entity, and a CloudTSA detector used in conjuction with this metric in order to trigger the alert. Hence, distinct combinations of entities, metrics and detectors lead to distinct alerts as shown in the following figure.
+
+An entity, in this context is determined by the response  obtained from Prometheus to user defined queries. Prometheus supports aggregation operations on its queries over all label dimensions using a *by* clause. In CloudTSA, the labels defined under this clause in the query forms the *entity keys*, each element of the label returned in the response is an *entity* and the value returned corresponding to each entity is value we use to analyze changes for that entity. Although in all our demo examples, we group the query responses by the label *destination_service_name*, both Prometheus and CloudTSA allow aggregation over multiple label names.
+
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/istio-ecosystem/iter8-docs/master/cloudtsa/img/crossproduct.png">
@@ -48,51 +51,33 @@ python deploy.py -c <path/to/your/config.json>
 **The above command** deploys the CloudTSA service, exposes it via a [nodeport](https://kubernetes.io/docs/concepts/services-networking/service/), updates the Prometheus scrape configuration by adding CloudTSA as an end-point which will be periodically scraped by Prometheus, and restarts prometheus so that these configuration changes take effect.
 
 <a name="advancedconfig"></a>
-## Service, metric and detector specifications
-
-### Service specifications
-Make a copy of `iter8/cloudtsa/config/topology.json` which we will henceforth refer to as your
-`topology.json` file. Edit its contents to include the names of the services you wish to monitor. Below is an example.
-```json
-{
-  "nodes": ["svc0", "svc1", "svc2", "svc3", "svcwithenvoy"]
-}
-```
-In this example, we are monitoring five services. There could be additional services in the Istio application, but they are ignored by CloudTSA.
+## Metric and detector specifications
 
 ### Metric specifications
 Make a copy of `iter8/cloudtsa/config/metrics.json` which we will henceforth refer to as your
-`metrics.json` file. Below is an example. In this example, we have defined three metrics namely, `latency`, `error_counts`, and `load`. The `services` field and the `post_process` subfield are both reserved for future use and may be left as they are with their default values. Focus on the `query_template` subfield. This intended to be a template of a Prometheus aggregation query pertaining to a specific service. The time period of aggregation, `$durationsec` and the service for which this query is targeted `service_name` are both variables whose values will be substituted by CloudTSA. Notice that results are grouped by `destination_service_name` even though each query is targeted only for a specific service. This group by clause is importance since it guarantees that results returned by Prometheus are in a format which is parseable by CloudTSA.
+`metrics.json` file. Below is an example. In this example, we have defined three metrics namely, `latency`, `error_counts`, and `load`. The `query_template` field for each metric is the template of a Prometheus aggregation query pertaining to a specific entity (in this case notice that results are grouped by `destination_service_name`). The `duration` field for each metric determines how often each metric is queried. The unit for this field is seconds. Each metric can have a specific duration as in the case of the `load` metric below. If this is not specified, the globally specified `duration` (which is 30 seconds) is used for each metric. In the query template, the time period of aggregation, `$durationsec` is a variable whose values will be substituted by CloudTSA with the `duration` value of that metric.
+
 ```json
 {
-  "services": ["*"],
+  "duration": 30,
+  "metrics": {
   "latency": {
-    "query_template": "(sum(increase(istio_request_duration_seconds_sum{destination_service_name='$service_name'}[$durationsec])) by (destination_service_name)) / (sum(increase(istio_request_duration_seconds_count{destination_service_name='$service_name'}[$durationsec])) by (destination_service_name))",
-    "post_process": {
-      "type": "identity",
-      "null_data_handler": "zero"
-    }
+    "query_template": "(sum(increase(istio_request_duration_seconds_sum{source_app='istio-ingressgateway', reporter='source', destination_service_namespace='default'}[$durationsec])) by (destination_service_name)) / (sum(increase(istio_request_duration_seconds_count{source_app='istio-ingressgateway', reporter='source', destination_service_namespace='default'}[$durationsec])) by (destination_service_name))"
   },
   "error_counts": {
-    "query_template": "sum(increase(istio_requests_total{response_code=~'5..', source_app='istio-ingressgateway', reporter='source', destination_service_name='$service_name', source_app='istio-ingressgateway'}[$durationsec])) by (destination_service_name)",
-    "post_process": {
-      "type": "identity",
-      "null_data_handler": "zero"
-    }
+    "query_template": "sum(increase(istio_requests_total{response_code=~'5..', source_app='istio-ingressgateway', reporter='source', source_app='istio-ingressgateway', destination_service_namespace='default'}[$durationsec])) by (destination_service_name)"
   },
   "load": {
-    "query_template": "sum(increase(istio_requests_total{source_app='istio-ingressgateway', reporter='source', destination_service_name='$service_name'}[$durationsec])) by (destination_service_name)",
-    "post_process": {
-      "type": "identity",
-      "null_data_handler": "zero"
-    }
+    "duration": 45,
+    "query_template": "sum(increase(istio_requests_total{source_app='istio-ingressgateway', reporter='source', destination_service_namespace='default'}[$durationsec])) by (destination_service_name)"
   }
+}
 }
 ```
 
 ### Detector specifications
 Make a copy of `iter8/cloudtsa/config/detectors.json` which we will henceforth refer to as your
-`detectors.json` file. Below is an example. In this example, we are using all the four detectors available in CloudTSA. Each detector has a set of parameters which require specification. Note that a specific detector can be used with different metrics with distinct parameter values. For e.g., the **changedetection** detector is used with the *latency* and *error_counts* metrics with distinct parameter values. Also note that the *query_duration* parameter is part of every one of these parameter sets: for instance, the latency metric is queried every 20 sec for the sake of the *predictivethresholds* detector, while it is queried every 40 sec for the sake of *changedetection*.
+`detectors.json` file. Below is an example. In this example, we are using all the four detectors available in CloudTSA. Each detector has a set of parameters which require specification. Note that a specific detector can be used with different metrics with distinct parameter values. For e.g., the **changedetection** detector is used with the *latency* and *error_counts* metrics with distinct parameter values.
 
 We now describe the configuration fields for each of these detectors below.
 1. **predictivethresholds**: This detector works by forecasting the value of the metric
@@ -117,7 +102,6 @@ an alert is triggered.
 {
   "predictivethresholds": {
     "latency": {
-      "query_duration": 20,
       "forecast_type": "holtwinters",
       "forecast_parameters": {
         "cycle_length": 1,
@@ -136,26 +120,22 @@ an alert is triggered.
   },
   "changedetection": {
     "latency": {
-      "query_duration": 40,
       "threshold": 1,
       "drift": 1
     },
     "error_counts": {
-      "query_duration": 60,
       "threshold": 8,
       "drift": 2
     }
   },
   "thresholdpolicy": {
     "latency": {
-      "query_duration": 60,
       "min_value": -99999,
       "max_value": 7
     }
   },
   "peakdetection": {
     "load": {
-      "query_duration": 30,
       "min_peak_height": 100,
       "min_peak_distance": 3,
       "threshold": 100,
