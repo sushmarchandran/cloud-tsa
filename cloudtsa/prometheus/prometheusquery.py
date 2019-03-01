@@ -34,10 +34,14 @@ class PrometheusQuery():
         data = []
         self.prom_result["timestamp"] = float(results[0]['value'][0])
         self.prom_result["entity_keys"] = tuple(results[0]['metric'].keys())
-        for entity_result in results:
-            entity = []
-            for entity_key in self.prom_result["entity_keys"]:
-                entity.append(entity_result["metric"][entity_key])
-            data.append({"entity": tuple(entity), "value": float(entity_result['value'][1])})
-        self.prom_result["data"] = data
+        if not self.prom_result["entity_keys"] and (len(results) == 1):
+            self.prom_result["entity_keys"] = tuple(["default_entity"])
+            self.prom_result["data"] = {"entity": "your_application", "value": results[0]['value'][1]}
+        else:
+            for entity_result in results:
+                entity = []
+                for entity_key in self.prom_result["entity_keys"]:
+                    entity.append(entity_result["metric"][entity_key])
+                data.append({"entity": tuple(entity), "value": float(entity_result['value'][1])})
+            self.prom_result["data"] = data
         return self.prom_result
