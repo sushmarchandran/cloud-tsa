@@ -52,7 +52,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": null,
-  "iteration": 1551035736565,
+  "iteration": 1551311855217,
   "links": [],
   "panels": [
     {
@@ -97,11 +97,17 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "cloudtsa_alarm_count_total{detector_type=~'$detector_type', metric_name=~'$metric_name', entity=~'$entity'}",
+          "expr": "cloudtsa_alarm_count_total{detector_type=~'$detector_type', metric_name=~'$metric_name',entity=\"('$entity',)\"}",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "{{detector_type}}",
           "refId": "A"
+        },
+        {
+          "expr": "",
+          "format": "time_series",
+          "intervalFactor": 1,
+          "refId": "B"
         }
       ],
       "thresholds": [],
@@ -566,9 +572,9 @@
         "allValue": null,
         "current": {
           "tags": [],
-          "text": "changedetection",
+          "text": "peakdetection",
           "value": [
-            "changedetection"
+            "peakdetection"
           ]
         },
         "hide": 0,
@@ -578,7 +584,7 @@
         "name": "detector_type",
         "options": [
           {
-            "selected": true,
+            "selected": false,
             "text": "changedetection",
             "value": "changedetection"
           },
@@ -588,7 +594,7 @@
             "value": "predictivethresholds"
           },
           {
-            "selected": false,
+            "selected": true,
             "text": "peakdetection",
             "value": "peakdetection"
           },
@@ -605,19 +611,17 @@
         "allValue": null,
         "current": {
           "tags": [],
-          "text": "latency",
-          "value": [
-            "latency"
-          ]
+          "text": "load",
+          "value": "load"
         },
         "hide": 0,
         "includeAll": false,
         "label": null,
-        "multi": true,
+        "multi": false,
         "name": "metric_name",
         "options": [
           {
-            "selected": true,
+            "selected": false,
             "text": "latency",
             "value": "latency"
           },
@@ -632,7 +636,7 @@
             "value": "error_counts"
           },
           {
-            "selected": false,
+            "selected": true,
             "text": "load",
             "value": "load"
           }
@@ -674,5 +678,5 @@
   "timezone": "",
   "title": "cloudtsa demo",
   "uid": "PBENCzQmk",
-  "version": 14
+  "version": 18
 }

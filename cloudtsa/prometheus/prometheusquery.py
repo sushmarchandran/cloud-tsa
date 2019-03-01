@@ -38,6 +38,6 @@ class PrometheusQuery():
             entity = []
             for entity_key in self.prom_result["entity_keys"]:
                 entity.append(entity_result["metric"][entity_key])
-            data.append({"entity": entity, "value": float(entity_result['value'][1])})
+            data.append({"entity": tuple(entity), "value": float(entity_result['value'][1])})
         self.prom_result["data"] = data
         return self.prom_result
