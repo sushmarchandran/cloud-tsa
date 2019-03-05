@@ -73,10 +73,14 @@ class TimeSeriesAnalysis():
                     self.metric_detector_reverse_dict[metric_name]["entity_keys"] = tsm["entity_keys"]
                     logger.info(f"Updated Reverse Dict with a new entity key for metric {metric_name}: {tsm['entity_keys']}")
                 for each_entity in tsm["data"]:
+                    if np.isnan(each_entity["value"]):
+                        logger.info(f"Metric value for {each_entity['entity']} is Nan")
+                        continue
                     if each_entity["entity"] not in self.metric_detector_reverse_dict[metric_name]["entity_details"].keys():
                         self.metric_detector_reverse_dict[metric_name]["entity_details"][each_entity["entity"]] = {}
                     for each_detector in self.metric_detector_reverse_dict[metric_name]["detectors"]:
                         logger.info(f"Executing for Detector: {each_detector}")
+                        logger.info(f"Value returned from Prometheus: {each_entity['value']}")
                         if each_detector not in self.metric_detector_reverse_dict[metric_name]["entity_details"][each_entity["entity"]].keys():
                             self.metric_detector_reverse_dict[metric_name]["entity_details"][each_entity["entity"]][each_detector] = self.get_detector_object(each_detector, metric_name)
                             logger.info(f"Created {each_detector} object for {metric_name}")
