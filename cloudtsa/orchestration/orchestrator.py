@@ -66,29 +66,30 @@ class TimeSeriesAnalysis():
         query_object = self.queries[index][0]
         metric_name = self.queries[index][1]
         logger.info(f"Executing query for Metric: {metric_name}")
-        tsm = query_object.query() # get time series metric
-        logger.info(f"Response from Prometheus: {tsm}")
-        if tsm is not None:
-            if not len(self.metric_detector_reverse_dict[metric_name]["entity_keys"]):
-                self.metric_detector_reverse_dict[metric_name]["entity_keys"] = tsm["entity_keys"]
-                logger.info(f"Updated Reverse Dict with a new entity key for metric {metric_name}: {tsm['entity_keys']}")
-            for each_entity in tsm["data"]:
-                if each_entity["entity"] not in self.metric_detector_reverse_dict[metric_name]["entity_details"].keys():
-                    self.metric_detector_reverse_dict[metric_name]["entity_details"][each_entity["entity"]] = {}
-                for each_detector in self.metric_detector_reverse_dict[metric_name]["detectors"]:
-                    logger.info(f"Executing for Detector: {each_detector}")
-                    if each_detector not in self.metric_detector_reverse_dict[metric_name]["entity_details"][each_entity["entity"]].keys():
-                        self.metric_detector_reverse_dict[metric_name]["entity_details"][each_entity["entity"]][each_detector] = self.get_detector_object(each_detector, metric_name)
-                        logger.info(f"Created {each_detector} object for {metric_name}")
-                    detector_obj = self.metric_detector_reverse_dict[metric_name]["entity_details"][each_entity["entity"]][each_detector]
-                    detector_obj.update(tsm["timestamp"], each_entity["value"])
-                    if detector_obj.is_alarm_set(): # after each update, alarm will be set or unset
-                        with self.lock:
-                            self.alarm_counter.labels(detector_type=each_detector, metric_name=metric_name, entity=each_entity["entity"]).inc()
+        try:
+            tsm = query_object.query() # get time series metric
+            if tsm is not None:
+                if not len(self.metric_detector_reverse_dict[metric_name]["entity_keys"]):
+                    self.metric_detector_reverse_dict[metric_name]["entity_keys"] = tsm["entity_keys"]
+                    logger.info(f"Updated Reverse Dict with a new entity key for metric {metric_name}: {tsm['entity_keys']}")
+                for each_entity in tsm["data"]:
+                    if each_entity["entity"] not in self.metric_detector_reverse_dict[metric_name]["entity_details"].keys():
+                        self.metric_detector_reverse_dict[metric_name]["entity_details"][each_entity["entity"]] = {}
+                    for each_detector in self.metric_detector_reverse_dict[metric_name]["detectors"]:
+                        logger.info(f"Executing for Detector: {each_detector}")
+                        if each_detector not in self.metric_detector_reverse_dict[metric_name]["entity_details"][each_entity["entity"]].keys():
+                            self.metric_detector_reverse_dict[metric_name]["entity_details"][each_entity["entity"]][each_detector] = self.get_detector_object(each_detector, metric_name)
+                            logger.info(f"Created {each_detector} object for {metric_name}")
+                        detector_obj = self.metric_detector_reverse_dict[metric_name]["entity_details"][each_entity["entity"]][each_detector]
+                        detector_obj.update(tsm["timestamp"], each_entity["value"])
+                        if detector_obj.is_alarm_set(): # after each update, alarm will be set or unset
+                            with self.lock:
+                                self.alarm_counter.labels(detector_type=each_detector, metric_name=metric_name, entity=each_entity["entity"]).inc()
             if not self.shut_down_initiated:
                 self.query_scheduler.enter(self.metric_defaults[metric_name]["duration"], 1, self.execute_query, kwargs={'index': index})
-        else:
-            logger.error(f"TSM Returned None. Will not schedule this query again.")
+        except ValueError as e:
+            logger.error(f"TSM Exception for {metric_name}. Will not schedule this query again.")
+
 
     def get_detector_object(self, detector_type, metric_name):
         if detector_type == "changedetection":

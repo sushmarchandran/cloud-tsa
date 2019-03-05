@@ -15,7 +15,6 @@ class PrometheusQuery():
         self.prometheus_url = prometheus_url +  "/api/v1/query"
         self.duration = query_definition["duration"]
         self.query_definition = query_definition["query_template"]
-        self.prom_result = {"timestamp": 0, "entity_keys": [],"data": []}
 
     def query(self):
         logger.debug("Querying Prometheus..")
@@ -25,23 +24,24 @@ class PrometheusQuery():
         prom_result = requests.get(self.prometheus_url, params=params).json()
         return self.post_process(prom_result)
 
-
     def post_process(self, prom_result):
         results = prom_result["data"]["result"]
-        ##clean up line 30-33
+        if prom_result["status"] == "error":
+            raise ValueError("Invalid query")
         if results == []:
-            return self.prom_result if self.query_definition["post_process"]["null_data_handler"] == "zero" else None
+            return None
         data = []
-        self.prom_result["timestamp"] = float(results[0]['value'][0])
-        self.prom_result["entity_keys"] = tuple(results[0]['metric'].keys())
-        if not self.prom_result["entity_keys"] and (len(results) == 1):
-            self.prom_result["entity_keys"] = tuple(["default_entity"])
-            self.prom_result["data"] = {"entity": "your_application", "value": results[0]['value'][1]}
+        processed_result = {"timestamp": 0, "entity_keys": [],"data": []}
+        processed_result["timestamp"] = float(results[0]['value'][0])
+        processed_result["entity_keys"] = tuple(results[0]['metric'].keys())
+        if not processed_result["entity_keys"] and (len(results) == 1):
+            processed_result["entity_keys"] = tuple(["default_entity"])
+            processed_result["data"] = {"entity": "your_application", "value": results[0]['value'][1]}
         else:
             for entity_result in results:
                 entity = []
-                for entity_key in self.prom_result["entity_keys"]:
+                for entity_key in processed_result["entity_keys"]:
                     entity.append(entity_result["metric"][entity_key])
                 data.append({"entity": tuple(entity), "value": float(entity_result['value'][1])})
-            self.prom_result["data"] = data
-        return self.prom_result
+            processed_result["data"] = data
+        return processed_result

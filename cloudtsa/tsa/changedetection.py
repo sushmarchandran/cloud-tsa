@@ -34,6 +34,10 @@ class ChangeDetection(BaseDetector):
         if self.cumulative_negative[-1] < 0:
             self.cumulative_negative[-1] = 0
             self.temp_negative = iteration
+        ## Given timeseries = [0,2,4,6....20], drift = 1 and threshold = very high, cumulative positive after 10 iterations becomes 10
+        ## If timeseries continues to be = 20 for the next 10 iterations, cumulative positive becomes 0 because drift > difference
+        ## This is okay because the timeseries value of 20 is the new normal for the algorithm
+        ## any change detected above 20 is what will be recorded by cumulative positive
         if np.isnan(self.cumulative_positive[-1]):
             self.cumulative_negative[-1] = self.cumulative_positive[-1] = 0
         if ((self.cumulative_positive[-1] > self.threshold) or (self.cumulative_negative[-1] > self.threshold)):
