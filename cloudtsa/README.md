@@ -15,7 +15,7 @@
 </p>
 
 ## Demo
-This demo illustrates the predictive monitoring capabilities of CloudTSA.
+In this demo, CloudTSA forecasts latency of services based on recent trends and predicts if latency will violate a preset threshold.
 Service `svc0` experiences a gradual increase in mean latency from ~ 0.1 sec to ~ 8.0 sec as seen in the graph on the left. CloudTSA learns this trend and creates two types of alerts for `svc0` as seen on the graph on the right.
 
   1. A 'reactive' alert (yellow curve) *after* the mean latency value violates a preset threshold.

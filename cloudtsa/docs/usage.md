@@ -1,24 +1,27 @@
 # Usage
 
-The following design overview of CloudTSA will facilitate a better understanding of the steps needed to use CloudTSA with your own Istio application.
+Use CloudTSA with your Istio application. We start with the following design overview of CloudTSA.
 
 ## CloudTSA: Design Overview
 A CloudTSA alert involves a specific combination of an entity, a metric associated with this entity, and a CloudTSA detector used in conjuction with this metric in order to trigger the alert. Hence, distinct combinations of entities, metrics and detectors lead to distinct alerts as shown in the following figure.
-
-An entity, in this context is determined by the response  obtained from Prometheus to user defined queries. Prometheus supports aggregation operations on its queries over all label dimensions using a *by* clause. In CloudTSA, the labels defined under this clause in the query definition forms the *entity keys*, each combination of label values returned in the response is an *entity* and the value returned corresponding to each entity is the value we use to analyze changes for that entity. If a *by* clause is not specified and a single value is returned for the whole query, we use a default entity called *your_application*. Although in all our demo examples, we group the query responses by the label *destination_service_name*, both Prometheus and CloudTSA allow aggregation over multiple label names.
-
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/istio-ecosystem/iter8-docs/master/cloudtsa/img/crossproduct.png">
 </p>
 
-The component architecture for CloudTSA service monitoring an Istio application is illustrated in the following figure. The CloudTSA service executes the different detectors; the metrics analyzed by the detectors are periodically pulled by the CloudTSA service from the Prometheus service. CloudTSA alerts are written back to Prometheus service (in fact, these alerts are pulled by Prometheus periodically from a CloudTSA REST endpoint). Both the raw metrics and the CloudTSA alerts can be visualized in Grafana using appropriate Prometheus queries within the Grafana dashboards.
+In the above figure and in all our demo examples, the entities are the services belonging to the application. However, it is possible to define entities more broadly. For example, consider tracking error counts (HTTP responses with status codes 4xx or 5xx) over 30 sec windows for each service. The distinct combinations of service names and status codes can be identified with the entities in this example.
+
+Each metric that is analyzed by CloudTSA is associated with a corresponding Prometheus query template. In the above example, the metric under consideration is error counts. The entities associated with a metric are automatically inferred by CloudTSA from the Prometheus responses for the corresponding query.
+
+The component architecture for CloudTSA is illustrated in the following figure. The CloudTSA instantiates and executes the different detectors; the metrics analyzed by the detectors are periodically pulled by CloudTSA from Prometheus. We also configure Prometheus to pull CloudTSA alerts periodically from the `/alerts` endpoint. Both the raw metrics and the CloudTSA alerts can be visualized in Grafana.
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/istio-ecosystem/iter8-docs/master/cloudtsa/img/cloudtsaarch.png">
 </p>
 
-The following five steps described below will help integrate the CloudTSA service with your Istio application.
+<!-- Entities associated with a metric are automatically inferred by CloudTSA from the Prometheus responses for the queries made by CloudTSA for this metric. The idea is to treat prometheus responses as . Prometheus supports aggregation operations on its queries over all label dimensions using a *by* clause. In CloudTSA, the labels defined under this clause in the query definition forms the *entity keys*, each combination of label values returned in the response is an *entity* and the value returned corresponding to each entity is the value we use to analyze changes for that entity. If a *by* clause is not specified and a single value is returned for the whole query, we use a default entity called *your_application*. -->
+
+Follow the steps below to integrate CloudTSA with your Istio application.
 
 1. [Basic configuration](#basicconfig)
 2. [Deploying the CloudTSA service](#deploy)
@@ -29,8 +32,7 @@ The following five steps described below will help integrate the CloudTSA servic
 <a name="basicconfig"></a>
 ## Basic Configuration
 Make a copy of `iter8/cloudtsa/config/config.json` which we will henceforth refer to as your
-`config.json` file. Edit its contents to include the external IP of your Kubernetes cluster
-and the absolute path of the CloudTSA project folder. Here is an example.
+`config.json` file. Edit its contents to include the external IP of your Kubernetes cluster. This is the IP address we will use to access the CloudTSA service. Also specify the absolute path of the CloudTSA project folder. Here is an example.
 ```json
 {
   "prometheus_url": "http://prometheus.istio-system.svc.cluster.local:9090",
@@ -55,9 +57,7 @@ python deploy.py -c <path/to/your/config.json>
 
 ### Metric specifications
 Make a copy of `iter8/cloudtsa/config/metrics.json` which we will henceforth refer to as your
-`metrics.json` file. Below is an example. In this example, we have defined three metrics namely, `latency`, `error_counts`, and `load`. The `query_template` field for each metric is the template of a Prometheus aggregation query pertaining to a specific entity (in this case notice that results are grouped by `destination_service_name`). CloudTSA requires each Prometheus query to return an [instant vector](https://prometheus.io/docs/prometheus/latest/querying/basics/). In the query template, the time period of aggregation, `$durationsec` is a variable whose values will be substituted by CloudTSA with the `duration` value of that metric.
-
-The `duration` field determines how often each metric is queried. The unit for this field is seconds. Each metric can have its own field for `duration` as in the case of the `load` metric below. If this is not specified, the globally specified `duration` (which is 30 seconds in the example below) is used for each metric.
+`metrics.json` file. This file specifies the Prometheus query templates for all the metrics analyzed by CloudTSA. In the following example, we have defined three metrics namely, `latency`, `error_counts`, and `load`.
 
 ```json
 {
@@ -76,6 +76,10 @@ The `duration` field determines how often each metric is queried. The unit for t
 }
 }
 ```
+
+In the above examples, notice that the Prometheus query templates have a group by clause (specified using the `by` keyword) with `destination_service_name` as the group key. In general, each group in a Prometheus response corresponds to a distinct entity. We require each Prometheus response to be an [instant vector](https://prometheus.io/docs/prometheus/latest/querying/basics/).
+
+In the query template, the time period of aggregation is the variable `$durationsec`. The default value of this variable is specified by the `duration` field and can be overridden within individual metric specifications. The `duration` field (sec) also determines how often CloudTSA queries Prometheus -- different metrics can be collected at different frequencies.
 
 ### Detector specifications
 Make a copy of `iter8/cloudtsa/config/detectors.json` which we will henceforth refer to as your
