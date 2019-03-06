@@ -16,11 +16,11 @@ metrics_file_path = democonfig["metrics_file_path"]
 config_file_path = democonfig["config_file_path"]
 topology_file_path = democonfig["topology_file_path"]
 
-subprocess.check_call(["python3.6", "set_behavior.py", "-d", "0.1", "-f", "0.0", "-p", "svc0"])
-subprocess.check_call(["python3.6", "set_behavior.py", "-d", "0.1", "-f", "0.0", "-p", "svc1"])
-subprocess.check_call(["python3.6", "set_behavior.py", "-d", "0.1", "-f", "0.0", "-p", "svc2"])
-subprocess.check_call(["python3.6", "set_behavior.py", "-d", "0.1", "-f", "0.0", "-p", "svc3"])
-subprocess.check_call(["python3.6", "set_behavior.py", "-d", "0.1", "-f", "0.0", "-p", "svcwithenvoy"])
+subprocess.check_call(["python", "set_behavior.py", "-d", "0.1", "-f", "0.0", "-p", "svc0"])
+subprocess.check_call(["python", "set_behavior.py", "-d", "0.1", "-f", "0.0", "-p", "svc1"])
+subprocess.check_call(["python", "set_behavior.py", "-d", "0.1", "-f", "0.0", "-p", "svc2"])
+subprocess.check_call(["python", "set_behavior.py", "-d", "0.1", "-f", "0.0", "-p", "svc3"])
+subprocess.check_call(["python", "set_behavior.py", "-d", "0.1", "-f", "0.0", "-p", "svcwithenvoy"])
 
 print("Behavior for all the pods: Delay: 0.1 sec, Failure Probability: 0.0")
 print("Sleeping 15 sec for things to settle")
@@ -31,7 +31,7 @@ config = json.load(open(config_file_path))
 startandfire_file_path = os.path.join(config["project_home"], "utils/startandfire.py")
 
 try:
-    subprocess.check_call(["python3.6", startandfire_file_path, "-d", detectors_file_path, "-t", topology_file_path, "-c", config_file_path, "-m", metrics_file_path])
+    subprocess.check_call(["python", startandfire_file_path, "-d", detectors_file_path, "-t", topology_file_path, "-c", config_file_path, "-m", metrics_file_path])
 except subprocess.CalledProcessError as e:
     if e.returncode == 1:
         print("Please edit and try again")

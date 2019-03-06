@@ -15,10 +15,10 @@
 </p>
 
 ## Demo
-This demo illustrates the predictive monitoring capabilities of CloudTSA.
+In this demo, CloudTSA forecasts latency of services based on recent trends and predicts if latency will violate a preset threshold.
 Service `svc0` experiences a gradual increase in mean latency from ~ 0.1 sec to ~ 8.0 sec as seen in the graph on the left. CloudTSA learns this trend and creates two types of alerts for `svc0` as seen on the graph on the right.
 
-  1. A 'reactive' alert (pink curve) *after* the mean latency value violates a preset threshold.
+  1. A 'reactive' alert (yellow curve) *after* the mean latency value violates a preset threshold.
 
   2. A 'predictive' alert (blue curve) *before* the mean latency value violates a preset threshold. CloudTSA uses the Holt-Winters triple exponential smoothing algorithm to infer the increasing trend in latency and *predicts* that latency is likely to violate a preset threshold.
 

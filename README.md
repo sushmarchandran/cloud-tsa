@@ -12,6 +12,6 @@ Detailed information can be found [here](istio-analytics/README.md).
 
 ### 2. CloudTSA
 
-Service for time-series analytics. Its current capabilities are **trend prediction** and detection of **phase changes**, **peaks**, and **threshold violations**.
+Service for time-series analytics of cloud metrics. CloudTSA is integrated with Prometheus and Grafana and supports a variety of time series algorithms namely predictive alerts, change detection, threshold violations and peak detection.
 
 Detailed information can be found [here](cloudtsa/README.md).

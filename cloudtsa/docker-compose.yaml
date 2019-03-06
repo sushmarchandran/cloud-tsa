@@ -6,4 +6,4 @@ services:
     image: iter8/cloudtsa
     container_name: cloudtsa
     expose:
-      - "9080"
+      - "9060"

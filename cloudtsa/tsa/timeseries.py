@@ -7,6 +7,7 @@ class TimeSeries():
     #config should only point to parameters for this particular object
     def __init__(self):
         """ Initializes config and cumulative series data structures """
+        ##We may want to retain only the latest window instead of all the timeseries values
         self.timeseries = {
             "timestamp": [],
             "value": []

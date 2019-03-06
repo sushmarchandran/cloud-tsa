@@ -52,11 +52,111 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": null,
+  "iteration": 1551311855217,
   "links": [],
   "panels": [
     {
       "aliasColors": {
-        "svc0": "#f9934e"
+        "changedetection": "#508642",
+        "peakdetection": "#e5a8e2",
+        "predictivethresholds": "#5195ce"
+      },
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "Prometheus",
+      "fill": 2,
+      "gridPos": {
+        "h": 19,
+        "w": 22,
+        "x": 1,
+        "y": 0
+      },
+      "hideTimeOverride": false,
+      "id": 21,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 3,
+      "links": [],
+      "nullPointMode": "null",
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "cloudtsa_alarm_count_total{detector_type=~'$detector_type', metric_name=~'$metric_name',entity=\"('$entity',)\"}",
+          "format": "time_series",
+          "intervalFactor": 1,
+          "legendFormat": "{{detector_type}}",
+          "refId": "A"
+        },
+        {
+          "expr": "",
+          "format": "time_series",
+          "intervalFactor": 1,
+          "refId": "B"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": "4m",
+      "timeShift": null,
+      "title": "CloudTSA Alerts",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "decimals": 0,
+          "format": "short",
+          "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "none",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {
+        "svc0": "#f29191",
+        "svc1": "#f29191",
+        "svc2": "#f29191",
+        "svc3": "#f29191"
       },
       "bars": false,
       "dashLength": 10,
@@ -65,10 +165,10 @@
       "description": "Average latency for node0",
       "fill": 2,
       "gridPos": {
-        "h": 17,
+        "h": 16,
         "w": 12,
         "x": 0,
-        "y": 0
+        "y": 19
       },
       "id": 2,
       "legend": {
@@ -94,7 +194,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "(sum(increase(istio_request_duration_seconds_sum{destination_service_name='svc0'}[30s])) by (destination_service_name)) / (sum(increase(istio_request_duration_seconds_count{destination_service_name='svc0'}[30s])) by (destination_service_name))",
+          "expr": "(sum(increase(istio_request_duration_seconds_sum{destination_service_name=~'$entity'}[30s])) by (destination_service_name)) / (sum(increase(istio_request_duration_seconds_count{destination_service_name=~'$entity'}[30s])) by (destination_service_name))",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "{{destination_service_name}}",
@@ -102,184 +202,9 @@
         }
       ],
       "thresholds": [],
-      "timeFrom": "10m",
-      "timeShift": null,
-      "title": "Latency for Svc0",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "aliasColors": {
-        "predictivethresholds": "#6ed0e0",
-        "thresholdpolicy": "#f29191"
-      },
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "Prometheus",
-      "fill": 2,
-      "gridPos": {
-        "h": 17,
-        "w": 12,
-        "x": 12,
-        "y": 0
-      },
-      "id": 4,
-      "legend": {
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "show": true,
-        "total": false,
-        "values": false
-      },
-      "lines": true,
-      "linewidth": 3,
-      "links": [],
-      "nullPointMode": "null",
-      "percentage": false,
-      "pointradius": 5,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
-      "targets": [
-        {
-          "expr": "cloudtsa_alarm_count_total{destination=\"svc0\", metric_name=\"latency\",source=\"ingress-gateway\"}",
-          "format": "time_series",
-          "intervalFactor": 1,
-          "legendFormat": "{{detector_type}}",
-          "refId": "A"
-        }
-      ],
-      "thresholds": [],
       "timeFrom": "4m",
       "timeShift": null,
-      "title": "CloudTSA (latency) Alerts for Svc0",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "decimals": 0,
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": false
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": 0
-      }
-    },
-    {
-      "aliasColors": {
-        "svc1": "#f9934e"
-      },
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "Prometheus",
-      "fill": 2,
-      "gridPos": {
-        "h": 17,
-        "w": 12,
-        "x": 0,
-        "y": 17
-      },
-      "id": 6,
-      "legend": {
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "show": true,
-        "total": false,
-        "values": false
-      },
-      "lines": true,
-      "linewidth": 3,
-      "links": [],
-      "nullPointMode": "null",
-      "percentage": false,
-      "pointradius": 5,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
-      "targets": [
-        {
-          "expr": "(sum(increase(istio_request_duration_seconds_sum{destination_service_name='svc1'}[30s])) by (destination_service_name)) / (sum(increase(istio_request_duration_seconds_count{destination_service_name='svc1'}[30s])) by (destination_service_name))",
-          "format": "time_series",
-          "interval": "",
-          "intervalFactor": 1,
-          "legendFormat": "{{destination_service_name}}",
-          "refId": "A"
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": "10m",
-      "timeShift": null,
-      "title": "Latency for Svc1",
+      "title": "Average Latency",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -296,7 +221,7 @@
       "yaxes": [
         {
           "format": "short",
-          "label": null,
+          "label": "",
           "logBase": 1,
           "max": null,
           "min": null,
@@ -318,448 +243,10 @@
     },
     {
       "aliasColors": {
-        "changedetection": "#7eb26d",
-        "thresholdpolicy": "#f29191"
-      },
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "Prometheus",
-      "fill": 2,
-      "gridPos": {
-        "h": 17,
-        "w": 12,
-        "x": 12,
-        "y": 17
-      },
-      "id": 7,
-      "legend": {
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "show": true,
-        "total": false,
-        "values": false
-      },
-      "lines": true,
-      "linewidth": 3,
-      "links": [],
-      "nullPointMode": "null",
-      "percentage": false,
-      "pointradius": 5,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
-      "targets": [
-        {
-          "expr": "cloudtsa_alarm_count_total{destination=\"svc1\",detector_type=\"changedetection\",metric_name=\"latency\",source=\"ingress-gateway\"} ",
-          "format": "time_series",
-          "intervalFactor": 1,
-          "legendFormat": "{{detector_type}}",
-          "refId": "A"
-        },
-        {
-          "expr": "cloudtsa_alarm_count_total{destination=\"svc1\", detector_type=\"thresholdpolicy\", metric_name=\"latency\", source=\"ingress-gateway\"}",
-          "format": "time_series",
-          "intervalFactor": 1,
-          "legendFormat": "{{detector_type}}",
-          "refId": "B"
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": "4m",
-      "timeShift": null,
-      "title": "CloudTSA (latency) Alerts for Svc1",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "decimals": 0,
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "aliasColors": {
-        "svc2": "#f9934e"
-      },
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "Prometheus",
-      "fill": 2,
-      "gridPos": {
-        "h": 17,
-        "w": 12,
-        "x": 0,
-        "y": 34
-      },
-      "id": 10,
-      "legend": {
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "show": true,
-        "total": false,
-        "values": false
-      },
-      "lines": true,
-      "linewidth": 3,
-      "links": [],
-      "nullPointMode": "null",
-      "percentage": false,
-      "pointradius": 5,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
-      "targets": [
-        {
-          "expr": "sum(increase(istio_requests_total{response_code=~'5..', source_app='istio-ingressgateway', reporter='source', destination_service_name='svc2', source_app='istio-ingressgateway'}[20s])) by (destination_service_name)",
-          "format": "time_series",
-          "intervalFactor": 1,
-          "legendFormat": "{{destination_service_name}}",
-          "refId": "A"
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": "10m",
-      "timeShift": null,
-      "title": "Error Count for Svc2",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "aliasColors": {
-        "thresholdpolicy": "#f29191"
-      },
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "Prometheus",
-      "fill": 2,
-      "gridPos": {
-        "h": 17,
-        "w": 12,
-        "x": 12,
-        "y": 34
-      },
-      "id": 11,
-      "legend": {
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "show": true,
-        "total": false,
-        "values": false
-      },
-      "lines": true,
-      "linewidth": 3,
-      "links": [],
-      "nullPointMode": "null",
-      "percentage": false,
-      "pointradius": 5,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
-      "targets": [
-        {
-          "expr": "cloudtsa_alarm_count_total{destination=\"svc2\", metric_name=\"error_counts\", source=\"ingress-gateway\"}",
-          "format": "time_series",
-          "intervalFactor": 1,
-          "legendFormat": "{{detector_type}}",
-          "refId": "A"
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": "4m",
-      "timeShift": null,
-      "title": "CloudTSA (Errorcount) Alerts for Svc2",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "decimals": 0,
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "aliasColors": {
-        "svc2": "#f9934e"
-      },
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "Prometheus",
-      "fill": 2,
-      "gridPos": {
-        "h": 17,
-        "w": 12,
-        "x": 0,
-        "y": 51
-      },
-      "id": 12,
-      "legend": {
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "show": true,
-        "total": false,
-        "values": false
-      },
-      "lines": true,
-      "linewidth": 3,
-      "links": [],
-      "nullPointMode": "null",
-      "percentage": false,
-      "pointradius": 5,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
-      "targets": [
-        {
-          "expr": "(sum(increase(istio_requests_total{response_code=~'5..', source_app='istio-ingressgateway', reporter='source', destination_service_name='svc2', source_app='istio-ingressgateway'}[30s])) by (destination_service_name)) / (sum(increase(istio_requests_total{source_app='istio-ingressgateway', reporter='source', destination_service_name='svc2', source_app='istio-ingressgateway'}[30s])) by (destination_service_name))",
-          "format": "time_series",
-          "intervalFactor": 1,
-          "legendFormat": "{{destination_service_name}}",
-          "refId": "A"
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": "10m",
-      "timeShift": null,
-      "title": "Error Rate for Svc2",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "aliasColors": {
-        "thresholdpolicy": "#f29191"
-      },
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "Prometheus",
-      "fill": 2,
-      "gridPos": {
-        "h": 17,
-        "w": 12,
-        "x": 12,
-        "y": 51
-      },
-      "id": 13,
-      "legend": {
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "show": true,
-        "total": false,
-        "values": false
-      },
-      "lines": true,
-      "linewidth": 3,
-      "links": [],
-      "nullPointMode": "null",
-      "percentage": false,
-      "pointradius": 5,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
-      "targets": [
-        {
-          "expr": "cloudtsa_alarm_count_total{destination=\"svc2\", metric_name=\"error_rates\", source=\"ingress-gateway\"}",
-          "format": "time_series",
-          "intervalFactor": 1,
-          "legendFormat": "{{detector_type}}",
-          "refId": "A"
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": "4m",
-      "timeShift": null,
-      "title": "CloudTSA (Error Rate) Alerts for Svc2",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "decimals": 0,
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "aliasColors": {
-        "svc3": "#f9934e"
+        "svc0": "#f29191",
+        "svc1": "#f29191",
+        "svc2": "#f29191",
+        "svc3": "#f29191"
       },
       "bars": false,
       "dashLength": 10,
@@ -768,10 +255,10 @@
       "description": "Graph displaying peaks in the load",
       "fill": 2,
       "gridPos": {
-        "h": 17,
+        "h": 16,
         "w": 12,
-        "x": 0,
-        "y": 68
+        "x": 12,
+        "y": 19
       },
       "id": 14,
       "legend": {
@@ -797,7 +284,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(increase(istio_requests_total{source_app='istio-ingressgateway', reporter='source', destination_service_name='svc3'}[30s])) by (destination_service_name)",
+          "expr": "sum(increase(istio_requests_total{source_app='istio-ingressgateway', reporter='source', destination_service_name=~'$entity'}[30s])) by (destination_service_name)",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "{{destination_service_name}}",
@@ -805,9 +292,9 @@
         }
       ],
       "thresholds": [],
-      "timeFrom": "10m",
+      "timeFrom": "4m",
       "timeShift": null,
-      "title": "Total Load on Svc3",
+      "title": "Total Load",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -846,7 +333,10 @@
     },
     {
       "aliasColors": {
-        "peakdetection": "#d683ce"
+        "svc0": "#f29191",
+        "svc1": "#f29191",
+        "svc2": "#f29191",
+        "svc3": "#f29191"
       },
       "bars": false,
       "dashLength": 10,
@@ -854,12 +344,12 @@
       "datasource": "Prometheus",
       "fill": 2,
       "gridPos": {
-        "h": 17,
+        "h": 16,
         "w": 12,
-        "x": 12,
-        "y": 68
+        "x": 0,
+        "y": 35
       },
-      "id": 15,
+      "id": 10,
       "legend": {
         "avg": false,
         "current": false,
@@ -883,17 +373,17 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "cloudtsa_alarm_count_total{destination=\"svc3\",detector_type=\"peakdetection\"}",
+          "expr": "sum(increase(istio_requests_total{response_code=~'5..', source_app='istio-ingressgateway', reporter='source', destination_service_name=~'$entity', source_app='istio-ingressgateway'}[20s])) by (destination_service_name)",
           "format": "time_series",
           "intervalFactor": 1,
-          "legendFormat": "{{detector_type}}",
+          "legendFormat": "{{destination_service_name}}",
           "refId": "A"
         }
       ],
       "thresholds": [],
       "timeFrom": "4m",
       "timeShift": null,
-      "title": "CloudTSA (Load) Alerts for Svc3",
+      "title": "Error Count",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -909,7 +399,95 @@
       },
       "yaxes": [
         {
-          "decimals": 0,
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {
+        "svc0": "#f29191",
+        "svc1": "#f29191",
+        "svc2": "#f29191",
+        "svc3": "#f29191"
+      },
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "Prometheus",
+      "fill": 2,
+      "gridPos": {
+        "h": 16,
+        "w": 12,
+        "x": 12,
+        "y": 35
+      },
+      "id": 12,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 3,
+      "links": [],
+      "nullPointMode": "null",
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "(sum(increase(istio_requests_total{response_code=~'5..', source_app='istio-ingressgateway', reporter='source', destination_service_name=~'$entity', source_app='istio-ingressgateway'}[30s])) by (destination_service_name)) / (sum(increase(istio_requests_total{source_app='istio-ingressgateway', reporter='source', destination_service_name=~'$entity', source_app='istio-ingressgateway'}[30s])) by (destination_service_name))",
+          "format": "time_series",
+          "intervalFactor": 1,
+          "legendFormat": "{{destination_service_name}}",
+          "refId": "A"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": "4m",
+      "timeShift": null,
+      "title": "Error Rate",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -937,7 +515,7 @@
         "h": 1,
         "w": 20,
         "x": 0,
-        "y": 85
+        "y": 51
       },
       "id": 19,
       "links": [],
@@ -952,7 +530,121 @@
   "style": "dark",
   "tags": [],
   "templating": {
-    "list": []
+    "list": [
+      {
+        "allValue": null,
+        "current": {
+          "tags": [],
+          "text": "svc3",
+          "value": "svc3"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "label": "",
+        "multi": false,
+        "name": "entity",
+        "options": [
+          {
+            "selected": false,
+            "text": "svc0",
+            "value": "svc0"
+          },
+          {
+            "selected": false,
+            "text": "svc1",
+            "value": "svc1"
+          },
+          {
+            "selected": false,
+            "text": "svc2",
+            "value": "svc2"
+          },
+          {
+            "selected": true,
+            "text": "svc3",
+            "value": "svc3"
+          }
+        ],
+        "query": "svc0, svc1, svc2, svc3",
+        "type": "custom"
+      },
+      {
+        "allValue": null,
+        "current": {
+          "tags": [],
+          "text": "peakdetection",
+          "value": [
+            "peakdetection"
+          ]
+        },
+        "hide": 0,
+        "includeAll": false,
+        "label": null,
+        "multi": true,
+        "name": "detector_type",
+        "options": [
+          {
+            "selected": false,
+            "text": "changedetection",
+            "value": "changedetection"
+          },
+          {
+            "selected": false,
+            "text": "predictivethresholds",
+            "value": "predictivethresholds"
+          },
+          {
+            "selected": true,
+            "text": "peakdetection",
+            "value": "peakdetection"
+          },
+          {
+            "selected": false,
+            "text": "thresholdpolicy",
+            "value": "thresholdpolicy"
+          }
+        ],
+        "query": "changedetection, predictivethresholds, peakdetection, thresholdpolicy",
+        "type": "custom"
+      },
+      {
+        "allValue": null,
+        "current": {
+          "tags": [],
+          "text": "load",
+          "value": "load"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "metric_name",
+        "options": [
+          {
+            "selected": false,
+            "text": "latency",
+            "value": "latency"
+          },
+          {
+            "selected": false,
+            "text": "error_rates",
+            "value": "error_rates"
+          },
+          {
+            "selected": false,
+            "text": "error_counts",
+            "value": "error_counts"
+          },
+          {
+            "selected": true,
+            "text": "load",
+            "value": "load"
+          }
+        ],
+        "query": "latency, error_rates, error_counts, load",
+        "type": "custom"
+      }
+    ]
   },
   "time": {
     "from": "now-6h",
@@ -986,5 +678,5 @@
   "timezone": "",
   "title": "cloudtsa demo",
   "uid": "PBENCzQmk",
-  "version": 5
+  "version": 18
 }
