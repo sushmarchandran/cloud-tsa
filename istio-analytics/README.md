@@ -146,6 +146,7 @@ For your development activities, you might want to consider setting up a Python 
 To run the test cases, the _Istio Analytics_ server does NOT need to be started. All you have to do is to execute the following commands from the `iter8/istio-analytics` directory:
 
 ```bash
+pip3 install -r requirements.txt
 pip3 install -r test-requirements.txt
 scripts/testsLocal.sh <backend_server>
 ```
