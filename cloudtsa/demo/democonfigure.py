@@ -40,7 +40,7 @@ subprocess.call([f"istioctl create -f {apipath}"], executable = "/bin/bash", she
 
 ###Deploying the CloudTSA Service
 print("Deploying CloudTSA Service")
-cloudtsa_service = os.path.join(config["project_home"], "config/cloudtsatest.yaml")
+cloudtsa_service = os.path.join(config["project_home"], "config/cloudtsa.yaml")
 #cloudtsa_service = os.path.join(config["project_home"], "config/cloudtsa.yaml")
 subprocess.call([f"kubectl apply -f {cloudtsa_service}"], executable = "/bin/bash", shell = True)
 
