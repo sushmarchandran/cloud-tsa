@@ -22,4 +22,4 @@ RUN bash -c "source /python3.6-venv/bin/activate && \
 RUN apt-get update && apt-get upgrade -y && apt-get dist-upgrade
 
 #Starting the server using the startServer script
-CMD ["sh", "/istio_analytics/startServerForDocker.sh"]
+CMD ["/bin/bash", "/istio_analytics/startServerForDocker.sh"]
