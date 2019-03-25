@@ -97,3 +97,4 @@ ENV/
 .vscode
 
 .DS_Store
+cloudtsa/cloudtsa.egg-info
