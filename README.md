@@ -14,4 +14,4 @@ Detailed information can be found [here](istio-analytics/README.md).
 
 Service for time-series analytics of cloud metrics. CloudTSA is integrated with Prometheus and Grafana and supports a variety of time series algorithms namely predictive alerts, change detection, threshold violations and peak detection.
 
-Detailed information can be found [here](cloudtsa/README.md).
+Detailed information can be found [here](cloudtsa/cloudtsa/README.md).
