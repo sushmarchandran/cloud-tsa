@@ -37,7 +37,7 @@ Make a copy of `iter8/cloudtsa/config/config.json` which we will henceforth refe
 {
   "prometheus_url": "http://prometheus.istio-system.svc.cluster.local:9090",
   "external_ip": "http://169.47.97.150",
-  "project_home": "/home/istio/iter8/cloudtsa",
+  "project_home": "/home/istio/iter8/cloudtsa/cloudtsa",
   "test_connection_query": "istio_requests_total"
 }
 ```
@@ -47,7 +47,7 @@ Make a copy of `iter8/cloudtsa/config/config.json` which we will henceforth refe
 
 To deploy the Cloud TSA service, run the following commands.
 ```
-cd iter8/cloudtsa/utils
+cd iter8/cloudtsa/cloudtsa/utils
 python deploy.py -c <path/to/your/config.json>
 ```
 **The above command** deploys the CloudTSA service, exposes it via a [nodeport](https://kubernetes.io/docs/concepts/services-networking/service/), updates the Prometheus scrape configuration by adding CloudTSA as an end-point which will be periodically scraped by Prometheus, and restarts prometheus so that these configuration changes take effect.
@@ -56,7 +56,7 @@ python deploy.py -c <path/to/your/config.json>
 ## Metric and detector specifications
 
 ### Metric specifications
-Make a copy of `iter8/cloudtsa/config/metrics.json` which we will henceforth refer to as your
+Make a copy of `iter8/cloudtsa/cloudtsa/config/metrics.json` which we will henceforth refer to as your
 `metrics.json` file. This file specifies the Prometheus query templates for all the metrics analyzed by CloudTSA. In the following example, we have defined three metrics namely, `latency`, `error_counts`, and `load`.
 
 ```json
@@ -82,7 +82,7 @@ In the above examples, notice that the Prometheus query templates have a group b
 In the query template, the time period of aggregation is the variable `$durationsec`. The default value of this variable is specified by the `duration` field and can be overridden within individual metric specifications. The `duration` field (sec) also determines how often CloudTSA queries Prometheus -- different metrics can be collected at different frequencies.
 
 ### Detector specifications
-Make a copy of `iter8/cloudtsa/config/detectors.json` which we will henceforth refer to as your
+Make a copy of `iter8/cloudtsa/cloudtsa/config/detectors.json` which we will henceforth refer to as your
 `detectors.json` file. Below is an example. In this example, we are using all the four detectors available in CloudTSA. Each detector has a set of parameters which require specification. Note that a specific detector can be used with different metrics with distinct parameter values. For e.g., the **changedetection** detector is used with the *latency* and *error_counts* metrics with distinct parameter values.
 
 We now describe the configuration fields for each of these detectors below.
@@ -155,7 +155,7 @@ an alert is triggered.
 ## Starting CloudTSA
 To start the CloudTSA service, run the following commands.
 ```
-cd iter8/cloudtsa/utils
+cd iter8/cloudtsa/cloudtsa/utils
 python startandfire.py -d <path/to/your/detectors.json> -m <path/to/your/metrics.json> -t <path/to/your/topology.json> -c <path/to/your/config.json>
 ```
 **The above command** POSTs all the configuration files to a CloudTSA REST Endpoint. This means that the CloudTSA service now starts observing the user application and reports to Prometheus in accordance with the configuration files.

@@ -32,7 +32,7 @@ are queried by a load generator. The behavior of these services are modified by 
 * Python >= 3.6
 * Install python packages `requests`, `numpy` and `PyYAML` (`pip install requests numpy`; follow instructions on the [PyYAML](https://pyyaml.org/wiki/PyYAML) page.)
 * Edit `iter8/cloudtsa/config/config.json` so that 'project_home' refers to absolute path of your CloudTSA project folder.
-  - For example: `"project_home": "/home/istio/gitopen/iter8/cloudtsa",`
+  - For example: `"project_home": "/home/istio/gitopen/iter8/cloudtsa/cloudtsa",`
 
 <a name="initialization"></a>
 ## Initialize
@@ -51,7 +51,7 @@ kubectl -n istio-system port-forward $(kubectl -n istio-system get pod -l app=gr
 In Terminal 1, navigate to the correct folder
 and run the following command.
 ```
-cd iter8/cloudtsa/demo
+cd iter8/cloudtsa/cloudtsa/demo
 python democonfigure.py -dc democonfig.json
 ```
 
@@ -66,7 +66,7 @@ Further, there are three variables namely *entity*, *detector_type* and *metric_
 In Terminal 2, navigate to the correct folder
 and run the following command.
 ```
-cd iter8/cloudtsa/demo
+cd iter8/cloudtsa/cloudtsa/demo
 python ping.py -dc democonfig.json -t topology.json -p 20
 ```
 
